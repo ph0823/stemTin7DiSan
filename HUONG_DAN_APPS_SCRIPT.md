@@ -46,3 +46,12 @@
 5. Thử F5, nhập/xuất JSON, chuyển nhóm, Google Sites và Chrome 75.
 
 Chú ý: Cần người dùng thực hiện cấp quyền và triển khai Web App. Repository chỉ chứa mã nguồn, chưa phải máy chủ Apps Script đang hoạt động.
+
+## Cập nhật ngày 22/11/2026: kết nối mặc định và sửa postMessage
+
+- index.html đã gắn sẵn Web App: https://script.google.com/macros/s/AKfycbwSPofyS3booetjjI90Vc1eCsCectWbJHAr5mCQAaVhumjkVR62dsr1JuDZEdESozC0/exec
+- Khi mở ứng dụng, hệ thống kiểm tra kết nối âm thầm. Chỉ hiển thị cảnh báo khi máy chủ không phản hồi/kết nối lỗi; sau khi chọn nhóm cục bộ sẽ mở hộp thiết lập trực tuyến nếu chưa đăng nhập nhóm.
+- Lỗi Console “target origin https://ph0823.github.io does not match ...script.googleusercontent.com” đã được xử lý bằng cách tìm đúng ancestor GitHub Pages qua window.location.ancestorOrigins của Chrome.
+- **BẮT BUỘC:** Thay toàn bộ Code.gs hiện tại bằng nội dung mới nhất của AppsScript_STEM7.gs, rồi vào **Triển khai → Quản lý lượt triển khai → Chỉnh sửa → Phiên bản mới → Triển khai**. Chỉ cập nhật GitHub Pages không thay đổi Apps Script đã triển khai ở URL /exec.
+- Sau triển khai, mở https://ph0823.github.io/stemTin7DiSan/ bằng Ctrl+F5. Kiểm tra không còn lỗi target origin, thử Lưu trực tuyến → Kiểm tra kết nối. Khi kết nối thành công sẽ không xuất hiện thông báo thành công; chỉ thấy cảnh báo khi có lỗi.
+- Nếu vẫn báo lỗi hoặc không phản hồi, kiểm tra quyền Web App là Anyone, chạy lại setup() (không xóa Sheet cũ), và kiểm tra URL đúng /exec.
