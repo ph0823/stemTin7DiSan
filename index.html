@@ -173,6 +173,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 body.mode-basic .advanced-only{display:none!important}body.mode-basic .design-step,body.mode-basic .design-step.hidden{display:block!important;padding:3px 0}
 @media(max-width:650px){.learning-mode-bar{display:block}.mode-switch{width:100%}.mode-switch button{flex:1}.step-journey{grid-template-columns:repeat(2,minmax(0,1fr))}.step-journey button{min-height:55px}.step-journey small{font-size:10px}}
 @media print{.learning-mode-bar,.step-instruction,.step-actions{display:none!important}}
+.site-quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-gap:6px;gap:6px;margin-bottom:10px}.site-quick button{font-size:12px;line-height:1.3;padding:10px 6px;min-height:46px;background:#f3f8fc;border:1px solid #d0dfeb}.site-quick button.active{background:#e4f2ff;border-color:#17649a;font-weight:bold}.site-quick button span{color:#17734d;margin-left:2px}.basic-report-line{padding:5px 0;border-bottom:1px solid #edf1f4}@media(max-width:450px){.site-quick button{font-size:11px}}
 </style>
 </head>
 <body>
@@ -244,8 +245,13 @@ body.mode-basic .advanced-only{display:none!important}body.mode-basic .design-st
         <div class="step-instruction"><span class="step-time" id="stepTime">5 phút</span><span id="stepInstruction">Xem ba di tích và ghi thông tin chính.</span></div>
 
         <div id="explore" class="tab">
-          <label for="site">Chọn di tích</label>
-          <select id="site">
+          <div class="site-quick" id="siteQuickNav" aria-label="Chọn một trong ba di tích">
+            <button type="button" data-site-quick="nga">Ngã Ba Giồng <span></span></button>
+            <button type="button" data-site-quick="cu">Địa đạo Củ Chi <span></span></button>
+            <button type="button" data-site-quick="giong">Giồng Cá Vồ <span></span></button>
+          </div>
+          <label for="site" class="advanced-only">Chọn di tích</label>
+          <select id="site" class="advanced-only">
             <option value="nga">Ngã Ba Giồng</option>
             <option value="cu">Địa đạo Củ Chi</option>
             <option value="giong">Giồng Cá Vồ</option>
@@ -339,25 +345,25 @@ body.mode-basic .advanced-only{display:none!important}body.mode-basic .design-st
   <div id="helpDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
     <div class="reset-box help-box">
       <div class="help-header"><h2 id="helpTitle">Hướng dẫn sử dụng – Hành trình di sản số</h2><button id="helpClose" type="button" aria-label="Đóng hướng dẫn">Đóng ×</button></div>
-      <p class="muted">Chế độ Cơ bản 45 phút gồm 4 bước. Nhóm có thể chuyển sang Mở rộng để thêm ảnh và các thông tin chi tiết.</p>
+      <p class="muted">Chọn Cơ bản – 45 phút để hoàn thành sản phẩm trong 4 bước. Chế độ Mở rộng giữ thêm công cụ cho nhóm muốn tìm hiểu sâu.</p>
       <div class="help-section"><h3>Trước khi bắt đầu: chọn lớp và nhóm</h3>
         <p>Nhấn <strong>Chọn nhóm</strong>, nhập lớp (ví dụ 7A1) và tên nhóm (ví dụ Nhóm 1), sau đó nhấn <strong>Mở nhóm</strong>. Nếu nhóm đã làm trên máy này, chọn đúng bản lưu từ danh sách. Không sử dụng bài làm của nhóm khác.</p></div>
       <div class="help-section"><h3>Bước 1 – Khám phá di sản</h3>
         <ol><li>Mở thẻ <strong>1. Khám phá</strong>. Nhấp lần lượt các điểm Ngã Ba Giồng, Địa đạo Củ Chi và Giồng Cá Vồ trên bản đồ hoặc chọn trong danh sách.</li>
-        <li>Đọc <strong>tư liệu tham khảo</strong>, đối chiếu vị trí và nguồn. Nhấn <strong>Chỉnh sửa thông tin</strong>, chọn <strong>kiểu thẻ riêng của từng di tích</strong> (ảnh trên, ảnh bên trái hoặc tóm tắt), viết lời giới thiệu 50–80 từ và ghi nguồn đã kiểm chứng.</li>
-        <li>Chọn ảnh có quyền sử dụng phù hợp; nếu bổ sung ảnh, nhập riêng đường dẫn ảnh, nguồn ảnh HTTPS, tác giả và giấy phép hoặc sự cho phép. Kiểm tra nhiệm vụ còn thiếu trong khung tiến độ.</li></ol></div>
+        <li>Đọc <strong>tư liệu tham khảo</strong>, đối chiếu vị trí và nguồn. Nhấn <strong>Chỉnh sửa thông tin</strong>, chọn <strong>kiểu thẻ riêng của từng di tích</strong> (ảnh trên, ảnh bên trái hoặc tóm tắt), viết lời giới thiệu 25–50 từ ở chế độ Cơ bản (50–80 từ ở chế độ Mở rộng) và ghi nguồn.</li>
+        <li>Nhóm có thể dùng hình minh họa có sẵn. Việc thêm hình và giấy phép riêng nằm ở chế độ Mở rộng. Xem nhiệm vụ còn thiếu bên dưới bản đồ.</li></ol></div>
       <div class="help-section"><h3>Bước 2 – Thiết kế hành trình</h3>
-        <ol><li>Mở <strong>2. Thiết kế</strong> → <strong>1. Chọn tuyến</strong>, chọn hình thức khám phá và thử thứ tự ba di tích.</li>
-        <li>Ở <strong>2. Giải thích</strong>, nêu lý do, chọn một tuyến khác để so sánh và ghi dữ liệu quãng đường/thời gian nếu đã kiểm chứng.</li>
-        <li>Ở <strong>3. Hoàn thiện</strong>, viết thông điệp bảo tồn và mô tả cách nhóm thiết kế thẻ thông tin.</li></ol>
+        <ol><li>Mở <strong>2. Thiết kế</strong>, chọn thứ tự khám phá ba di tích.</li>
+        <li>Nêu lí do chọn hành trình. Chế độ Mở rộng cho phép so sánh thêm các phương án và ghi số liệu có nguồn.</li>
+        <li>Viết thông điệp bảo tồn di sản. Không cần nhập quá nhiều thông tin trong một tiết.</li></ol>
         <p class="muted"><strong>Lưu ý:</strong> Đường nét đứt nối các điểm chỉ thể hiện thứ tự khám phá, không phải tuyến đường giao thông thực tế. Dùng các nút <strong>Xem cả 3</strong>, <strong>Đến điểm chọn</strong>, <strong>Ẩn/hiện đường nối</strong> khi quan sát bản đồ.</p></div>
       <div class="help-section"><h3>Bước 3 và 4 – Kiểm thử, báo cáo</h3>
-        <ol><li>Mở <strong>3. Kiểm thử</strong>, trao đổi sản phẩm để nhóm khác kiểm tra, đánh dấu tiêu chí và ghi lỗi.</li>
+        <ol><li>Mở <strong>3. Kiểm thử</strong>, nhờ nhóm khác nhận xét và ghi một điều cần cải thiện.</li>
         <li>Nhấn <strong>Lưu bài trước khi sửa</strong> trước khi kiểm thử. Chỉnh sửa nội dung, kiểu thẻ, hình ảnh hoặc tuyến theo góp ý, rồi nhấn <strong>Lưu bài sau khi sửa</strong>. Mục so sánh sẽ chỉ rõ trường nào đã thay đổi.</li>
         <li>Mở <strong>4. Báo cáo</strong>, tự đánh giá, kiểm tra nội dung, sau đó dùng <strong>Tải bài về máy</strong> để nộp theo hướng dẫn của giáo viên. Có thể chọn <strong>Tùy chọn → In sản phẩm</strong> để in báo cáo.</li></ol></div>
       <div class="help-section"><h3>Đồng bộ bài trên các máy</h3>
-        <p><strong>Bài của nhóm</strong>: lần đầu nhập địa chỉ Web App Apps Script do giáo viên cung cấp, chọn lớp và nhóm đã mở trên máy rồi nhấn <strong>Tạo bài mới</strong>. Ghi mã truy cập 4 ký tự được cấp, không công khai mã với nhóm khác.</p>
-        <p>Khi chuyển máy: mở <strong>Lưu trực tuyến</strong>, nhập lớp, nhóm và mã 4 ký tự → <strong>Mở bài của nhóm</strong>. Khi làm bài, hệ thống tự gửi bản cập nhật sau một khoảng thời gian hoặc nhấn <strong>Lưu bài</strong>. Nếu có xung đột do giáo viên/máy khác sửa, sử dụng <strong>Tải bài mới nhất</strong> sau khi đã sao lưu bản đang làm.</p>
+        <p><strong>Bài của nhóm</strong>: chọn lớp và nhóm đã mở trên máy rồi nhấn <strong>Tạo bài mới</strong>. Ghi mã truy cập 4 ký tự được cấp, không công khai mã với nhóm khác.</p>
+        <p>Khi chuyển máy: mở <strong>Bài của nhóm</strong>, nhập lớp, nhóm và mã 4 ký tự → <strong>Mở bài của nhóm</strong>. Khi làm bài, hệ thống tự gửi bản cập nhật sau một khoảng thời gian hoặc nhấn <strong>Lưu bài</strong>. Nếu có xung đột do giáo viên/máy khác sửa, sử dụng <strong>Tải bài mới nhất</strong> sau khi đã sao lưu bản đang làm.</p>
         <p>Học sinh có thể xem thời gian bắt đầu, lần chỉnh sửa gần nhất và tổng thời gian hoạt động trực tuyến. Chỉ đếm thời gian hoạt động khi trang mở và đang hiển thị; dữ liệu chỉ lưu trên máy sẽ không được tính vào thời gian trực tuyến.</p>
       </div>
       <div class="help-section"><h3>Chế độ Giáo viên</h3>
@@ -365,9 +371,9 @@ body.mode-basic .advanced-only{display:none!important}body.mode-basic .design-st
         <p>Giáo viên có thể tạo mã truy cập 4 ký tự mới cho nhóm. Thông báo mã mới trực tiếp cho thành viên nhóm vì mã cũ sẽ không dùng được để đăng nhập mới.</p>
       </div>
       <div class="help-section"><h3>Lưu bài, khôi phục và xử lý sự cố</h3>
-        <p>Ứng dụng tự lưu trên <strong>trình duyệt và máy đang dùng</strong>; có thể nhấn <strong>Lưu ngay</strong>. Khi quay lại, chọn đúng lớp và nhóm để mở bài cũ. Trước khi chuyển máy hoặc kết thúc tiết học, hãy <strong>Xuất bài JSON</strong> và giữ tệp cẩn thận; muốn mở lại, chọn <strong>Tùy chọn → Nhập JSON</strong> tại đúng nhóm.</p>
-        <p>Nếu bản đồ trống, hãy kiểm tra Internet và tải lại trang. Nếu ảnh không hiển thị, kiểm tra địa chỉ HTTPS hoặc dùng liên kết nguồn. Ứng dụng tạo bản sao trước khi chuyển nhóm, nhập JSON hoặc khôi phục mẫu. Vào <strong>Tùy chọn → Bản sao lưu</strong> để phục hồi khi cần. Bản sao chỉ lưu trên máy hiện tại; chọn <strong>Tùy chọn → Xuất sao lưu</strong> để lưu cả bài hiện tại và các bản dự phòng, đồng thời xuất JSON trước khi kết thúc tiết học.</p>
-        <p class="muted"><strong>Lưu ý về tiến độ:</strong> Hoàn thành thao tác không đồng nghĩa được điểm tối đa; giáo viên đánh giá theo rubric của bài học. Ứng dụng chưa tự nộp bài lên Google Sheets.</p></div>
+        <p>Ứng dụng tự lưu trên <strong>trình duyệt và máy đang dùng</strong>; có thể nhấn <strong>Lưu bài</strong>. Khi quay lại, chọn đúng lớp và nhóm để mở bài cũ. Trước khi chuyển máy hoặc kết thúc tiết học, hãy <strong>Tải bài về máy</strong> và giữ tệp cẩn thận; muốn mở lại, chọn <strong>Tùy chọn → Mở bài từ tệp</strong> tại đúng nhóm.</p>
+        <p>Nếu bản đồ trống, hãy kiểm tra Internet và tải lại trang. Nếu ảnh không hiển thị, kiểm tra địa chỉ HTTPS hoặc dùng liên kết nguồn. Ứng dụng tạo bản sao trước khi chuyển nhóm, nhập JSON hoặc khôi phục mẫu. Vào <strong>Tùy chọn → Bản sao lưu</strong> để phục hồi khi cần. Bản sao chỉ lưu trên máy hiện tại; chọn <strong>Tùy chọn → Tải bản sao lưu</strong> để lưu cả bài hiện tại và các bản dự phòng, đồng thời xuất JSON trước khi kết thúc tiết học.</p>
+        <p class="muted"><strong>Lưu ý về tiến độ:</strong> Hoàn thành thao tác không đồng nghĩa được điểm tối đa; giáo viên đánh giá theo rubric của bài học. Khi nhóm đã đăng nhập trực tuyến, ứng dụng tự lưu bản cập nhật lên hệ thống; nếu mạng lỗi, bài trên máy vẫn được giữ.</p></div>
       <div class="actions"><button type="button" id="helpDone" class="primary">Đã hiểu – Bắt đầu học</button></div>
     </div>
   </div>
@@ -1136,7 +1142,7 @@ body.mode-basic .advanced-only{display:none!important}body.mode-basic .design-st
       ids.forEach(function(id){
         var site=state.sites[id],words=countWords(site.desc),target=isBasic()?25:50;
         var photoOK=isBasic()||!site.image||(safeURL(site.image)&&safeURL(site.imageSource)&&clean(site.license));
-        task(state.visited[id]&&words>=target&&words<=80&&clean(site.source)&&photoOK,
+        task(state.visited[id]&&words>=target&&words<=(isBasic()?50:80)&&clean(site.source)&&photoOK,
           referenceSites[id].name+': '+(isBasic()?'viết ít nhất 25 từ và ghi nguồn':'viết 50–80 từ, ghi nguồn và kiểm tra ảnh'));
       });
     }else if(step==='design'){
@@ -1169,6 +1175,8 @@ body.mode-basic .advanced-only{display:none!important}body.mode-basic .design-st
     el('stepInstruction').textContent=stageInstructions[activeTab][1];
     el('stepPosition').textContent='Bước '+(idx+1)+'/4';
     el('stepBack').disabled=idx===0;
+    var explored=stageMetrics('explore').items;
+    document.querySelectorAll('[data-site-quick]').forEach(function(b,i){var id=b.getAttribute('data-site-quick');b.classList.toggle('active',id===current);var mark=b.querySelector('span');if(mark)mark.textContent=explored[i]&&explored[i].ok?'✓':''});
     el('stepNext').textContent=idx===3?'Xem lại từ đầu':'Tiếp tục →';
   }
   function setStudyMode(mode,initial){
@@ -1184,6 +1192,7 @@ body.mode-basic .advanced-only{display:none!important}body.mode-basic .design-st
     if(isBasic()&&activeTab==='explore'&&hasProfile())toggleEditor(true);
     if(!initial){try{localStorage.setItem(UI_MODE_KEY,uiMode)}catch(e){}}
     updateWordCount(state.sites[current].desc);
+    if(activeTab==='report')updateSummary();
     updateLesson();
   }
   function updateLesson(){
@@ -1342,15 +1351,26 @@ body.mode-basic .advanced-only{display:none!important}body.mode-basic .design-st
   }
   function updateSummary(){
     if(activeTab!=='report')return;
-    var box = el('summary');
-    if (!box) return;
-    box.innerHTML = '';
+    var box=el('summary');if(!box)return;box.innerHTML='';
     renderPrintSheet();
-    var pre = document.createElement('div');
-    pre.style.whiteSpace = 'pre-wrap';
-    pre.style.fontSize = '13px';
-    text(pre, reportText());
-    box.appendChild(pre);
+    if(isBasic()){
+      function line(parent,tag,body){var x=document.createElement(tag);x.textContent=body;parent.appendChild(x);return x}
+      line(box,'h4','Sản phẩm của '+(state.group||'nhóm')+' – '+(state.klass||'lớp'));
+      ids.forEach(function(id){var site=state.sites[id],p=line(box,'p',referenceSites[id].name+': '+(clean(site.desc)||'Chưa viết'));
+        p.className='basic-report-line'});
+      line(box,'p','Thứ tự khám phá: '+getOrderList().map(function(id){return referenceSites[id].name}).join(' → '));
+      line(box,'p','Lí do chọn: '+(clean(state.reason)||'Chưa ghi'));
+      line(box,'p','Thông điệp bảo tồn: '+(clean(state.message)||'Chưa ghi'));
+      var before=state.snapshots.before,after=state.snapshots.after;
+      var changes=before&&after?snapshotDiff(before,after):[];
+      line(box,'p','Cải tiến: '+(changes.length?changes.join(', '):'Chưa có minh chứng thay đổi'));
+      line(box,'p','Tự đánh giá: '+(clean(state.selfAssessment)||'Chưa thực hiện'));
+      var note=line(box,'p','Đây là bản tóm tắt. Giáo viên đánh giá chất lượng theo rubric.');
+      note.className='muted';
+    }else{
+      var pre=document.createElement('div');pre.style.whiteSpace='pre-wrap';pre.style.fontSize='13px';
+      text(pre,reportText());box.appendChild(pre);
+    }
   }
 
   function tab(t){
@@ -1478,6 +1498,13 @@ body.mode-basic .advanced-only{display:none!important}body.mode-basic .design-st
   el('advancedModeBtn').addEventListener('click',function(){setStudyMode('advanced',false)});
   el('stepBack').addEventListener('click',function(){var i=stageNames.indexOf(activeTab);if(i>0)tab(stageNames[i-1])});
   el('stepNext').addEventListener('click',function(){var i=stageNames.indexOf(activeTab);tab(stageNames[(i+1)%stageNames.length])});
+  document.querySelectorAll('[data-site-quick]').forEach(function(b){
+    b.addEventListener('click',function(){
+      if(!hasProfile()){openGroups();return}
+      current=b.getAttribute('data-site-quick');
+      showSite(true);selectMarker(current,true);scheduleSave();
+    });
+  });
 
   /* Đã sửa nút Di tích tiếp theo để tự động di chuyển bản đồ và mở popup */
   el('next').addEventListener('click', function(){
