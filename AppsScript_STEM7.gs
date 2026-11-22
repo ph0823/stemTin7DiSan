@@ -10,7 +10,7 @@
 var APP_VERSION = 1;
 var SHEET_NAME = 'Nhom_STEM7';
 var AUDIT_NAME = 'Lich_su_chinh_sua';
-var COLS = ['id','klass','group','accessHash','payload','createdAt','firstAt','lastAt','updatedAt','seconds','revision','teacherEditedAt','teacherNote','lastEditor','codeVersion'];
+var COLS = ['id','klass','group','accessHash','payload','createdAt','firstAt','lastAt','updatedAt','seconds','revision','teacherEditedAt','teacherNote','lastEditor','codeVersion','studentEditedAt'];
 var PIN_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 var MAX_JSON_LENGTH = 35000;
 function setup(){
@@ -98,7 +98,7 @@ function writeAudit_(ss,klass,group,actor,action,rev,oldText,newText,note){
   var sh=ss.getSheetByName(AUDIT_NAME);sh.appendRow([new Date(),safeCell_(klass),safeCell_(group),actor,action,rev,oldText,newText,safeCell_(note||'')]);
 }
 function publicRecord_(v,includePayload){
-  var out={id:v[0],klass:v[1],group:v[2],createdAt:v[5],firstAt:v[6],lastAt:v[7],updatedAt:v[8],seconds:Number(v[9]||0),revision:Number(v[10]||0),teacherEditedAt:v[11],teacherNote:v[12],lastEditor:v[13]};
+  var out={id:v[0],klass:v[1],group:v[2],createdAt:v[5],firstAt:v[6],lastAt:v[7],updatedAt:v[8],seconds:Number(v[9]||0),revision:Number(v[10]||0),teacherEditedAt:v[11],teacherNote:v[12],lastEditor:v[13],studentEditedAt:v[15]||v[8]};
   if(includePayload)out.data=JSON.parse(String(v[4]||'{}'));
   return out;
 }
@@ -139,7 +139,7 @@ function handle_(q){
       assertName_(klass,group);
       if(entry)throw Error('Lớp/nhóm đã tồn tại. Nhập mã nhóm để mở bài.');
       var pin=pin_(),now=new Date(),data=filteredPayload_(q.data);
-      var id=Utilities.getUuid(),v=[id,klass,group,digest_(pin),data,now,now,now,now,0,1,'','','Học sinh',1];
+      var id=Utilities.getUuid(),v=[id,klass,group,digest_(pin),data,now,now,now,now,0,1,'','','Học sinh',1,now];
       sh.appendRow(v);return {code:pin,token:authToken_('student',id,{codeVersion:1}),record:publicRecord_(v,true)};
     }
     if(!entry)throw Error('Chưa có nhóm trên máy chủ');
@@ -163,7 +163,7 @@ function handle_(q){
       if(action==='studentSave'){
         var revision=Number(q.revision||0);if(revision!==Number(v[10]||0))return {conflict:true,record:publicRecord_(v,true)};
         var oldText=String(v[4]||''),newText=filteredPayload_(q.data);
-        v[4]=newText;v[8]=now;v[10]=revision+1;v[13]='Học sinh';
+        v[4]=newText;v[8]=now;v[10]=revision+1;v[13]='Học sinh';v[15]=now;
         writeAudit_(ss,klass,group,'Học sinh','Lưu bài',v[10],oldText,newText,'');
       }
       sh.getRange(row,1,1,COLS.length).setValues([v]);
