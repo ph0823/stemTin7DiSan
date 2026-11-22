@@ -163,6 +163,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   #printSheet{max-width:100%;width:100%}
 }
 .cloud-box,.teacher-box{max-width:860px;max-height:90vh;overflow-y:auto}.teacher-box{max-width:1060px}.teacher-grid{display:grid;grid-template-columns:270px minmax(0,1fr);grid-gap:14px;gap:14px}.teacher-box textarea{min-height:75px}.teacher-box select[size]{height:340px}.teacher-password-change{border-top:1px solid #d8e3ed;margin-top:12px;padding-top:12px}#cloudStatus,#teacherStatus{white-space:pre-wrap}#cloudTimes{font-size:12px}.cloud-box .actions,.teacher-box .actions{margin:10px 0}@media(max-width:700px){.teacher-grid{grid-template-columns:1fr}.cloud-box,.teacher-box{max-height:92vh}}@media print{#cloudDialog,#teacherDialog{display:none!important}}
+.cloud-error{background:#fff6ed;border:1px solid #da9752;color:#843d17;border-radius:9px;padding:9px 12px;margin:0 0 10px;font-size:13px}
 </style>
 </head>
 <body>
@@ -198,6 +199,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     </div>
   </div>
 
+  <div id="cloudErrorBanner" class="cloud-error hidden" role="alert"></div>
   <div class="layout" id="workArea">
     <section>
       <div class="map real-map" id="map" aria-label="Bản đồ địa lý tương tác ba di tích">
@@ -535,7 +537,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   function hasProfile(){return activeKey!==KEY&&!!clean(state.klass)&&!!clean(state.group)}
   function updateProfileUI(){
     var ok=hasProfile();el('profilePrompt').classList.toggle('hidden',ok);el('workArea').classList.toggle('work-locked',!ok);
-    el('autosaveHint').textContent=ok?(dirty?'Đang lưu…':'Bản lưu của '+state.group+' · '+state.klass):'Chưa chọn nhóm – chưa lưu bài';
+    el('autosaveHint').textContent=ok?(dirty?'Đang lưu…':(cloudSession?'':'Bản trên máy: '+state.group+' · '+state.klass)):'Chưa chọn nhóm';
     el('save').disabled=!ok;el('export').disabled=!ok;
   }
   function setDesignStep(n){designStep=n;document.querySelectorAll('[data-step-panel]').forEach(function(x){x.classList.toggle('hidden',x.getAttribute('data-step-panel')!==String(n))});document.querySelectorAll('[data-step]').forEach(function(x){x.classList.toggle('active',x.getAttribute('data-step')===String(n))});}
@@ -847,10 +849,14 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   function validScriptUrl(url){return /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(String(url||'').trim())}
   function cloudId(){cloudCounter++;return 'stem7_'+Date.now().toString(36)+'_'+cloudCounter+'_'+Math.random().toString(36).slice(2)}
   function cloudStatus(msg){el('cloudStatus').textContent=msg||''}
+  function connectionError(message){
+    var b=el('cloudErrorBanner');b.textContent=message?'Không kết nối được lưu trực tuyến: '+message:'';b.classList.toggle('hidden',!message);
+    if(message)cloudStatus(message);
+  }
   function teacherStatus(msg){el('teacherStatus').textContent=msg}
   function closeBridgeDialog(which){el(which).classList.add('hidden')}
   function cloudCall(data,callback){
-    if(!validScriptUrl(scriptUrl)){callback('Chưa có địa chỉ Web App hợp lệ.');return}
+    if(!validScriptUrl(scriptUrl)){connectionError('Chưa có địa chỉ Web App hợp lệ.');callback('Chưa có địa chỉ Web App hợp lệ.');return}
     var id=cloudId(),frame=document.createElement('iframe'),form=document.createElement('form'),payload=document.createElement('input');
     frame.style.display='none';frame.name='stem7_frame_'+id;frame.setAttribute('title','Kết nối Apps Script');
     document.body.appendChild(frame);
@@ -862,6 +868,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       clearTimeout(cloudRequests[id].timer);delete cloudRequests[id];
       if(form.parentNode)form.parentNode.removeChild(form);
       setTimeout(function(){if(frame.parentNode)frame.parentNode.removeChild(frame)},700);
+      if(error)connectionError(error);else connectionError('');
       callback(error,result);
     }
     cloudRequests[id]={finish:finish,frame:frame,timer:setTimeout(function(){finish('Máy chủ không phản hồi sau 25 giây. Kiểm tra Web App và quyền truy cập.')},25000)};
@@ -932,7 +939,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     if(!cloudSession||!hasProfile())return;
     if(cloudConflict){if(manual)cloudStatus('Bài trên máy chủ đã được chỉnh ở nơi khác. Hãy lấy bài mới để tránh ghi đè.');return}
     if(remoteBusy){remotePending=true;return}
-    if(!save(true)){cloudStatus('Không lưu được bản trên máy, chưa gửi lên máy chủ.');return}
+    if(!save(true)){connectionError('Không lưu được bản trên máy, chưa gửi lên máy chủ.');return}
     remoteBusy=true;
     var sent=JSON.stringify(state),revision=cloudSession.revision,active=activeSeconds();
     if(manual)cloudStatus('');
@@ -1028,7 +1035,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     try {
       localStorage.setItem(activeKey, JSON.stringify(state));
       dirty = false;
-      if (el('autosaveHint')) el('autosaveHint').textContent = 'Đã lưu · '+(state.klass||'')+' / '+(state.group||'');
+      if (el('autosaveHint')) el('autosaveHint').textContent = cloudSession?'':'Bản trên máy: '+(state.klass||'')+' / '+(state.group||'');
       if (!silent) setStatus('Đã lưu trên trình duyệt này.');
       return true;
     } catch (e) {
@@ -1518,7 +1525,10 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   if(cloudSession&&(!hasProfile()||clean(cloudSession.klass).toLowerCase()!==clean(state.klass).toLowerCase()||clean(cloudSession.group).toLowerCase()!==clean(state.group).toLowerCase())){cloudSession=null;persistCloudSession()}
   updateCloudUI();
   refresh();
-  if(scriptUrl&&hasProfile()&&!cloudSession){setTimeout(cloudOpen,350)}
+  if(scriptUrl){
+    setTimeout(function(){cloudCall({action:'ping'},function(err){if(err)connectionError(err)})},350);
+    if(hasProfile()&&!cloudSession)setTimeout(cloudOpen,500);
+  }
   setDesignStep(1);
   updateProfileUI();
   toggleEditor(false);
