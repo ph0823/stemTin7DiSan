@@ -194,10 +194,10 @@ function doPost(e){
     q=JSON.parse(e.parameter.payload);id=clean_(q.requestId,100);
     var result=handle_(q);var out={stem7Bridge:1,requestId:id,ok:true,result:result};
   }catch(err){var out={stem7Bridge:1,requestId:id,ok:false,error:String(err.message||err)}}
-  // Response inside an Apps Script HTML iframe. Send only to ancestor frames;
-  // browser client verifies requestId, response shape and Google origin.
+  // Response only to the GitHub Pages app origin, never to arbitrary embedding sites.
+  // The browser client also verifies the requestId and Google origin.
   var json=JSON.stringify(out).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/&/g,'\\u0026');
-  var html='<!doctype html><meta charset="utf-8"><script>(function(){var m='+json+';var w=window;for(var i=0;i<7;i++){if(w.parent===w)break;w=w.parent;try{w.postMessage(m,"*")}catch(e){}}})();</script>';
+  var html='<!doctype html><meta charset="utf-8"><script>(function(){var m='+json+';var w=window;for(var i=0;i<7;i++){if(w.parent===w)break;w=w.parent;try{w.postMessage(m,"https://ph0823.github.io")}catch(e){}}})();</script>';
   return HtmlService.createHtmlOutput(html).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 function doGet(){return HtmlService.createHtmlOutput('<p>STEM Tin 7 API đang hoạt động. Dữ liệu yêu cầu gửi bằng POST.</p>')}
