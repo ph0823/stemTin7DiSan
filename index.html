@@ -347,11 +347,27 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   var activeKey=KEY;
   function groupKey(klass,group){return PROFILE_PREFIX+encodeURIComponent(String(klass).toLowerCase())+'_'+encodeURIComponent(String(group).toLowerCase())}
   var BACKUP_PREFIX=KEY+'_backup_';
+  var backupSerial=0;
+  function validateData(x){
+    if(!x||typeof x!=='object'||Array.isArray(x)||!x.sites||typeof x.sites!=='object'||Array.isArray(x.sites))throw Error('Thiếu dữ liệu di tích');
+    var allowed=['stack','side','compact'];
+    ids.forEach(function(id){
+      var site=x.sites[id];if(!site||typeof site!=='object'||Array.isArray(site))throw Error('Thiếu di tích '+id);
+      ['desc','image','source','license','imageSource'].forEach(function(field){if(site[field]!==undefined&&typeof site[field]!=='string')throw Error('Sai kiểu '+field)});
+      if(site.cardStyle!==undefined&&allowed.indexOf(site.cardStyle)<0)throw Error('Kiểu thẻ không hợp lệ');
+    });
+    ['group','klass','mode','order','reason','estimate','compareOrder','compareText','message','sketch','tester','issues','fix','recheck'].forEach(function(k){if(x[k]!==undefined&&typeof x[k]!=='string')throw Error('Sai kiểu '+k)});
+    if(x.snapshots!==undefined&&(typeof x.snapshots!=='object'||!x.snapshots||Array.isArray(x.snapshots)))throw Error('Minh chứng không hợp lệ');
+    if(x.visited!==undefined&&(typeof x.visited!=='object'||!x.visited||Array.isArray(x.visited)))throw Error('Tiến độ không hợp lệ');
+    if(x.checks!==undefined&&(typeof x.checks!=='object'||!x.checks||Array.isArray(x.checks)))throw Error('Bảng kiểm không hợp lệ');
+    return true;
+  }
   function safeBackup(reason){
     if(!hasProfile())return true;
     try{
       var prefix=BACKUP_PREFIX+encodeURIComponent(state.klass)+'_'+encodeURIComponent(state.group)+'_';
-      localStorage.setItem(prefix+Date.now(),JSON.stringify({reason:reason,time:new Date().toISOString(),data:state}));
+      var key=prefix+Date.now()+'_'+(++backupSerial);
+      localStorage.setItem(key,JSON.stringify({version:1,reason:reason,time:new Date().toISOString(),data:JSON.parse(JSON.stringify(state))}));
       var arr=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf(prefix)===0)arr.push(k)}
       arr.sort();while(arr.length>5)localStorage.removeItem(arr.shift());
       return true;
@@ -365,16 +381,23 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   function changeGroup(){
     var klass=String(el('newClass').value||'').trim(),group=String(el('newGroup').value||'').trim();
     if(!klass||!group){setStatus('Nhập lớp và tên nhóm trước khi mở.');return}
-    if(hasProfile()){if(!safeBackup('Trước chuyển nhóm'))return;save(true)}
+    if(klass.length>30||group.length>50){setStatus('Tên lớp hoặc nhóm quá dài.');return}
+    if(hasProfile()){clearTimeout(saveTimer);if(!safeBackup('Trước chuyển nhóm')||!save(true))return}
     var nextKey=groupKey(klass,group),next=null;
-    try{var json=localStorage.getItem(nextKey);if(json)next=JSON.parse(json)}catch(e){setStatus('Bản lưu nhóm bị lỗi; vui lòng xuất JSON để sao lưu.');return}
-    if(!next&&activeKey===KEY&&String(state.klass||'').toLowerCase()===klass.toLowerCase()&&String(state.group||'').toLowerCase()===group.toLowerCase())next=JSON.parse(JSON.stringify(state));
-    if(!next)next=JSON.parse(JSON.stringify(base));
-    next.klass=klass;next.group=group;
-    activeKey=nextKey;apply(next);
-    try{localStorage.setItem(ACTIVE_KEY,activeKey)}catch(e){}
-    refresh();save(true);updateProfileUI();el('groupDialog').classList.add('hidden');
-    setStatus(json?'Đã mở dữ liệu nhóm.':'Đã tạo bản lưu nhóm riêng.');
+    try{
+      var json=localStorage.getItem(nextKey);
+      if(json){next=JSON.parse(json);validateData(next)}
+      else if(activeKey===KEY&&clean(state.klass).toLowerCase()===klass.toLowerCase()&&clean(state.group).toLowerCase()===group.toLowerCase()){next=JSON.parse(JSON.stringify(state))}
+      else next=JSON.parse(JSON.stringify(base));
+      next.klass=klass;next.group=group;
+      var previous=state,previousKey=activeKey;
+      var candidate=normalizeData(next);
+      localStorage.setItem(nextKey,JSON.stringify(candidate));
+      localStorage.setItem(ACTIVE_KEY,nextKey);
+      state=candidate;activeKey=nextKey;dirty=false;clearTimeout(saveTimer);
+      refresh();updateProfileUI();el('groupDialog').classList.add('hidden');
+      setStatus(json?'Đã mở dữ liệu nhóm.':'Đã tạo bản lưu nhóm riêng.');
+    }catch(e){setStatus('Không chuyển được nhóm. Dữ liệu đang mở được giữ nguyên: '+e.message)}
   }
   var ids = ['nga', 'cu', 'giong'];
   var base = {
@@ -660,30 +683,26 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     }
   }
 
-  function apply(x){
-    if (!x || typeof x !== 'object' || !x.sites) throw Error('Dữ liệu không hợp lệ');
-    state = JSON.parse(JSON.stringify(base));
+  function normalizeData(x){
+    validateData(x);
+    var data=JSON.parse(JSON.stringify(base));
     ['group','klass','mode','order','reason','estimate','compareOrder','compareText','message','sketch','tester','issues','fix','recheck'].forEach(function(k){
-      if (typeof x[k] === 'string') state[k] = x[k].slice(0, 6000);
+      if(typeof x[k]==='string')data[k]=x[k].slice(0,6000);
     });
     ids.forEach(function(id){
-      var s = x.sites[id];
-      if (s && typeof s === 'object') {
-        ['name','location','desc','image','source','license'].forEach(function(k){
-          if (typeof s[k] === 'string') state.sites[id][k] = s[k].slice(0, 6000);
-        });
-      }
+      var old=x.sites[id],item=data.sites[id];
+      ['desc','image','source','license','imageSource'].forEach(function(k){if(typeof old[k]==='string')item[k]=old[k].slice(0,6000)});
+      item.cardStyle=['stack','side','compact'].indexOf(old.cardStyle)>=0?old.cardStyle:(['stack','side','compact'].indexOf(x.cardStyle)>=0?x.cardStyle:'stack');
     });
-    if (x.checks && typeof x.checks === 'object') state.checks=x.checks;
-    state.visited=x.visited&&typeof x.visited==='object'?x.visited:{};
-    state.selfAssessment=typeof x.selfAssessment==='string'?x.selfAssessment.slice(0,100):'';
-    state.showRoute=x.showRoute!==false;
-    state.cardStyle=['stack','side','compact'].indexOf(x.cardStyle)!==-1?x.cardStyle:'stack';
-    if(x.snapshots&&typeof x.snapshots==='object'){
-      state.snapshots={before:validSnapshot(x.snapshots.before),after:validSnapshot(x.snapshots.after)};
-    }
+    data.checks={};if(x.checks){Object.keys(x.checks).slice(0,30).forEach(function(k){data.checks[k]=x.checks[k]===true})}
+    data.visited={};if(x.visited){ids.forEach(function(id){data.visited[id]=x.visited[id]===true})}
+    data.selfAssessment=typeof x.selfAssessment==='string'?x.selfAssessment.slice(0,100):'';
+    data.showRoute=x.showRoute!==false;
+    data.cardStyle=['stack','side','compact'].indexOf(x.cardStyle)>=0?x.cardStyle:'stack';
+    data.snapshots={before:validSnapshot(x.snapshots&&x.snapshots.before),after:validSnapshot(x.snapshots&&x.snapshots.after)};
+    return data;
   }
-
+  function apply(x){state=normalizeData(x)}
   function validSnapshot(x){if(!x||typeof x!=='object'||!x.sites)return null;
     var o={date:String(x.date||'').slice(0,50),sites:{},reason:String(x.reason||'').slice(0,500),sketch:String(x.sketch||'').slice(0,500)};
     ids.forEach(function(id){o.sites[id]=String(x.sites[id]||'').slice(0,1000)});return o;
@@ -712,9 +731,11 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       dirty = false;
       if (el('autosaveHint')) el('autosaveHint').textContent = 'Đã lưu · '+(state.klass||'')+' / '+(state.group||'');
       if (!silent) setStatus('Đã lưu trên trình duyệt này.');
+      return true;
     } catch (e) {
       if (el('autosaveHint')) el('autosaveHint').textContent = 'Không lưu được';
       setStatus('Không thể lưu trên trình duyệt. Hãy xuất JSON.');
+      return false;
     }
   }
   function scheduleSave(){
