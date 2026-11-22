@@ -380,7 +380,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   }
   function setDesignStep(n){designStep=n;document.querySelectorAll('[data-step-panel]').forEach(function(x){x.classList.toggle('hidden',x.getAttribute('data-step-panel')!==String(n))});document.querySelectorAll('[data-step]').forEach(function(x){x.classList.toggle('active',x.getAttribute('data-step')===String(n))});}
   function updateQuestions(){var mode=state.mode||'';el('modeQuestions').textContent=mode.indexOf('thực địa')!==-1?'Gợi ý: Nhóm đã kiểm chứng đường đi, thời gian, phương tiện và an toàn chưa?':mode.indexOf('Kết hợp')!==-1?'Gợi ý: Di tích nào nên tìm hiểu trực tuyến trước, nơi nào có thể đi thực địa?':'Gợi ý: Thứ tự này giúp người xem hiểu nội dung lịch sử và khảo cổ như thế nào? Không bắt buộc tính thời gian di chuyển.';}
-  function renderLegend(){var box=el('mapLegend');box.innerHTML='';getOrderList().forEach(function(id,i){var item=document.createElement('div');item.className='legend-entry';var num=document.createElement('b');num.textContent=String(i+1);var name=document.createElement('span');name.textContent=referenceSites[id].name;item.appendChild(num);item.appendChild(name);item.addEventListener('click',function(){current=id;showSite();selectMarker(id,true)});box.appendChild(item)})}
+  function renderLegend(){var box=el('mapLegend');box.innerHTML='';getOrderList().forEach(function(id,i){var item=document.createElement('div');item.className='legend-entry';var num=document.createElement('b');num.textContent=String(i+1);var name=document.createElement('span');name.textContent=referenceSites[id].name;item.appendChild(num);item.appendChild(name);item.addEventListener('click',function(){current=id;showSite();selectMarker(id,true);scheduleSave()});box.appendChild(item)})}
   function updateRouteToggle(){var showing=state.showRoute!==false;el('toggleRoute').textContent=showing?'Ẩn đường nối':'Hiện đường nối';el('toggleRoute').setAttribute('aria-pressed',String(showing));if(routeLine){if(showing&&!realMap.hasLayer(routeLine))routeLine.addTo(realMap);if(!showing&&realMap.hasLayer(routeLine))realMap.removeLayer(routeLine)}}
 
 
@@ -451,7 +451,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   }
 
   function updateRoute(){
-    if (!realMap) return;
+    if (!realMap) {renderLegend();return;}
     var orderList = getOrderList();
     var latlngs = [];
     orderList.forEach(function(id, idx){
@@ -580,12 +580,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       }).addTo(realMap);
       siteMarkers[id] = marker;
       marker.bindPopup(makePopup(id), { maxWidth: 270 });
-      marker.on('click', function(){
-        current = id;
-        tab('explore');
-        showSite();
-        selectMarker(id, false);
-      });
+      marker.on('click',function(){current=id;tab('explore');showSite();selectMarker(id,false);scheduleSave()});
       mapBounds.push([g.lat, g.lng]);
     });
 
@@ -889,7 +884,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   el('site').addEventListener('change', function(){
     current = this.value;
     showSite();
-    selectMarker(current, true);
+    selectMarker(current,true);scheduleSave();
   });
 
   el('editToggle').addEventListener('click', function(){
@@ -935,7 +930,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   el('next').addEventListener('click', function(){
     current = ids[(ids.indexOf(current) + 1) % ids.length];
     showSite();
-    selectMarker(current, true);
+    selectMarker(current,true);scheduleSave();
   });
 
   el('maps').addEventListener('click', function(){
@@ -987,10 +982,10 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     this.value = '';
   });
 
-  el('print').addEventListener('click', function(){ tab('report'); window.print(); });
-  el('reportPrint').addEventListener('click', function(){ window.print(); });
+  el('print').addEventListener('click', function(){if(!hasProfile()){openGroups();return}tab('report');renderPrintSheet();window.print()});
+  el('reportPrint').addEventListener('click', function(){if(!hasProfile()){openGroups();return}renderPrintSheet();window.print()});
 
-  el('reset').addEventListener('click',function(){el('resetDialog').classList.remove('hidden');el('resetNo').focus()});
+  el('reset').addEventListener('click',function(){if(!hasProfile()){openGroups();return}el('resetDialog').classList.remove('hidden');el('resetNo').focus()});
   el('resetNo').addEventListener('click',function(){el('resetDialog').classList.add('hidden')});
   el('resetYes').addEventListener('click',function(){
     var klass=state.klass,group=state.group;apply(base);state.klass=klass;state.group=group;
