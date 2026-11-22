@@ -148,9 +148,9 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   <div class="toolbar">
     <div class="student-fields">
       <label for="group">Nhóm</label>
-      <input id="group" placeholder="Ví dụ: Nhóm 1">
+      <input id="group" placeholder="Chưa chọn nhóm" readonly>
       <label for="klass">Lớp</label>
-      <input id="klass" placeholder="7A1">
+      <input id="klass" placeholder="Lớp" readonly><button type="button" id="switchGroup">Chọn nhóm</button>
     </div>
     <div class="toolbar-actions">
       <span id="autosaveHint" class="save-hint" role="status">Tự động lưu trên máy</span>
@@ -307,6 +307,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     </section>
   </div>
 
+  <div id="groupDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="groupTitle"><div class="reset-box"><h3 id="groupTitle">Chọn bài làm của nhóm</h3><p class="muted">Các nhóm được lưu riêng trên máy này. Dữ liệu cũ không bị xóa.</p><label for="savedGroups">Nhóm đã lưu</label><select id="savedGroups"><option value="">Tạo nhóm mới / nhập tên dưới đây</option></select><label for="newClass">Lớp</label><input id="newClass" maxlength="30" placeholder="7A1"><label for="newGroup">Nhóm</label><input id="newGroup" maxlength="50" placeholder="Nhóm 1"><div class="actions"><button type="button" id="groupNo">Hủy</button><button type="button" class="primary" id="groupYes">Mở nhóm</button></div></div></div>
   <div id="resetDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="resetTitle"><div class="reset-box"><h3 id="resetTitle">Khôi phục bài làm?</h3><p>Chỉ khôi phục bài làm đang mở. Hãy xuất JSON trước nếu muốn giữ bản sao.</p><div class="actions"><button type="button" id="resetNo">Hủy</button><button type="button" class="primary" id="resetYes">Khôi phục</button></div></div></div>
   <footer>STEM Tin học 7 · Bản đồ OpenStreetMap cần Internet · Tự lưu cục bộ trên trình duyệt</footer>
 </div>
@@ -316,6 +317,29 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 (function(){
   'use strict';
   var KEY = 'stem_tin7_heritage_v1';
+  var PROFILE_PREFIX=KEY+'_group_';
+  var ACTIVE_KEY=KEY+'_selected';
+  var activeKey=KEY;
+  function groupKey(klass,group){return PROFILE_PREFIX+encodeURIComponent(String(klass).toLowerCase())+'_'+encodeURIComponent(String(group).toLowerCase())}
+  function openGroups(){
+    var sel=el('savedGroups');while(sel.options.length>1)sel.remove(1);
+    try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf(PROFILE_PREFIX)!==0)continue;var x=JSON.parse(localStorage.getItem(k));var o=document.createElement('option');o.value=k;o.textContent=(x.klass||'?')+' · '+(x.group||'?');sel.appendChild(o)}}catch(e){}
+    el('newClass').value=state.klass||'';el('newGroup').value=state.group||'';sel.value='';el('groupDialog').classList.remove('hidden');el('newClass').focus();
+  }
+  function changeGroup(){
+    var klass=String(el('newClass').value||'').trim(),group=String(el('newGroup').value||'').trim();
+    if(!klass||!group){setStatus('Nhập lớp và tên nhóm trước khi mở.');return}
+    save(true);
+    var nextKey=groupKey(klass,group),next=null;
+    try{var json=localStorage.getItem(nextKey);if(json)next=JSON.parse(json)}catch(e){setStatus('Bản lưu nhóm bị lỗi; vui lòng xuất JSON để sao lưu.');return}
+    if(!next&&activeKey===KEY&&String(state.klass||'').toLowerCase()===klass.toLowerCase()&&String(state.group||'').toLowerCase()===group.toLowerCase())next=JSON.parse(JSON.stringify(state));
+    if(!next)next=JSON.parse(JSON.stringify(base));
+    next.klass=klass;next.group=group;
+    activeKey=nextKey;apply(next);
+    try{localStorage.setItem(ACTIVE_KEY,activeKey)}catch(e){}
+    refresh();save(true);el('groupDialog').classList.add('hidden');
+    setStatus(json?'Đã mở dữ liệu nhóm.':'Đã tạo bản lưu nhóm riêng.');
+  }
   var ids = ['nga', 'cu', 'giong'];
   var base = {
     group: '', klass: '',
@@ -571,8 +595,10 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 
   function restore(){
     try {
-      var raw = localStorage.getItem(KEY);
-      if (raw) apply(JSON.parse(raw));
+      var selected=localStorage.getItem(ACTIVE_KEY);
+      var raw=selected&&selected.indexOf(PROFILE_PREFIX)===0?localStorage.getItem(selected):null;
+      if(raw){activeKey=selected;apply(JSON.parse(raw))}
+      else{activeKey=KEY;raw=localStorage.getItem(KEY);if(raw)apply(JSON.parse(raw))}
     } catch (e) {
       setStatus('Không đọc được dữ liệu đã lưu.');
     }
@@ -598,7 +624,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   var saveTimer = null, dirty = false;
   function save(silent){
     try {
-      localStorage.setItem(KEY, JSON.stringify(state));
+      localStorage.setItem(activeKey, JSON.stringify(state));
       dirty = false;
       if (el('autosaveHint')) el('autosaveHint').textContent = 'Đã lưu trên máy';
       if (!silent) setStatus('Đã lưu trên trình duyệt này.');
@@ -846,9 +872,12 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     });
   });
 
-  ['group','klass','mode','order','reason','estimate','message','sketch','tester','issues','fix','recheck'].forEach(function(k){
-    bind(k, k);
-  });
+  ['mode','order','reason','estimate','message','sketch','tester','issues','fix','recheck'].forEach(function(k){bind(k,k)});
+  el('switchGroup').addEventListener('click',openGroups);
+  el('savedGroups').addEventListener('change',function(){if(!this.value)return;try{var x=JSON.parse(localStorage.getItem(this.value));el('newClass').value=x.klass||'';el('newGroup').value=x.group||''}catch(e){}});
+  el('groupNo').addEventListener('click',function(){el('groupDialog').classList.add('hidden')});
+  el('groupYes').addEventListener('click',changeGroup);
+  el('groupDialog').addEventListener('keydown',function(e){if(e.key==='Escape')el('groupDialog').classList.add('hidden')});
 
   document.querySelectorAll('[data-tab]').forEach(function(b){
     b.addEventListener('click', function(){ tab(b.getAttribute('data-tab')); });
