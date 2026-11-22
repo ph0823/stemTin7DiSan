@@ -568,7 +568,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     var p = document.createElement('p');
     p.className = 'photo-credit';
     var a = document.createElement('a');
-    a.href=(state.sites[id].image&&safeURL(state.sites[id].imageSource))||g.photoPage;
+    a.href=state.sites[id].image?(safeURL(state.sites[id].imageSource)||safeURL(state.sites[id].image)||g.photoPage):g.photoPage;
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
     a.textContent = state.sites[id].image ? ('Ảnh nhóm chọn · '+(state.sites[id].license||'chưa ghi giấy phép')) : g.credit;
@@ -924,7 +924,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       'Lỗi: ' + state.issues,
       'Cải tiến: ' + state.fix,
       'Kiểm tra lại: ' + state.recheck,
-      'Tự đánh giá của nhóm: ' + (state.selfAssessment || 'Chưa thực hiện')
+      'Tự đánh giá của nhóm: ' + (state.selfAssessment || 'Chưa thực hiện'),
+      'Minh chứng: '+(state.snapshots.before?'Đã lưu bản 1':'Chưa lưu')+' / '+(state.snapshots.after?'Đã lưu bản 2':'Chưa lưu')
     );
     return lines.join('\n');
   }
@@ -936,7 +937,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     add('h2',pg,'HÀNH TRÌNH DI SẢN SỐ – SẢN PHẨM STEM TIN HỌC 7');
     add('p',pg,'Lớp: '+(state.klass||'...')+'    Nhóm: '+(state.group||'...'));
     add('h3',pg,'1. Khám phá di sản');
-    ids.forEach(function(id,i){var card=add('div',pg,'');card.className='print-card';add('strong',card,(i+1)+'. '+referenceSites[id].name);add('p',card,'Vị trí: '+referenceSites[id].location);add('p',card,'Giới thiệu: '+(state.sites[id].desc||'Chưa viết'));add('p',card,'Nguồn: '+(state.sites[id].source||'Chưa ghi'))});
+    ids.forEach(function(id,i){var card=add('div',pg,'');card.className='print-card';add('strong',card,(i+1)+'. '+referenceSites[id].name);add('p',card,'Vị trí: '+referenceSites[id].location);add('p',card,'Giới thiệu: '+(state.sites[id].desc||'Chưa viết'));add('p',card,'Nguồn: '+(state.sites[id].source||'Chưa ghi'));add('p',card,'Kiểu thẻ: '+(state.sites[id].cardStyle||'stack')+'; Nguồn ảnh: '+(state.sites[id].imageSource||'Chưa bổ sung'))});
     add('h3',pg,'2. Thiết kế hành trình');
     add('p',pg,'Hình thức: '+state.mode);add('p',pg,'Thứ tự: '+getOrderList().map(function(id){return referenceSites[id].name}).join(' → '));
     add('p',pg,'Lí do: '+state.reason);add('p',pg,'So sánh: '+state.compareText);
@@ -947,7 +948,12 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     add('p',pg2,'Tự đánh giá: '+state.selfAssessment);
     add('p',pg2,'Giáo viên nhận xét: ..................................................................................................');
     add('p',pg2,'Minh chứng: '+(state.snapshots.before?'Có bản 1 ('+state.snapshots.before.date+')':'Thiếu bản 1')+'; '+(state.snapshots.after?'Có bản 2 ('+state.snapshots.after.date+')':'Thiếu bản 2'));
-    if(state.snapshots.before&&state.snapshots.after){ids.forEach(function(id){add('p',pg2,referenceSites[id].name+' – Trước: '+(state.snapshots.before.sites[id]||'').slice(0,90)+'; Sau: '+(state.snapshots.after.sites[id]||'').slice(0,90))})}
+    if(state.snapshots.before&&state.snapshots.after){
+      ids.forEach(function(id){var before=state.snapshots.before.sites[id]||{},after=state.snapshots.after.sites[id]||{};
+        add('p',pg2,referenceSites[id].name+' – Trước: '+String(before.desc||'').slice(0,75)+'; Sau: '+String(after.desc||'').slice(0,75));
+      });
+      add('p',pg2,'Các mục đã thay đổi: '+(snapshotDiff(state.snapshots.before,state.snapshots.after).join('; ')||'Không phát hiện thay đổi'));
+    }
     add('p',pg2,'Lưu ý: Kết quả tự đánh giá không thay thế rubric của giáo viên.');
   }
   function updateSummary(){
@@ -1109,7 +1115,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   el('backupApply').addEventListener('click',function(){
     var key=el('backupList').value;if(!key)return;
     try{
-      var x=JSON.parse(localStorage.getItem(key));if(!x||x.version!==1||!x.data)throw Error('Invalid backup');validateData(x.data);
+      var x=JSON.parse(localStorage.getItem(key));if(!x||(x.version!==undefined&&x.version!==1)||!x.data)throw Error('Invalid backup');validateData(x.data);
       if(clean(x.data.klass).toLowerCase()!==clean(state.klass).toLowerCase()||clean(x.data.group).toLowerCase()!==clean(state.group).toLowerCase())throw Error('Wrong group');
       if(!safeBackup('Trước khôi phục bản sao'))return;
       var candidate=normalizeData(x.data),prior=state;state=candidate;
