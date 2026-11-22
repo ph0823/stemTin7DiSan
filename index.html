@@ -164,6 +164,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 }
 .cloud-box,.teacher-box{max-width:860px;max-height:90vh;overflow-y:auto}.teacher-box{max-width:1060px}.teacher-grid{display:grid;grid-template-columns:270px minmax(0,1fr);grid-gap:14px;gap:14px}.teacher-box textarea{min-height:75px}.teacher-box select[size]{height:340px}.teacher-password-change{border-top:1px solid #d8e3ed;margin-top:12px;padding-top:12px}#cloudStatus,#teacherStatus{white-space:pre-wrap}#cloudTimes{font-size:12px}.cloud-box .actions,.teacher-box .actions{margin:10px 0}@media(max-width:700px){.teacher-grid{grid-template-columns:1fr}.cloud-box,.teacher-box{max-height:92vh}}@media print{#cloudDialog,#teacherDialog{display:none!important}}
 .cloud-error{background:#fff6ed;border:1px solid #da9752;color:#843d17;border-radius:9px;padding:9px 12px;margin:0 0 10px;font-size:13px}
+.progress-more{margin-top:8px}.progress-more summary{cursor:pointer;font-size:12px;color:#17649a;font-weight:bold}.server-config{margin:8px 0;padding:8px;border:1px solid #d8e3ed;border-radius:7px}.server-config summary,.cloud-times summary{cursor:pointer;color:#49667b;font-size:12px}.cloud-times{margin:6px 0}
 </style>
 </head>
 <body>
@@ -181,18 +182,18 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       <input id="klass" placeholder="Lớp" readonly><button type="button" id="switchGroup">Chọn nhóm</button>
     </div>
     <div class="toolbar-actions">
-      <span id="autosaveHint" class="save-hint" role="status">Tự động lưu trên máy</span>
+      <span id="autosaveHint" class="save-hint" role="status">Bài được tự lưu</span>
       <button id="helpBtn" type="button" aria-haspopup="dialog">Hướng dẫn</button>
-      <button id="cloudBtn" type="button">Lưu trực tuyến</button>
+      <button id="cloudBtn" type="button">Bài của nhóm</button>
       <button id="teacherBtn" type="button">Giáo viên</button>
-      <button id="save" class="primary" type="button">Lưu ngay</button>
-      <button id="export" type="button">Xuất bài JSON</button>
+      <button id="save" class="primary" type="button">Lưu bài</button>
+      <button id="export" type="button">Tải bài về máy</button>
       <details class="tools-more">
         <summary>Tùy chọn</summary>
         <div class="tools-menu">
-          <button id="importBtn" type="button">Nhập JSON</button>
+          <button id="importBtn" type="button">Mở bài từ tệp</button>
           <button id="print" type="button">In sản phẩm</button>
-          <button id="reset" type="button">Khôi phục mẫu</button><button id="restoreBackup" type="button">Bản sao lưu</button><button id="exportBackup" type="button">Xuất sao lưu</button>
+          <button id="reset" type="button">Khôi phục mẫu</button><button id="restoreBackup" type="button">Bản sao lưu</button><button id="exportBackup" type="button">Tải bản sao lưu</button>
         </div>
       </details>
       <input type="file" id="importFile" accept=".json,application/json" class="hidden">
@@ -208,7 +209,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
           <button id="fitMap" type="button">Xem cả 3</button><button id="focusMap" type="button">Đến điểm chọn</button><button id="toggleRoute" type="button" aria-pressed="true">Ẩn đường nối</button>
           <span class="map-legend">Số 1–2–3 hiển thị thứ tự hành trình</span>
         </div>
-        <div class="map-legend-panel" id="mapLegend" aria-label="Chú giải điểm di tích"></div><div class="map-note">Bản đồ OpenStreetMap · Đường nét đứt chỉ minh họa thứ tự điểm dừng (không phải tuyến đường giao thông thực tế).</div>
+        <div class="map-legend-panel" id="mapLegend" aria-label="Chú giải điểm di tích"></div><div class="map-note">Đường nét đứt chỉ thứ tự khám phá, không phải đường đi thực tế.</div>
         <div id="mapFallback" class="map-fallback hidden">Không tải được bản đồ trực tuyến. Hãy kiểm tra Internet hoặc mở địa điểm bằng nút “Đối chiếu Google Maps”.</div>
       </div>
 
@@ -218,8 +219,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
           <span class="tag" id="lessonProgress">0/3 nhiệm vụ</span>
         </div>
         <p id="lessonTask" class="muted">Chọn từng điểm trên bản đồ, tìm hiểu vị trí và bổ sung thông tin có nguồn.</p>
-        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div><div id="lessonDetails" class="lesson-details" aria-live="polite"></div>
-        <p class="muted compact-note">Bài làm được tự lưu trong trình duyệt này. Hãy xuất JSON để nộp hoặc chuyển máy.</p>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div><details class="progress-more"><summary>Xem nhiệm vụ còn thiếu</summary><div id="lessonDetails" class="lesson-details" aria-live="polite"></div></details>
+        
       </div>
     </section>
 
@@ -244,7 +245,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 
           <div class="edit-bar">
             <button id="editToggle" type="button" aria-expanded="false" aria-controls="editFields">Chỉnh sửa thông tin</button>
-            <span class="muted">Thông tin tham khảo và sản phẩm nhóm</span>
+            
           </div>
 
           <div id="editFields" class="hidden">
@@ -254,17 +255,17 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
               <div id="wordCount" class="word-count"></div>
             </div>
             <div class="field">
-              <label for="image">Đường dẫn ảnh (HTTPS, tùy chọn)</label>
+              <label for="image">Link hình ảnh (không bắt buộc)</label>
               <input id="image" type="url" placeholder="https://...">
             </div>
             <div class="field">
-              <label for="source">Nguồn thông tin / ảnh</label>
-              <input id="source" placeholder="Tên nguồn hoặc URL"><label for="license">Tác giả và quyền sử dụng ảnh bổ sung</label><input id="license" maxlength="300" placeholder="Nguồn · giấy phép/cho phép"><label for="imageSource">Liên kết nguồn ảnh riêng (HTTPS)</label><input id="imageSource" type="url" placeholder="https://...">
+              <label for="source">Nguồn thông tin</label>
+              <input id="source" placeholder="Tên nguồn hoặc URL"><label for="license">Tác giả và quyền sử dụng hình</label><input id="license" maxlength="300" placeholder="Nguồn · giấy phép/cho phép"><label for="imageSource">Link nguồn hình ảnh</label><input id="imageSource" type="url" placeholder="https://...">
             </div>
           </div>
 
           <div class="actions">
-            <button id="maps" class="primary" type="button">Đối chiếu Google Maps</button>
+            <button id="maps" class="primary" type="button">Xem vị trí trên bản đồ</button>
             <button id="next" type="button">Di tích tiếp theo</button>
           </div>
         </div>
@@ -299,9 +300,9 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
         </div>
 
         <div id="test" class="tab hidden">
-          <h3>Phiếu kiểm thử chéo</h3>
-          <p class="muted">Nhóm bạn kiểm tra sản phẩm, đánh dấu từng tiêu chí rồi ghi lỗi cần sửa.</p>
-          <div class="panel-stem"><h4>Minh chứng thiết kế và cải tiến</h4><p class="muted">Lưu bản đầu trước khi kiểm thử và bản cải tiến sau khi sửa.</p><div class="actions"><button type="button" id="captureBefore">Lưu bản 1</button><button type="button" id="captureAfter">Lưu bản 2</button></div><div id="snapshotCompare"></div></div><div id="checks"></div>
+          <h3>Nhóm em kiểm tra sản phẩm</h3>
+          <p class="muted">Nhờ nhóm khác xem thử và góp ý để nhóm em cải thiện sản phẩm.</p>
+          <div class="panel-stem"><h4>Minh chứng thiết kế và cải tiến</h4><p class="muted">Lưu bản đầu trước khi kiểm thử và bản cải tiến sau khi sửa.</p><div class="actions"><button type="button" id="captureBefore">Lưu bài trước khi sửa</button><button type="button" id="captureAfter">Lưu bài sau khi sửa</button></div><div id="snapshotCompare"></div></div><div id="checks"></div>
           <div class="field"><label for="tester">Nhóm kiểm thử</label><input id="tester"></div>
           <div class="field"><label for="issues">Lỗi / điểm cần cải thiện</label><textarea id="issues"></textarea></div>
           <div class="field"><label for="fix">Cách nhóm em đã cải tiến</label><textarea id="fix"></textarea></div>
@@ -315,7 +316,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
             <button id="copy" type="button">Sao chép báo cáo</button>
             <button id="reportPrint" type="button">In báo cáo</button>
           </div>
-          <p class="muted">Để nộp sản phẩm: xuất tệp JSON và gửi cho giáo viên theo kênh được hướng dẫn.</p>
+          <p class="muted">Nếu giáo viên yêu cầu nộp tệp, chọn “Tải bài về máy”.</p>
         </div>
 
         <div class="status" id="status" role="status"></div>
@@ -323,29 +324,29 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     </section>
   </div>
 
-  <div id="profilePrompt" class="profile-prompt">Hãy chọn <b>Lớp – Nhóm</b> trước khi làm bài. Dữ liệu các nhóm được lưu riêng trên máy này. <button type="button" id="promptSelect">Chọn nhóm</button></div>
+  <div id="profilePrompt" class="profile-prompt">Chọn <b>Lớp và Nhóm</b> để bắt đầu. <button type="button" id="promptSelect">Chọn nhóm</button></div>
   <div id="helpDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
     <div class="reset-box help-box">
       <div class="help-header"><h2 id="helpTitle">Hướng dẫn sử dụng – Hành trình di sản số</h2><button id="helpClose" type="button" aria-label="Đóng hướng dẫn">Đóng ×</button></div>
-      <p class="muted">Dành cho học sinh lớp 7 · Bài học STEM 3 tiết. Học sinh thực hiện theo thứ tự dưới đây.</p>
+      <p class="muted">Dành cho học sinh lớp 7 · Thực hiện lần lượt 4 bước để hoàn thành sản phẩm.</p>
       <div class="help-section"><h3>Trước khi bắt đầu: chọn lớp và nhóm</h3>
         <p>Nhấn <strong>Chọn nhóm</strong>, nhập lớp (ví dụ 7A1) và tên nhóm (ví dụ Nhóm 1), sau đó nhấn <strong>Mở nhóm</strong>. Nếu nhóm đã làm trên máy này, chọn đúng bản lưu từ danh sách. Không sử dụng bài làm của nhóm khác.</p></div>
-      <div class="help-section"><h3>Tiết 1 – Khám phá di sản</h3>
+      <div class="help-section"><h3>Bước 1 – Khám phá di sản</h3>
         <ol><li>Mở thẻ <strong>1. Khám phá</strong>. Nhấp lần lượt các điểm Ngã Ba Giồng, Địa đạo Củ Chi và Giồng Cá Vồ trên bản đồ hoặc chọn trong danh sách.</li>
         <li>Đọc <strong>tư liệu tham khảo</strong>, đối chiếu vị trí và nguồn. Nhấn <strong>Chỉnh sửa thông tin</strong>, chọn <strong>kiểu thẻ riêng của từng di tích</strong> (ảnh trên, ảnh bên trái hoặc tóm tắt), viết lời giới thiệu 50–80 từ và ghi nguồn đã kiểm chứng.</li>
         <li>Chọn ảnh có quyền sử dụng phù hợp; nếu bổ sung ảnh, nhập riêng đường dẫn ảnh, nguồn ảnh HTTPS, tác giả và giấy phép hoặc sự cho phép. Kiểm tra nhiệm vụ còn thiếu trong khung tiến độ.</li></ol></div>
-      <div class="help-section"><h3>Tiết 2 – Thiết kế hành trình</h3>
+      <div class="help-section"><h3>Bước 2 – Thiết kế hành trình</h3>
         <ol><li>Mở <strong>2. Thiết kế</strong> → <strong>1. Chọn tuyến</strong>, chọn hình thức khám phá và thử thứ tự ba di tích.</li>
         <li>Ở <strong>2. Giải thích</strong>, nêu lý do, chọn một tuyến khác để so sánh và ghi dữ liệu quãng đường/thời gian nếu đã kiểm chứng.</li>
         <li>Ở <strong>3. Hoàn thiện</strong>, viết thông điệp bảo tồn và mô tả cách nhóm thiết kế thẻ thông tin.</li></ol>
         <p class="muted"><strong>Lưu ý:</strong> Đường nét đứt nối các điểm chỉ thể hiện thứ tự khám phá, không phải tuyến đường giao thông thực tế. Dùng các nút <strong>Xem cả 3</strong>, <strong>Đến điểm chọn</strong>, <strong>Ẩn/hiện đường nối</strong> khi quan sát bản đồ.</p></div>
-      <div class="help-section"><h3>Tiết 3 – Kiểm thử và báo cáo</h3>
+      <div class="help-section"><h3>Bước 3 và 4 – Kiểm thử, báo cáo</h3>
         <ol><li>Mở <strong>3. Kiểm thử</strong>, trao đổi sản phẩm để nhóm khác kiểm tra, đánh dấu tiêu chí và ghi lỗi.</li>
-        <li>Nhấn <strong>Lưu bản 1</strong> trước khi kiểm thử. Chỉnh sửa nội dung, kiểu thẻ, hình ảnh hoặc tuyến theo góp ý, rồi nhấn <strong>Lưu bản 2</strong>. Mục so sánh sẽ chỉ rõ trường nào đã thay đổi.</li>
-        <li>Mở <strong>4. Báo cáo</strong>, tự đánh giá, kiểm tra nội dung, sau đó dùng <strong>Xuất bài JSON</strong> để nộp theo hướng dẫn của giáo viên. Có thể chọn <strong>Tùy chọn → In sản phẩm</strong> để in báo cáo.</li></ol></div>
+        <li>Nhấn <strong>Lưu bài trước khi sửa</strong> trước khi kiểm thử. Chỉnh sửa nội dung, kiểu thẻ, hình ảnh hoặc tuyến theo góp ý, rồi nhấn <strong>Lưu bài sau khi sửa</strong>. Mục so sánh sẽ chỉ rõ trường nào đã thay đổi.</li>
+        <li>Mở <strong>4. Báo cáo</strong>, tự đánh giá, kiểm tra nội dung, sau đó dùng <strong>Tải bài về máy</strong> để nộp theo hướng dẫn của giáo viên. Có thể chọn <strong>Tùy chọn → In sản phẩm</strong> để in báo cáo.</li></ol></div>
       <div class="help-section"><h3>Đồng bộ bài trên các máy</h3>
-        <p><strong>Lưu trực tuyến</strong>: lần đầu nhập địa chỉ Web App Apps Script do giáo viên cung cấp, chọn lớp và nhóm đã mở trên máy rồi nhấn <strong>Tạo nhóm trực tuyến</strong>. Ghi mã truy cập 4 ký tự được cấp, không công khai mã với nhóm khác.</p>
-        <p>Khi chuyển máy: mở <strong>Lưu trực tuyến</strong>, nhập lớp, nhóm và mã 4 ký tự → <strong>Mở nhóm bằng mã</strong>. Khi làm bài, hệ thống tự gửi bản cập nhật sau một khoảng thời gian hoặc nhấn <strong>Lưu bài lên Google Sheets</strong>. Nếu có xung đột do giáo viên/máy khác sửa, sử dụng <strong>Lấy bài từ máy chủ</strong> sau khi đã sao lưu bản đang làm.</p>
+        <p><strong>Bài của nhóm</strong>: lần đầu nhập địa chỉ Web App Apps Script do giáo viên cung cấp, chọn lớp và nhóm đã mở trên máy rồi nhấn <strong>Tạo bài mới</strong>. Ghi mã truy cập 4 ký tự được cấp, không công khai mã với nhóm khác.</p>
+        <p>Khi chuyển máy: mở <strong>Lưu trực tuyến</strong>, nhập lớp, nhóm và mã 4 ký tự → <strong>Mở bài của nhóm</strong>. Khi làm bài, hệ thống tự gửi bản cập nhật sau một khoảng thời gian hoặc nhấn <strong>Lưu bài</strong>. Nếu có xung đột do giáo viên/máy khác sửa, sử dụng <strong>Tải bài mới nhất</strong> sau khi đã sao lưu bản đang làm.</p>
         <p>Học sinh có thể xem thời gian bắt đầu, lần chỉnh sửa gần nhất và tổng thời gian hoạt động trực tuyến. Chỉ đếm thời gian hoạt động khi trang mở và đang hiển thị; dữ liệu chỉ lưu trên máy sẽ không được tính vào thời gian trực tuyến.</p>
       </div>
       <div class="help-section"><h3>Chế độ Giáo viên</h3>
@@ -361,21 +362,21 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   </div>
   <div id="cloudDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="cloudTitle">
     <div class="reset-box cloud-box">
-      <h2 id="cloudTitle">Lưu và mở bài trực tuyến</h2>
-      <p class="muted">Bài học luôn được lưu trên máy. Khi kết nối Apps Script, nhóm có thể tiếp tục làm trên máy khác bằng mã 4 ký tự.</p>
-      <label for="scriptUrl">Đường dẫn Web App Google Apps Script (HTTPS)</label>
+      <h2 id="cloudTitle">Bài làm của nhóm</h2>
+      <p class="muted">Nhập mã 4 ký tự để mở lại bài của nhóm trên máy khác. Nếu chưa có mã, hãy tạo bài mới.</p>
+      <details class="server-config"><summary>Cài đặt kết nối (dành cho giáo viên)</summary><label for="scriptUrl">Địa chỉ hệ thống lưu bài</label>
       <input id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
-      <div class="actions"><button id="saveScriptUrl" type="button">Lưu địa chỉ máy chủ</button><button id="pingServer" type="button">Kiểm tra kết nối</button></div>
+      <div class="actions"><button id="saveScriptUrl" type="button">Lưu địa chỉ</button><button id="pingServer" type="button">Kiểm tra kết nối</button></div></details>
       <div id="cloudConnectPanel">
         <label for="cloudClass">Lớp</label><input id="cloudClass" maxlength="30" placeholder="7A1">
         <label for="cloudGroup">Nhóm</label><input id="cloudGroup" maxlength="50" placeholder="Nhóm 1">
         <label for="cloudCode">Mã nhóm (4 ký tự, chỉ nhập khi mở lại)</label><input id="cloudCode" maxlength="4" autocomplete="off" placeholder="AB23">
-        <div class="actions"><button id="createCloud" type="button">Tạo nhóm trực tuyến</button><button id="openCloud" type="button">Mở nhóm bằng mã</button></div>
+        <div class="actions"><button id="createCloud" type="button">Tạo bài mới</button><button id="openCloud" class="primary" type="button">Mở bài của nhóm</button></div>
       </div>
       <div id="cloudSessionPanel" class="hidden">
         <p><strong id="cloudSessionName"></strong></p>
-        <p id="cloudTimes" class="muted"></p>
-        <div class="actions"><button id="cloudSaveNow" class="primary" type="button">Lưu bài lên Google Sheets</button><button id="cloudReload" type="button">Lấy bài từ máy chủ</button><button id="cloudLogout" type="button">Ngắt phiên trực tuyến</button></div>
+        <details class="cloud-times"><summary>Thời gian học của nhóm</summary><p id="cloudTimes" class="muted"></p></details>
+        <div class="actions"><button id="cloudSaveNow" class="primary" type="button">Lưu bài</button><button id="cloudReload" type="button">Tải bài mới nhất</button><button id="cloudLogout" type="button">Đổi nhóm</button></div>
       </div>
       <p id="cloudStatus" role="status" class="muted"></p>
       <div class="actions"><button id="cloudClose" type="button">Đóng</button></div>
@@ -1088,9 +1089,9 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   function updateLesson(){
     var lesson = activeTab === 'explore' ? 1 : activeTab === 'design' ? 2 : 3;
     var captions = {
-      1: ['Tiết 1 · Khám phá di sản', 'Chọn từng địa điểm, quan sát bản đồ thực, kiểm chứng nội dung và ghi nguồn.'],
-      2: ['Tiết 2 · Thiết kế hành trình', 'Chọn thứ tự để xem đường nối trên bản đồ, giải thích phương án và tạo thông điệp bảo tồn.'],
-      3: ['Tiết 3 · Kiểm thử và báo cáo', 'Đổi nhóm kiểm thử, ghi lỗi, cải tiến và trình bày sản phẩm.']
+      1: ['Bước 1 · Khám phá di sản', 'Khám phá ba địa điểm, viết lời giới thiệu và ghi nguồn.'],
+      2: ['Bước 2 · Thiết kế hành trình', 'Chọn thứ tự, giải thích lựa chọn và viết thông điệp bảo tồn.'],
+      3: ['Bước 3–4 · Kiểm thử và báo cáo', 'Nhờ nhóm khác góp ý, chỉnh sửa và giới thiệu sản phẩm.']
     };
     if (!el('lessonTitle')) return;
     el('lessonTitle').textContent = captions[lesson][0];
