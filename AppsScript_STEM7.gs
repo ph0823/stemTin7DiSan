@@ -205,6 +205,7 @@ function doPost(e){
     +'if(origins[i]===target){for(var j=0;j<=i;j++)w=w.parent;w.postMessage(m,target);return;}'
     +'}'
     +'}'
+    +'return;'
     +'/* Chrome 75 supports ancestorOrigins. Without it, try the usual '
     +'Apps Script double-frame path without broadcasting credentials. */'
     +'try{window.parent.parent.postMessage(m,target)}catch(e){}'
