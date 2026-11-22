@@ -165,6 +165,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 .cloud-box,.teacher-box{max-width:860px;max-height:90vh;overflow-y:auto}.teacher-box{max-width:1060px}.teacher-grid{display:grid;grid-template-columns:270px minmax(0,1fr);grid-gap:14px;gap:14px}.teacher-box textarea{min-height:75px}.teacher-box select[size]{height:340px}.teacher-password-change{border-top:1px solid #d8e3ed;margin-top:12px;padding-top:12px}#cloudStatus,#teacherStatus{white-space:pre-wrap}#cloudTimes{font-size:12px}.cloud-box .actions,.teacher-box .actions{margin:10px 0}@media(max-width:700px){.teacher-grid{grid-template-columns:1fr}.cloud-box,.teacher-box{max-height:92vh}}@media print{#cloudDialog,#teacherDialog{display:none!important}}
 .cloud-error{background:#fff6ed;border:1px solid #da9752;color:#843d17;border-radius:9px;padding:9px 12px;margin:0 0 10px;font-size:13px}
 .progress-more{margin-top:8px}.progress-more summary{cursor:pointer;font-size:12px;color:#17649a;font-weight:bold}.server-config{margin:8px 0;padding:8px;border:1px solid #d8e3ed;border-radius:7px}.server-config summary,.cloud-times summary{cursor:pointer;color:#49667b;font-size:12px}.cloud-times{margin:6px 0}
+.status:empty{display:none}
 </style>
 </head>
 <body>
@@ -587,7 +588,14 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       return u.protocol === 'https:' ? u.href : '';
     } catch (e) { return ''; }
   }
-  function setStatus(s){ el('status').textContent = s; }
+  var statusClearTimer=null;
+  function setStatus(message){
+    var box=el('status');box.textContent=message||'';
+    clearTimeout(statusClearTimer);
+    if(message&&!/không|chưa|lỗi|sai|cần|quá|hết|thất bại|nhầm/i.test(message)){
+      statusClearTimer=setTimeout(function(){if(box.textContent===message)box.textContent=''},3500);
+    }
+  }
   function text(node, s){ node.textContent = s || ''; }
 
   function getOrderList(){
@@ -881,7 +889,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       clearTimeout(cloudRequests[id].timer);delete cloudRequests[id];
       if(form.parentNode)form.parentNode.removeChild(form);
       setTimeout(function(){if(frame.parentNode)frame.parentNode.removeChild(frame)},700);
-      if(networkError)connectionError(error);else if(!error)connectionError('');
+      if(networkError)connectionError(error);else connectionError('');
       callback(error?friendlyError(error):null,result);
     }
     cloudRequests[id]={finish:finish,frame:frame,timer:setTimeout(function(){finish('Không nhận được phản hồi. Hãy kiểm tra mạng hoặc nhờ giáo viên.',null,true)},25000)};
@@ -1148,8 +1156,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 
   function photoSourceState(site){
     if(!site.image)return 'Ảnh minh họa có nguồn riêng trong tư liệu tham khảo';
-    if(!safeURL(site.image))return 'Đường dẫn ảnh chưa hợp lệ';
-    if(!safeURL(site.imageSource))return 'Thiếu nguồn ảnh HTTPS';
+    if(!safeURL(site.image))return 'Link hình ảnh không hợp lệ';
+    if(!safeURL(site.imageSource))return 'Chưa ghi link nguồn hình ảnh';
     if(!clean(site.license))return 'Thiếu tác giả hoặc giấy phép ảnh';
     return 'Đã khai báo nguồn và giấy phép (cần kiểm chứng)';
   }
@@ -1168,8 +1176,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     if(site.source)node('p',content,'Nguồn nhóm: '+site.source,'muted');
     if(site.image&&!clean(site.license))node('p',content,'Chưa ghi tác giả hoặc quyền sử dụng ảnh.','source-warning');
     node('p',content,photoSourceState(site),'muted');
-    if(site.image&&!safeURL(site.image))node('p',content,'Đường dẫn ảnh phải là HTTPS hợp lệ.','source-warning');
-    if(/^https?:/i.test(clean(site.source))&&!safeURL(site.source))node('p',content,'Đường dẫn nguồn phải dùng HTTPS.','source-warning');
+    if(site.image&&!safeURL(site.image))node('p',content,'Hình ảnh chưa mở được. Hãy kiểm tra link.','source-warning');
+    if(/^https?:/i.test(clean(site.source))&&!safeURL(site.source))node('p',content,'Link nguồn chưa hợp lệ.','source-warning');
     node('p',box,'Tọa độ tham khảo: '+heritageGeo[current].precision,'muted');
     updateWordCount(site.desc);el('cardStyle').value=site.cardStyle||state.cardStyle||'stack';
   }
@@ -1417,7 +1425,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 
   el('save').addEventListener('click', function(){
     clearTimeout(saveTimer);
-    save(false);
+    if(cloudSession)cloudSave(true);
+    else save(false);
   });
 
   el('export').addEventListener('click', function(){if(!hasProfile()){openGroups();return}
