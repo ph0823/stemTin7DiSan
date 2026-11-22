@@ -148,6 +148,18 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 .help-box{max-width:760px;max-height:88vh;overflow-y:auto}.help-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid #d8e3ed;padding-bottom:9px}.help-header h2{font-size:20px;margin:0}.help-header button{flex-shrink:0}.help-section{padding:9px 0;border-bottom:1px solid #e8edf2}.help-section h3{font-size:15px;margin:0 0 5px;color:#145681}.help-section p{margin:5px 0}.help-section ol{margin:4px 0 6px;padding-left:23px}.help-section li{margin:4px 0}.help-box .actions{justify-content:flex-end;margin-top:12px}@media(max-width:550px){.help-box{padding:13px;max-height:92vh}.help-header h2{font-size:17px}}
 .panel-stem{border:1px solid #d8e3ed;border-radius:9px;background:#f4f8fb;padding:11px;margin:10px 0}.snapshot-card{font-size:12px;border:1px solid #cfdae5;border-radius:6px;padding:8px;margin:7px 0;background:white;max-height:180px;overflow:auto}.snapshot-card p{margin:4px 0}
 .reference-box details summary{cursor:pointer;font-weight:bold;color:#145681}.reference-box details p{font-size:13px}.student-preview{display:flex;flex-direction:column}.student-preview.side{flex-direction:row;align-items:flex-start}.student-preview.side .student-image{width:43%;flex-shrink:0;margin-right:12px}.student-preview.side .student-writing{flex:1}.student-preview.compact .student-image{display:none}.student-preview .heritage-photo{height:160px}@media(max-width:650px){.student-preview.side{flex-direction:column}.student-preview.side .student-image{width:100%;margin:0}}@media print{.panel-stem{display:none}}
+@page{size:A4;margin:12mm}
+@media print{
+  body{font-size:10pt!important}
+  .print-sheet{font-size:10pt!important;line-height:1.25!important}
+  .print-sheet h2{font-size:14pt;margin:0 0 6pt}
+  .print-sheet h3{font-size:11pt;margin:7pt 0 4pt}
+  .print-sheet p{overflow-wrap:anywhere;word-break:break-word}
+  .print-page{page-break-after:always;break-after:page}
+  .print-page:last-child{page-break-after:auto;break-after:auto}
+  .print-card{page-break-inside:avoid;break-inside:avoid}
+  #printSheet{max-width:100%;width:100%}
+}
 </style>
 </head>
 <body>
@@ -313,8 +325,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
         <p>Nhấn <strong>Chọn nhóm</strong>, nhập lớp (ví dụ 7A1) và tên nhóm (ví dụ Nhóm 1), sau đó nhấn <strong>Mở nhóm</strong>. Nếu nhóm đã làm trên máy này, chọn đúng bản lưu từ danh sách. Không sử dụng bài làm của nhóm khác.</p></div>
       <div class="help-section"><h3>Tiết 1 – Khám phá di sản</h3>
         <ol><li>Mở thẻ <strong>1. Khám phá</strong>. Nhấp lần lượt các điểm Ngã Ba Giồng, Địa đạo Củ Chi và Giồng Cá Vồ trên bản đồ hoặc chọn trong danh sách.</li>
-        <li>Đọc <strong>tư liệu tham khảo</strong>, đối chiếu vị trí và nguồn. Nhấn <strong>Chỉnh sửa thông tin</strong>, chọn <strong>kiểu thẻ</strong> (ảnh trên, ảnh bên trái hoặc tóm tắt), viết lời giới thiệu 50–80 từ và ghi nguồn đã kiểm chứng.</li>
-        <li>Chọn ảnh có quyền sử dụng phù hợp; nếu bổ sung ảnh, ghi nguồn, tác giả và giấy phép hoặc sự cho phép. Kiểm tra nhiệm vụ còn thiếu trong khung tiến độ.</li></ol></div>
+        <li>Đọc <strong>tư liệu tham khảo</strong>, đối chiếu vị trí và nguồn. Nhấn <strong>Chỉnh sửa thông tin</strong>, chọn <strong>kiểu thẻ riêng của từng di tích</strong> (ảnh trên, ảnh bên trái hoặc tóm tắt), viết lời giới thiệu 50–80 từ và ghi nguồn đã kiểm chứng.</li>
+        <li>Chọn ảnh có quyền sử dụng phù hợp; nếu bổ sung ảnh, nhập riêng đường dẫn ảnh, nguồn ảnh HTTPS, tác giả và giấy phép hoặc sự cho phép. Kiểm tra nhiệm vụ còn thiếu trong khung tiến độ.</li></ol></div>
       <div class="help-section"><h3>Tiết 2 – Thiết kế hành trình</h3>
         <ol><li>Mở <strong>2. Thiết kế</strong> → <strong>1. Chọn tuyến</strong>, chọn hình thức khám phá và thử thứ tự ba di tích.</li>
         <li>Ở <strong>2. Giải thích</strong>, nêu lý do, chọn một tuyến khác để so sánh và ghi dữ liệu quãng đường/thời gian nếu đã kiểm chứng.</li>
@@ -322,11 +334,11 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
         <p class="muted"><strong>Lưu ý:</strong> Đường nét đứt nối các điểm chỉ thể hiện thứ tự khám phá, không phải tuyến đường giao thông thực tế. Dùng các nút <strong>Xem cả 3</strong>, <strong>Đến điểm chọn</strong>, <strong>Ẩn/hiện đường nối</strong> khi quan sát bản đồ.</p></div>
       <div class="help-section"><h3>Tiết 3 – Kiểm thử và báo cáo</h3>
         <ol><li>Mở <strong>3. Kiểm thử</strong>, trao đổi sản phẩm để nhóm khác kiểm tra, đánh dấu tiêu chí và ghi lỗi.</li>
-        <li>Nhấn <strong>Lưu bản 1</strong> trước khi kiểm thử. Chỉnh sửa sản phẩm, ghi cách cải tiến, kiểm tra lại rồi nhấn <strong>Lưu bản 2</strong> để có minh chứng trước/sau.</li>
+        <li>Nhấn <strong>Lưu bản 1</strong> trước khi kiểm thử. Chỉnh sửa nội dung, kiểu thẻ, hình ảnh hoặc tuyến theo góp ý, rồi nhấn <strong>Lưu bản 2</strong>. Mục so sánh sẽ chỉ rõ trường nào đã thay đổi.</li>
         <li>Mở <strong>4. Báo cáo</strong>, tự đánh giá, kiểm tra nội dung, sau đó dùng <strong>Xuất bài JSON</strong> để nộp theo hướng dẫn của giáo viên. Có thể chọn <strong>Tùy chọn → In sản phẩm</strong> để in báo cáo.</li></ol></div>
       <div class="help-section"><h3>Lưu bài, khôi phục và xử lý sự cố</h3>
         <p>Ứng dụng tự lưu trên <strong>trình duyệt và máy đang dùng</strong>; có thể nhấn <strong>Lưu ngay</strong>. Khi quay lại, chọn đúng lớp và nhóm để mở bài cũ. Trước khi chuyển máy hoặc kết thúc tiết học, hãy <strong>Xuất bài JSON</strong> và giữ tệp cẩn thận; muốn mở lại, chọn <strong>Tùy chọn → Nhập JSON</strong> tại đúng nhóm.</p>
-        <p>Nếu bản đồ trống, hãy kiểm tra Internet và tải lại trang. Nếu ảnh không hiển thị, kiểm tra địa chỉ HTTPS hoặc dùng liên kết nguồn. Ứng dụng tạo bản sao trước khi chuyển nhóm, nhập JSON hoặc khôi phục mẫu. Vào <strong>Tùy chọn → Bản sao lưu</strong> để phục hồi khi cần. Bản sao chỉ lưu trên máy hiện tại; vẫn nên xuất JSON trước khi kết thúc tiết học.</p>
+        <p>Nếu bản đồ trống, hãy kiểm tra Internet và tải lại trang. Nếu ảnh không hiển thị, kiểm tra địa chỉ HTTPS hoặc dùng liên kết nguồn. Ứng dụng tạo bản sao trước khi chuyển nhóm, nhập JSON hoặc khôi phục mẫu. Vào <strong>Tùy chọn → Bản sao lưu</strong> để phục hồi khi cần. Bản sao chỉ lưu trên máy hiện tại; chọn <strong>Tùy chọn → Xuất sao lưu</strong> để lưu cả bài hiện tại và các bản dự phòng, đồng thời xuất JSON trước khi kết thúc tiết học.</p>
         <p class="muted"><strong>Lưu ý về tiến độ:</strong> Hoàn thành thao tác không đồng nghĩa được điểm tối đa; giáo viên đánh giá theo rubric của bài học. Ứng dụng chưa tự nộp bài lên Google Sheets.</p></div>
       <div class="actions"><button type="button" id="helpDone" class="primary">Đã hiểu – Bắt đầu học</button></div>
     </div>
@@ -814,7 +826,11 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     } else if (lesson === 2) {
       [['reason','Giải thích lí do chọn tuyến'],['compareText','So sánh với phương án khác'],['message','Thông điệp bảo tồn']].forEach(function(a){var ok=clean(state[a[0]]).length>=20;if(ok)completed++;details.push({ok:ok,label:a[1]})});
     } else {
-      var testItems=[{ok:!!clean(state.tester)&&!!state.snapshots.before,label:'Có nhóm kiểm thử và bản đầu'}, {ok:!!(clean(state.issues)&&clean(state.fix)),label:'Ghi lỗi và cải tiến'}, {ok:!!(clean(state.recheck)&&clean(state.selfAssessment)&&!!state.snapshots.after),label:'Kiểm tra lại và bản cải tiến'}];testItems.forEach(function(x){if(x.ok)completed++;details.push(x)});
+      var testItems=[
+        {ok:clean(state.tester).length>=2&&!!state.snapshots.before,label:'Có nhóm kiểm thử và bản 1'},
+        {ok:clean(state.issues).length>=12&&clean(state.fix).length>=12,label:'Có nhận xét và mô tả cách cải tiến'},
+        {ok:clean(state.recheck).length>=12&&!!state.selfAssessment&&!!state.snapshots.after&&!!state.snapshots.before&&snapshotDiff(state.snapshots.before,state.snapshots.after).length>0,label:'Kiểm thử lại, tự đánh giá và có thay đổi ở bản 2'}
+      ];testItems.forEach(function(x){if(x.ok)completed++;details.push(x)});
     }
     el('lessonProgress').textContent = completed + '/' + total + ' nhiệm vụ';
     el('progressFill').style.width=Math.round(100*completed/total)+'%';
@@ -840,6 +856,13 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     }
   }
 
+  function photoSourceState(site){
+    if(!site.image)return 'Ảnh minh họa có nguồn riêng trong tư liệu tham khảo';
+    if(!safeURL(site.image))return 'Đường dẫn ảnh chưa hợp lệ';
+    if(!safeURL(site.imageSource))return 'Thiếu nguồn ảnh HTTPS';
+    if(!clean(site.license))return 'Thiếu tác giả hoặc giấy phép ảnh';
+    return 'Đã khai báo nguồn và giấy phép (cần kiểm chứng)';
+  }
   function updatePreview(){
     var site=state.sites[current],box=el('preview');box.innerHTML='';
     function node(tag,parent,value,cls){var x=document.createElement(tag);if(value!==null)x.textContent=value||'';if(cls)x.className=cls;parent.appendChild(x);return x}
@@ -854,7 +877,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     var content=node('div',product,null,'student-writing');node('h4',content,'Bài làm của nhóm');node('p',content,clean(site.desc)||'Nhóm chưa viết lời giới thiệu.');
     if(site.source)node('p',content,'Nguồn nhóm: '+site.source,'muted');
     if(site.image&&!clean(site.license))node('p',content,'Chưa ghi tác giả hoặc quyền sử dụng ảnh.','source-warning');
-    if(site.image&&!safeURL(site.imageSource))node('p',content,'Ảnh nhóm chọn cần liên kết nguồn ảnh HTTPS riêng.','source-warning');
+    node('p',content,photoSourceState(site),'muted');
     if(site.image&&!safeURL(site.image))node('p',content,'Đường dẫn ảnh phải là HTTPS hợp lệ.','source-warning');
     if(/^https?:/i.test(clean(site.source))&&!safeURL(site.source))node('p',content,'Đường dẫn nguồn phải dùng HTTPS.','source-warning');
     node('p',box,'Tọa độ tham khảo: '+heritageGeo[current].precision,'muted');
