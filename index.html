@@ -145,6 +145,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 .design-nav{display:flex;flex-wrap:wrap;margin-bottom:12px}.design-nav button{margin:0 5px 5px 0;font-size:12px}.design-nav button.active{background:#17649a;color:#fff}.design-step{padding:4px 0}.profile-prompt{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:2000;max-width:90%;background:#fff;border:2px solid #17649a;border-radius:10px;padding:12px 16px;box-shadow:0 6px 25px #0003}.profile-prompt button{margin-left:8px}.work-locked{opacity:.62;pointer-events:none}.print-sheet{display:none}
 @media(max-width:650px){.map-legend-panel{top:100px;right:7px;max-width:170px;font-size:11px}.map-controls{max-width:90%}.map-controls button{font-size:11px}.map-legend{display:none}}
 @media print{header,.toolbar,.map,.lesson-panel,.tabbar,#summary,.actions,.profile-prompt,.design-nav,.reset-overlay{display:none!important}.layout{display:block}.layout>section:first-child{display:none!important}.layout>section:nth-child(2){width:100%!important}.tab{display:none!important}#report{display:block!important}.print-sheet{display:block!important;font:11pt/1.3 Arial,sans-serif;color:#111}.print-page{page-break-after:always}.print-page:last-child{page-break-after:auto}.print-sheet h2{font-size:15pt}.print-sheet h3{font-size:12pt;margin:8px 0}.print-sheet p{margin:5px 0}.print-sheet table{width:100%;border-collapse:collapse}.print-sheet td,.print-sheet th{border:1px solid #777;padding:5px;vertical-align:top}.print-sheet .print-card{margin:7px 0;padding:6px;border:1px solid #ccc;break-inside:avoid}}
+.help-box{max-width:760px;max-height:88vh;overflow-y:auto}.help-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid #d8e3ed;padding-bottom:9px}.help-header h2{font-size:20px;margin:0}.help-header button{flex-shrink:0}.help-section{padding:9px 0;border-bottom:1px solid #e8edf2}.help-section h3{font-size:15px;margin:0 0 5px;color:#145681}.help-section p{margin:5px 0}.help-section ol{margin:4px 0 6px;padding-left:23px}.help-section li{margin:4px 0}.help-box .actions{justify-content:flex-end;margin-top:12px}@media(max-width:550px){.help-box{padding:13px;max-height:92vh}.help-header h2{font-size:17px}}
 </style>
 </head>
 <body>
@@ -163,6 +164,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     </div>
     <div class="toolbar-actions">
       <span id="autosaveHint" class="save-hint" role="status">Tự động lưu trên máy</span>
+      <button id="helpBtn" type="button" aria-haspopup="dialog">Hướng dẫn</button>
       <button id="save" class="primary" type="button">Lưu ngay</button>
       <button id="export" type="button">Xuất bài JSON</button>
       <details class="tools-more">
@@ -301,6 +303,32 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   </div>
 
   <div id="profilePrompt" class="profile-prompt">Hãy chọn <b>Lớp – Nhóm</b> trước khi làm bài. Dữ liệu các nhóm được lưu riêng trên máy này. <button type="button" id="promptSelect">Chọn nhóm</button></div>
+  <div id="helpDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="reset-box help-box">
+      <div class="help-header"><h2 id="helpTitle">Hướng dẫn sử dụng – Hành trình di sản số</h2><button id="helpClose" type="button" aria-label="Đóng hướng dẫn">Đóng ×</button></div>
+      <p class="muted">Dành cho học sinh lớp 7 · Bài học STEM 3 tiết. Học sinh thực hiện theo thứ tự dưới đây.</p>
+      <div class="help-section"><h3>Trước khi bắt đầu: chọn lớp và nhóm</h3>
+        <p>Nhấn <strong>Chọn nhóm</strong>, nhập lớp (ví dụ 7A1) và tên nhóm (ví dụ Nhóm 1), sau đó nhấn <strong>Mở nhóm</strong>. Nếu nhóm đã làm trên máy này, chọn đúng bản lưu từ danh sách. Không sử dụng bài làm của nhóm khác.</p></div>
+      <div class="help-section"><h3>Tiết 1 – Khám phá di sản</h3>
+        <ol><li>Mở thẻ <strong>1. Khám phá</strong>. Nhấp lần lượt các điểm Ngã Ba Giồng, Địa đạo Củ Chi và Giồng Cá Vồ trên bản đồ hoặc chọn trong danh sách.</li>
+        <li>Đọc <strong>tư liệu tham khảo</strong>, đối chiếu vị trí và nguồn. Nhấn <strong>Chỉnh sửa thông tin</strong> để viết lời giới thiệu của nhóm (50–80 từ), nhập nguồn đã kiểm chứng.</li>
+        <li>Chọn ảnh có quyền sử dụng phù hợp; nếu bổ sung ảnh, ghi nguồn, tác giả và giấy phép hoặc sự cho phép. Kiểm tra nhiệm vụ còn thiếu trong khung tiến độ.</li></ol></div>
+      <div class="help-section"><h3>Tiết 2 – Thiết kế hành trình</h3>
+        <ol><li>Mở <strong>2. Thiết kế</strong> → <strong>1. Chọn tuyến</strong>, chọn hình thức khám phá và thử thứ tự ba di tích.</li>
+        <li>Ở <strong>2. Giải thích</strong>, nêu lý do, chọn một tuyến khác để so sánh và ghi dữ liệu quãng đường/thời gian nếu đã kiểm chứng.</li>
+        <li>Ở <strong>3. Hoàn thiện</strong>, viết thông điệp bảo tồn và mô tả cách nhóm thiết kế thẻ thông tin.</li></ol>
+        <p class="muted"><strong>Lưu ý:</strong> Đường nét đứt nối các điểm chỉ thể hiện thứ tự khám phá, không phải tuyến đường giao thông thực tế. Dùng các nút <strong>Xem cả 3</strong>, <strong>Đến điểm chọn</strong>, <strong>Ẩn/hiện đường nối</strong> khi quan sát bản đồ.</p></div>
+      <div class="help-section"><h3>Tiết 3 – Kiểm thử và báo cáo</h3>
+        <ol><li>Mở <strong>3. Kiểm thử</strong>, trao đổi sản phẩm để nhóm khác kiểm tra, đánh dấu tiêu chí và ghi lỗi.</li>
+        <li>Chỉnh sửa sản phẩm, ghi cách cải tiến và kết quả kiểm tra lại.</li>
+        <li>Mở <strong>4. Báo cáo</strong>, tự đánh giá, kiểm tra nội dung, sau đó dùng <strong>Xuất bài JSON</strong> để nộp theo hướng dẫn của giáo viên. Có thể chọn <strong>Tùy chọn → In sản phẩm</strong> để in báo cáo.</li></ol></div>
+      <div class="help-section"><h3>Lưu bài, khôi phục và xử lý sự cố</h3>
+        <p>Ứng dụng tự lưu trên <strong>trình duyệt và máy đang dùng</strong>; có thể nhấn <strong>Lưu ngay</strong>. Khi quay lại, chọn đúng lớp và nhóm để mở bài cũ. Trước khi chuyển máy hoặc kết thúc tiết học, hãy <strong>Xuất bài JSON</strong> và giữ tệp cẩn thận; muốn mở lại, chọn <strong>Tùy chọn → Nhập JSON</strong> tại đúng nhóm.</p>
+        <p>Nếu bản đồ trống, hãy kiểm tra Internet và tải lại trang. Nếu ảnh không hiển thị, kiểm tra địa chỉ HTTPS hoặc dùng liên kết nguồn. <strong>Khôi phục mẫu</strong> sẽ đặt lại bài làm của nhóm đang mở, vì vậy cần xuất JSON trước khi sử dụng.</p>
+        <p class="muted"><strong>Lưu ý về tiến độ:</strong> Hoàn thành thao tác không đồng nghĩa được điểm tối đa; giáo viên đánh giá theo rubric của bài học. Ứng dụng chưa tự nộp bài lên Google Sheets.</p></div>
+      <div class="actions"><button type="button" id="helpDone" class="primary">Đã hiểu – Bắt đầu học</button></div>
+    </div>
+  </div>
   <div id="groupDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="groupTitle"><div class="reset-box"><h3 id="groupTitle">Chọn bài làm của nhóm</h3><p class="muted">Các nhóm được lưu riêng trên máy này. Dữ liệu cũ không bị xóa.</p><label for="savedGroups">Nhóm đã lưu</label><select id="savedGroups"><option value="">Tạo nhóm mới / nhập tên dưới đây</option></select><label for="newClass">Lớp</label><input id="newClass" maxlength="30" placeholder="7A1"><label for="newGroup">Nhóm</label><input id="newGroup" maxlength="50" placeholder="Nhóm 1"><div class="actions"><button type="button" id="groupNo">Hủy</button><button type="button" class="primary" id="groupYes">Mở nhóm</button></div></div></div>
   <div id="resetDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="resetTitle"><div class="reset-box"><h3 id="resetTitle">Khôi phục bài làm?</h3><p>Chỉ khôi phục bài làm đang mở. Hãy xuất JSON trước nếu muốn giữ bản sao.</p><div class="actions"><button type="button" id="resetNo">Hủy</button><button type="button" class="primary" id="resetYes">Khôi phục</button></div></div></div>
   <footer>STEM Tin học 7 · Bản đồ OpenStreetMap cần Internet · Tự lưu cục bộ trên trình duyệt</footer>
@@ -917,6 +945,12 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   el('promptSelect').addEventListener('click',openGroups);
 
   el('switchGroup').addEventListener('click',openGroups);
+  function openHelp(){el('helpDialog').classList.remove('hidden');el('helpClose').focus()}
+  function closeHelp(){el('helpDialog').classList.add('hidden');el('helpBtn').focus()}
+  el('helpBtn').addEventListener('click',openHelp);
+  el('helpClose').addEventListener('click',closeHelp);
+  el('helpDone').addEventListener('click',closeHelp);
+  el('helpDialog').addEventListener('keydown',function(e){if(e.key==='Escape')closeHelp()});
   el('savedGroups').addEventListener('change',function(){if(!this.value)return;try{var x=JSON.parse(localStorage.getItem(this.value));el('newClass').value=x.klass||'';el('newGroup').value=x.group||''}catch(e){}});
   el('groupNo').addEventListener('click',function(){el('groupDialog').classList.add('hidden')});
   el('groupYes').addEventListener('click',changeGroup);
