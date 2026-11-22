@@ -837,6 +837,9 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 
   /* Google Apps Script bridge: HTTPS form POST -> Apps Script HtmlOutput -> postMessage.
      No teacher passwords or group codes are stored in source code or persistent storage. */
+  /* Sau khi triển khai Apps Script, đặt URL /exec vào đây để mọi máy tự kết nối.
+     Để trống nếu giáo viên muốn cấu hình từ nút "Lưu trực tuyến" trên từng máy. */
+  var DEFAULT_SCRIPT_URL='';
   var CLOUD_URL_KEY='stem7_apps_script_url',STUDENT_SESSION_KEY='stem7_cloud_student_session';
   var scriptUrl='',cloudRequests={},cloudCounter=0,cloudSession=null,teacherToken='',teacherGroupsData=[],teacherRecord=null;
   var teacherCurrentSite='nga',remoteSaveTimer=null,remoteBusy=false,remotePending=false,cloudConflict=false,cloudLastActive=Date.now();
@@ -1358,7 +1361,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   window.setInterval(function(){if(cloudSession)cloudHeartbeat()},50000);
   window.addEventListener('focus',function(){cloudLastActive=Date.now()});
   document.addEventListener('visibilitychange',function(){cloudLastActive=Date.now()});
-  try{scriptUrl=localStorage.getItem(CLOUD_URL_KEY)||'';if(!validScriptUrl(scriptUrl))scriptUrl='';}catch(e){}
+  try{scriptUrl=localStorage.getItem(CLOUD_URL_KEY)||DEFAULT_SCRIPT_URL;if(!validScriptUrl(scriptUrl))scriptUrl=validScriptUrl(DEFAULT_SCRIPT_URL)?DEFAULT_SCRIPT_URL:'';}catch(e){scriptUrl=validScriptUrl(DEFAULT_SCRIPT_URL)?DEFAULT_SCRIPT_URL:''}
   updateCloudUI();
 
   el('cardStyle').addEventListener('change',function(){state.sites[current].cardStyle=this.value;updatePreview();scheduleSave()});
