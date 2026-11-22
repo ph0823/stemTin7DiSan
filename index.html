@@ -136,6 +136,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   body{background:#fff}
 }
 .reset-overlay{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(10,32,45,.65);z-index:3000;display:flex;align-items:center;justify-content:center;padding:12px}.reset-box{width:100%;max-width:440px;background:#fff;border-radius:12px;padding:20px;box-shadow:0 12px 38px #0004}.reset-box h3{margin-top:0}.reset-box .actions{justify-content:flex-end}@media print{.reset-overlay{display:none!important}}
+.reference-box{background:#edf5fa;border-left:3px solid #17649a;padding:10px;margin:8px 0;border-radius:5px}.reference-box p{margin:5px 0}.reference-box a{font-size:12px}.source-warning{color:#a04b17;font-size:12px}#preview h4{margin:9px 0 4px}
 </style>
 </head>
 <body>
@@ -217,15 +218,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 
           <div id="editFields" class="hidden">
             <div class="field">
-              <label for="name">Tên địa điểm</label>
-              <input id="name" maxlength="110">
-            </div>
-            <div class="field">
-              <label for="location">Khu vực / vị trí</label>
-              <input id="location" maxlength="200">
-            </div>
-            <div class="field">
-              <label for="desc">Giới thiệu ngắn (khoảng 50–80 từ)</label>
+              <label for="desc">Lời giới thiệu của nhóm (50–80 từ)</label>
               <textarea id="desc" rows="4" maxlength="1000"></textarea>
               <div id="wordCount" class="word-count"></div>
             </div>
@@ -235,7 +228,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
             </div>
             <div class="field">
               <label for="source">Nguồn thông tin / ảnh</label>
-              <input id="source" placeholder="Tên nguồn hoặc URL">
+              <input id="source" placeholder="Tên nguồn hoặc URL"><label for="license">Tác giả và quyền sử dụng ảnh bổ sung</label><input id="license" maxlength="300" placeholder="Nguồn · giấy phép/cho phép">
             </div>
           </div>
 
@@ -293,7 +286,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
         </div>
 
         <div id="report" class="tab hidden">
-          <h3>Báo cáo sản phẩm</h3>
+          <h3>Báo cáo sản phẩm</h3><div class="field"><label for="selfAssessment">Tự đánh giá của nhóm</label><select id="selfAssessment"><option value="">Chưa tự đánh giá</option><option value="Cần hoàn thiện">Cần hoàn thiện</option><option value="Đã hoàn thành nhiệm vụ">Đã hoàn thành nhiệm vụ</option><option value="Sẵn sàng nhận đánh giá của giáo viên">Sẵn sàng nhận đánh giá của giáo viên</option></select></div><p class="muted">Giáo viên đánh giá chất lượng theo rubric KHBD; tiến độ chỉ thể hiện thông tin đã hoàn thành.</p>
           <div id="summary"></div>
           <div class="actions">
             <button id="copy" type="button">Sao chép báo cáo</button>
@@ -369,6 +362,9 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     checks: {}, tester: '', issues: '', fix: '', recheck: ''
   };
 
+  var referenceSites=JSON.parse(JSON.stringify(base.sites));
+  ids.forEach(function(id){base.sites[id].desc='';base.sites[id].source='';base.sites[id].image='';base.sites[id].license=''});
+  base.visited={};base.selfAssessment='';
   var state = JSON.parse(JSON.stringify(base));
   var current = 'nga';
 
@@ -471,7 +467,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       img.className = 'heritage-photo';
       img.alt = 'Ảnh tư liệu: ' + state.sites[id].name;
       img.src = src;
-      img.onerror = function(){ this.style.display = 'none'; };
+      img.onerror=function(){if(allowPlaceholder&&this.parentNode){var f=document.createElement('div');f.className='photo-placeholder';f.textContent='Ảnh chưa tải được. Hãy kiểm tra nguồn hoặc chọn ảnh được phép sử dụng.';this.parentNode.replaceChild(f,this)}else this.style.display='none'};
       return img;
     }
     if (allowPlaceholder) {
@@ -493,7 +489,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     a.href = (state.sites[id].image && state.sites[id].source && safeURL(state.sites[id].source)) || g.photoPage;
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
-    a.textContent = state.sites[id].image ? 'Ảnh do nhóm lựa chọn – xem nguồn' : g.credit;
+    a.textContent = state.sites[id].image ? ('Ảnh nhóm chọn · '+(state.sites[id].license||'chưa ghi giấy phép')) : g.credit;
     p.appendChild(a);
     return p;
   }
@@ -513,7 +509,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     }
     box.appendChild(makeCredit(id));
     var p = document.createElement('p');
-    p.textContent = s.desc;
+    p.textContent = clean(s.desc)||referenceSites[id].desc;
     box.appendChild(p);
     var note = document.createElement('small');
     note.textContent = 'Vị trí: ' + g.precision;
@@ -613,12 +609,14 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     ids.forEach(function(id){
       var s = x.sites[id];
       if (s && typeof s === 'object') {
-        ['name','location','desc','image','source'].forEach(function(k){
+        ['name','location','desc','image','source','license'].forEach(function(k){
           if (typeof s[k] === 'string') state.sites[id][k] = s[k].slice(0, 6000);
         });
       }
     });
-    if (x.checks && typeof x.checks === 'object') state.checks = x.checks;
+    if (x.checks && typeof x.checks === 'object') state.checks=x.checks;
+    state.visited=x.visited&&typeof x.visited==='object'?x.visited:{};
+    state.selfAssessment=typeof x.selfAssessment==='string'?x.selfAssessment.slice(0,100):'';
   }
 
   var saveTimer = null, dirty = false;
@@ -684,14 +682,15 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     el('lessonTitle').textContent = captions[lesson][0];
     el('lessonTask').textContent = captions[lesson][1];
     var completed = 0, total = 3;
-    if (lesson === 1) {
-      ids.forEach(function(id){ if (clean(state.sites[id].source)) completed++; });
+    if(lesson===1){ids.forEach(function(id){var d=clean(state.sites[id].desc),w=d?d.split(/\s+/).length:0;
+      if(state.visited[id]&&w>=50&&w<=80&&clean(state.sites[id].source))completed++;
+    });
     } else if (lesson === 2) {
       ['reason','message','sketch'].forEach(function(k){ if (clean(state[k])) completed++; });
     } else {
       if (clean(state.tester)) completed++;
       if (clean(state.issues) && clean(state.fix)) completed++;
-      if (clean(state.recheck)) completed++;
+      if (clean(state.recheck) && clean(state.selfAssessment)) completed++;
     }
     el('lessonProgress').textContent = completed + '/' + total + ' nhiệm vụ';
     el('progressFill').style.width = Math.round(100 * completed / total) + '%';
@@ -729,12 +728,14 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     text(loc, s.location);
     p.appendChild(loc);
 
-    p.appendChild(makePhoto(current, true));
-    p.appendChild(makeCredit(current));
+    var ref=document.createElement('div');ref.className='reference-box';var refTitle=document.createElement('strong');refTitle.textContent='Tư liệu tham khảo (không chỉnh sửa)';ref.appendChild(refTitle);
+    var refP=document.createElement('p');refP.textContent=referenceSites[current].desc;ref.appendChild(refP);
+    var refA=document.createElement('a');refA.href=heritageGeo[current].ref;refA.target='_blank';refA.rel='noopener noreferrer';refA.textContent='Xem nguồn';ref.appendChild(refA);p.appendChild(ref);
+    p.appendChild(makePhoto(current,true));p.appendChild(makeCredit(current));
 
-    var d = document.createElement('p');
-    text(d, s.desc);
-    p.appendChild(d);
+    var head=document.createElement('h4');head.textContent='Bài làm của nhóm';p.appendChild(head);
+    var d=document.createElement('p');text(d,clean(s.desc)||'Chưa có lời giới thiệu của nhóm.');p.appendChild(d);
+    if(s.image&&!clean(s.license)){var w=document.createElement('p');w.className='source-warning';w.textContent='Ảnh chưa ghi quyền sử dụng.';p.appendChild(w)}
 
     if (s.source) {
       var small = document.createElement('p');
@@ -753,10 +754,9 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 
   function showSite(){
     var site = state.sites[current];
-    ['name','location','desc','image','source'].forEach(function(k){
-      el(k).value = site[k] || '';
-    });
+    ['desc','image','source','license'].forEach(function(k){el(k).value=site[k]||''});
     el('site').value = current;
+    state.visited[current]=true;
     updatePreview();
     selectMarker(current, false);
     updateLesson();
@@ -812,7 +812,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       'Nhóm kiểm thử: ' + state.tester,
       'Lỗi: ' + state.issues,
       'Cải tiến: ' + state.fix,
-      'Kiểm tra lại: ' + state.recheck
+      'Kiểm tra lại: ' + state.recheck,
+      'Tự đánh giá của nhóm: ' + (state.selfAssessment || 'Chưa thực hiện')
     );
     return lines.join('\n');
   }
@@ -863,7 +864,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     }, 350);
   }
 
-  ['name','location','desc','image','source'].forEach(function(k){
+  ['desc','image','source','license'].forEach(function(k){
     el(k).addEventListener('input', function(){
       state.sites[current][k] = this.value;
       if (k === 'desc') updateWordCount(this.value);
@@ -872,7 +873,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     });
   });
 
-  ['mode','order','reason','estimate','message','sketch','tester','issues','fix','recheck'].forEach(function(k){bind(k,k)});
+  ['mode','order','reason','estimate','message','sketch','tester','issues','fix','recheck','selfAssessment'].forEach(function(k){bind(k,k)});
   el('switchGroup').addEventListener('click',openGroups);
   el('savedGroups').addEventListener('change',function(){if(!this.value)return;try{var x=JSON.parse(localStorage.getItem(this.value));el('newClass').value=x.klass||'';el('newGroup').value=x.group||''}catch(e){}});
   el('groupNo').addEventListener('click',function(){el('groupDialog').classList.add('hidden')});
@@ -963,7 +964,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   });
 
   function refresh(){
-    ['group','klass','mode','order','reason','estimate','message','sketch','tester','issues','fix','recheck'].forEach(function(k){
+    ['group','klass','mode','order','reason','estimate','message','sketch','tester','issues','fix','recheck','selfAssessment'].forEach(function(k){
       el(k).value = state[k] || '';
     });
     renderChecks();
