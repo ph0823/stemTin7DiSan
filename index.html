@@ -186,12 +186,12 @@ header{padding:8px 16px}header h1{font-size:19px;line-height:1.2}header p{font-s
 .learning-mode-bar{padding:5px 10px;margin-bottom:7px;min-height:38px}.learning-mode-bar>div{margin:1px 3px}.learning-mode-bar .mode-summary{display:flex;align-items:center;flex-wrap:wrap}
 .learning-mode-bar.is-collapsed .mode-switch{display:none}.mode-summary strong{margin-right:4px}.mode-summary .muted{font-size:12px}
 .collapse-control{font-size:12px!important;font-weight:normal!important;padding:4px 9px!important;color:#17649a;background:#f3f8fc;border:1px solid #cedfeb;white-space:nowrap}
-.mode-summary .collapse-control{margin-left:9px}
+.mode-summary .collapse-control{margin-left:7px}#compactPresetBtn{font-weight:bold!important}
 .layout{grid-template-columns:minmax(0,1.36fr) minmax(400px,1fr);grid-gap:9px;gap:9px}
 .map-shell{background:#fff;border:1px solid var(--line);border-radius:10px;padding:5px;margin-bottom:7px}
 .compact-card-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;min-height:31px;padding:2px 5px;gap:4px}
 .compact-card-head strong{font-size:13px}.card-head-actions{display:flex;gap:5px}
-.map-shell .map{height:calc(100vh - 230px);min-height:350px;max-height:700px;border-radius:7px}
+.map-shell .map{height:calc(100vh - 340px);min-height:340px;max-height:540px;border-radius:7px}
 .map-shell.is-collapsed #map{display:none}
 .map-controls{top:8px;right:7px}.map-legend-panel{top:45px;right:8px}
 .map-note{font-size:10px;bottom:5px;left:5px;right:5px}
@@ -221,7 +221,7 @@ header{padding:8px 16px}header h1{font-size:19px;line-height:1.2}header p{font-s
 #explore .actions button{padding:6px 9px;font-size:12px}
 .step-actions{margin-top:9px;padding-top:8px}.step-actions button{padding:6px 10px}
 footer{padding:4px 0;font-size:10px}
-@media(max-width:1100px){.layout{grid-template-columns:minmax(0,1fr) minmax(360px,1fr)}.map-shell .map{min-height:330px;height:calc(100vh - 190px)}}
+@media(max-width:1100px){.layout{grid-template-columns:minmax(0,1fr) minmax(360px,1fr)}.map-shell .map{min-height:330px;height:calc(100vh - 330px)}}
 @media(max-width:950px){.layout{grid-template-columns:1fr}.map-shell .map{height:390px;min-height:300px;max-height:500px}.compact-card-head{min-height:30px}}
 @media(max-width:560px){.wrap{padding:5px}.toolbar{padding:5px}.map-shell .map{height:330px;min-height:290px}.mode-summary{font-size:12px}.step-journey{grid-template-columns:repeat(2,minmax(0,1fr))}.toolbar-actions{flex-wrap:wrap}}
 @media print{.compact-card-head,.map-shell .compact-card-head,.learning-mode-bar{display:none!important}.preview.is-collapsed{display:block}}
@@ -261,7 +261,7 @@ footer{padding:4px 0;font-size:10px}
     </div>
   </div>
 
-  <div class="learning-mode-bar is-collapsed" id="learningModeBar"><div class="mode-summary"><strong>Chế độ:</strong> <span id="modeDescription" class="muted">Cơ bản · 45 phút</span><button type="button" id="modeCollapseBtn" class="collapse-control" aria-expanded="false" aria-controls="modeSwitch">Đổi chế độ ▾</button></div><div class="mode-switch" id="modeSwitch" role="group" aria-label="Chế độ học tập"><button type="button" id="basicModeBtn" class="active" aria-pressed="true">Cơ bản · 45 phút</button><button type="button" id="advancedModeBtn" aria-pressed="false">Mở rộng</button></div></div>
+  <div class="learning-mode-bar is-collapsed" id="learningModeBar"><div class="mode-summary"><strong>Chế độ:</strong> <span id="modeDescription" class="muted">Cơ bản · 45 phút</span><button type="button" id="modeCollapseBtn" class="collapse-control" aria-expanded="false" aria-controls="modeSwitch">Đổi chế độ ▾</button><button type="button" id="compactPresetBtn" class="collapse-control" aria-pressed="false">Gọn cho TV</button></div><div class="mode-switch" id="modeSwitch" role="group" aria-label="Chế độ học tập"><button type="button" id="basicModeBtn" class="active" aria-pressed="true">Cơ bản · 45 phút</button><button type="button" id="advancedModeBtn" aria-pressed="false">Mở rộng</button></div></div>
   <div id="cloudErrorBanner" class="cloud-error hidden" role="alert"></div>
   <div class="layout" id="workArea">
     <section class="map-column">
@@ -1753,6 +1753,11 @@ footer{padding:4px 0;font-size:10px}
     if(which==='photo')button.setAttribute('aria-pressed',String(collapsed));
     else button.setAttribute('aria-expanded',String(!collapsed));
     if(savePref){try{localStorage.setItem(COMPACT_PREF_KEY,JSON.stringify(compactPrefs))}catch(e){}}
+    if(el('compactPresetBtn')){
+      var tvCompact=compactPrefs.lesson&&compactPrefs.mode&&compactPrefs.photo;
+      el('compactPresetBtn').textContent=tvCompact?'Mở các thẻ':'Gọn cho TV';
+      el('compactPresetBtn').setAttribute('aria-pressed',String(tvCompact));
+    }
     if(which==='map'&&!collapsed&&realMap){
       setTimeout(function(){realMap.invalidateSize({pan:false})},80);
       setTimeout(function(){realMap.invalidateSize({pan:false})},300);
@@ -1768,6 +1773,10 @@ footer{padding:4px 0;font-size:10px}
     ['map','lesson','mode','preview','photo'].forEach(function(k){applyCompactPanel(k,compactPrefs[k],false)});
   }
   function bindCompactPanels(){
+    el('compactPresetBtn').addEventListener('click',function(){
+      var compact=!(compactPrefs.lesson&&compactPrefs.mode&&compactPrefs.photo);
+      ['lesson','mode','photo'].forEach(function(k){applyCompactPanel(k,compact,true)});
+    });
     ['map','lesson','mode','preview','photo'].forEach(function(k){
       var buttons={map:'mapCollapseBtn',lesson:'lessonCollapseBtn',mode:'modeCollapseBtn',preview:'previewCollapseBtn',photo:'photoCollapseBtn'};
       el(buttons[k]).addEventListener('click',function(){
