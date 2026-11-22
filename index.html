@@ -162,6 +162,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   .print-card{page-break-inside:avoid;break-inside:avoid}
   #printSheet{max-width:100%;width:100%}
 }
+.cloud-box,.teacher-box{max-width:860px;max-height:90vh;overflow-y:auto}.teacher-box{max-width:1060px}.teacher-grid{display:grid;grid-template-columns:270px minmax(0,1fr);grid-gap:14px;gap:14px}.teacher-box textarea{min-height:75px}.teacher-box select[size]{height:340px}.teacher-password-change{border-top:1px solid #d8e3ed;margin-top:12px;padding-top:12px}#cloudStatus,#teacherStatus{white-space:pre-wrap}#cloudTimes{font-size:12px}.cloud-box .actions,.teacher-box .actions{margin:10px 0}@media(max-width:700px){.teacher-grid{grid-template-columns:1fr}.cloud-box,.teacher-box{max-height:92vh}}@media print{#cloudDialog,#teacherDialog{display:none!important}}
 </style>
 </head>
 <body>
@@ -181,6 +182,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     <div class="toolbar-actions">
       <span id="autosaveHint" class="save-hint" role="status">Tự động lưu trên máy</span>
       <button id="helpBtn" type="button" aria-haspopup="dialog">Hướng dẫn</button>
+      <button id="cloudBtn" type="button">Lưu trực tuyến</button>
+      <button id="teacherBtn" type="button">Giáo viên</button>
       <button id="save" class="primary" type="button">Lưu ngay</button>
       <button id="export" type="button">Xuất bài JSON</button>
       <details class="tools-more">
@@ -343,6 +346,59 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
         <p>Nếu bản đồ trống, hãy kiểm tra Internet và tải lại trang. Nếu ảnh không hiển thị, kiểm tra địa chỉ HTTPS hoặc dùng liên kết nguồn. Ứng dụng tạo bản sao trước khi chuyển nhóm, nhập JSON hoặc khôi phục mẫu. Vào <strong>Tùy chọn → Bản sao lưu</strong> để phục hồi khi cần. Bản sao chỉ lưu trên máy hiện tại; chọn <strong>Tùy chọn → Xuất sao lưu</strong> để lưu cả bài hiện tại và các bản dự phòng, đồng thời xuất JSON trước khi kết thúc tiết học.</p>
         <p class="muted"><strong>Lưu ý về tiến độ:</strong> Hoàn thành thao tác không đồng nghĩa được điểm tối đa; giáo viên đánh giá theo rubric của bài học. Ứng dụng chưa tự nộp bài lên Google Sheets.</p></div>
       <div class="actions"><button type="button" id="helpDone" class="primary">Đã hiểu – Bắt đầu học</button></div>
+    </div>
+  </div>
+  <div id="cloudDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="cloudTitle">
+    <div class="reset-box cloud-box">
+      <h2 id="cloudTitle">Lưu và mở bài trực tuyến</h2>
+      <p class="muted">Bài học luôn được lưu trên máy. Khi kết nối Apps Script, nhóm có thể tiếp tục làm trên máy khác bằng mã 4 ký tự.</p>
+      <label for="scriptUrl">Đường dẫn Web App Google Apps Script (HTTPS)</label>
+      <input id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
+      <div class="actions"><button id="saveScriptUrl" type="button">Lưu địa chỉ máy chủ</button><button id="pingServer" type="button">Kiểm tra kết nối</button></div>
+      <div id="cloudConnectPanel">
+        <label for="cloudClass">Lớp</label><input id="cloudClass" maxlength="30" placeholder="7A1">
+        <label for="cloudGroup">Nhóm</label><input id="cloudGroup" maxlength="50" placeholder="Nhóm 1">
+        <label for="cloudCode">Mã nhóm (4 ký tự, chỉ nhập khi mở lại)</label><input id="cloudCode" maxlength="4" autocomplete="off" placeholder="AB23">
+        <div class="actions"><button id="createCloud" type="button">Tạo nhóm trực tuyến</button><button id="openCloud" type="button">Mở nhóm bằng mã</button></div>
+      </div>
+      <div id="cloudSessionPanel" class="hidden">
+        <p><strong id="cloudSessionName"></strong></p>
+        <p id="cloudTimes" class="muted"></p>
+        <div class="actions"><button id="cloudSaveNow" class="primary" type="button">Lưu bài lên Google Sheets</button><button id="cloudReload" type="button">Lấy bài từ máy chủ</button><button id="cloudLogout" type="button">Ngắt phiên trực tuyến</button></div>
+      </div>
+      <p id="cloudStatus" role="status" class="muted"></p>
+      <div class="actions"><button id="cloudClose" type="button">Đóng</button></div>
+    </div>
+  </div>
+  <div id="teacherDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="teacherTitle">
+    <div class="reset-box teacher-box">
+      <h2 id="teacherTitle">Quản lý sản phẩm STEM – Giáo viên</h2>
+      <div id="teacherLoginPanel">
+        <label for="teacherPassword">Mật khẩu giáo viên (8 ký tự)</label><input type="password" id="teacherPassword" maxlength="8" autocomplete="off">
+        <div class="actions"><button id="teacherLogin" class="primary" type="button">Đăng nhập</button></div>
+      </div>
+      <div id="teacherWorkspace" class="hidden">
+        <div class="actions"><button id="teacherRefresh" type="button">Tải danh sách nhóm</button><button id="teacherLogout" type="button">Đăng xuất</button></div>
+        <div class="teacher-grid">
+          <div><label for="teacherGroups">Các nhóm đã lưu</label><select id="teacherGroups" size="9"></select></div>
+          <div>
+            <h3 id="teacherGroupTitle">Chọn nhóm để xem</h3>
+            <div id="teacherMeta" class="muted"></div>
+            <label for="teacherSite">Di tích cần chỉnh sửa</label><select id="teacherSite"><option value="nga">Ngã Ba Giồng</option><option value="cu">Địa đạo Củ Chi</option><option value="giong">Giồng Cá Vồ</option></select>
+            <label for="teacherDesc">Lời giới thiệu của nhóm</label><textarea id="teacherDesc" rows="5"></textarea>
+            <label for="teacherSource">Nguồn thông tin</label><input id="teacherSource">
+            <label for="teacherMessage">Thông điệp bảo tồn</label><textarea id="teacherMessage" rows="3"></textarea>
+            <label for="teacherNote">Ghi chú chỉnh sửa của giáo viên</label><textarea id="teacherNote" rows="2" placeholder="Lý do hoặc nội dung đã hỗ trợ"></textarea>
+            <div class="actions"><button id="teacherSave" class="primary" type="button">Lưu chỉnh sửa</button><button id="teacherRotate" type="button">Cấp mã nhóm mới</button></div>
+          </div>
+        </div>
+        <div class="teacher-password-change">
+          <label for="teacherNewPassword">Đổi mật khẩu giáo viên (đúng 8 ký tự)</label><input id="teacherNewPassword" type="password" maxlength="8" autocomplete="new-password">
+          <button id="teacherChangePassword" type="button">Đổi mật khẩu</button>
+        </div>
+      </div>
+      <p id="teacherStatus" class="muted" role="status"></p>
+      <div class="actions"><button id="teacherClose" type="button">Đóng</button></div>
     </div>
   </div>
   <div id="groupDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="groupTitle"><div class="reset-box"><h3 id="groupTitle">Chọn bài làm của nhóm</h3><p class="muted">Các nhóm được lưu riêng trên máy này. Dữ liệu cũ không bị xóa.</p><label for="savedGroups">Nhóm đã lưu</label><select id="savedGroups"><option value="">Tạo nhóm mới / nhập tên dưới đây</option></select><label for="newClass">Lớp</label><input id="newClass" maxlength="30" placeholder="7A1"><label for="newGroup">Nhóm</label><input id="newGroup" maxlength="50" placeholder="Nhóm 1"><div class="actions"><button type="button" id="groupNo">Hủy</button><button type="button" class="primary" id="groupYes">Mở nhóm</button></div></div></div>
