@@ -465,6 +465,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       localStorage.setItem(nextKey,JSON.stringify(candidate));
       localStorage.setItem(ACTIVE_KEY,nextKey);
       state=candidate;activeKey=nextKey;dirty=false;clearTimeout(saveTimer);
+      if(cloudSession&&(cloudSession.klass.toLowerCase()!==klass.toLowerCase()||cloudSession.group.toLowerCase()!==group.toLowerCase())){cloudSession=null;persistCloudSession();clearTimeout(remoteSaveTimer)}
       refresh();updateProfileUI();el('groupDialog').classList.add('hidden');
       setStatus(json?'Đã mở dữ liệu nhóm.':'Đã tạo bản lưu nhóm riêng.');
     }catch(e){setStatus('Không chuyển được nhóm. Dữ liệu đang mở được giữ nguyên: '+e.message)}
@@ -922,8 +923,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     if(!cloudSession)return;
     if(!safeBackup('Trước lấy lại bài từ máy chủ')){cloudStatus('Không sao lưu được bài hiện tại.');return}
     cloudStatus('Đang tải bản mới từ máy chủ…');
-    cloudCall({action:'studentLogin',klass:cloudSession.klass,group:cloudSession.group,code:clean(el('cloudCode').value).toUpperCase()},function(err,res){
-      if(err){cloudStatus('Để lấy lại bài, vui lòng ngắt phiên và đăng nhập lại bằng mã nhóm. '+err);return}
+    cloudCall({action:'studentGet',klass:cloudSession.klass,group:cloudSession.group,token:cloudSession.token},function(err,res){
+      if(err){cloudStatus('Phiên truy cập hết hạn hoặc máy chủ không phản hồi. '+err);return}
       try{adoptCloudRecord(res,res.token);cloudStatus('Đã lấy bản mới trên máy chủ.')}catch(e){cloudStatus(e.message)}
     });
   }
@@ -1011,7 +1012,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     if (el('autosaveHint')) el('autosaveHint').textContent = 'Đang lưu…';
     clearTimeout(saveTimer);
     saveTimer = setTimeout(function(){ save(true); }, 650);
-    updateLesson();
+    updateLesson();scheduleCloudSave();
   }
   function saveIfNeeded(){
     if (dirty) { clearTimeout(saveTimer); save(true); }
@@ -1279,6 +1280,62 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   el('promptSelect').addEventListener('click',openGroups);
 
   el('switchGroup').addEventListener('click',openGroups);
+  function closeTeacher(){closeBridgeDialog('teacherDialog')}
+  el('cloudBtn').addEventListener('click',cloudOpen);
+  el('cloudClose').addEventListener('click',function(){closeBridgeDialog('cloudDialog')});
+  el('saveScriptUrl').addEventListener('click',function(){
+    var url=clean(el('scriptUrl').value);
+    if(!validScriptUrl(url)){cloudStatus('Đường dẫn cần có dạng https://script.google.com/macros/s/.../exec');return}
+    scriptUrl=url;try{localStorage.setItem(CLOUD_URL_KEY,scriptUrl)}catch(e){}
+    cloudStatus('Đã lưu địa chỉ Web App trên máy này.');
+  });
+  el('pingServer').addEventListener('click',function(){var v=clean(el('scriptUrl').value);
+    if(!validScriptUrl(v)){cloudStatus('Đường dẫn Web App chưa hợp lệ.');return}
+    scriptUrl=v;cloudStatus('Đang kiểm tra…');cloudCall({action:'ping'},function(err,res){cloudStatus(err||('Đã kết nối Apps Script · phiên bản '+res.version))});
+  });
+  el('createCloud').addEventListener('click',cloudCreate);
+  el('openCloud').addEventListener('click',cloudLogin);
+  el('cloudSaveNow').addEventListener('click',function(){cloudSave(true)});
+  el('cloudReload').addEventListener('click',cloudReload);
+  el('cloudLogout').addEventListener('click',function(){cloudSession=null;cloudConflict=false;clearTimeout(remoteSaveTimer);persistCloudSession();cloudStatus('Đã ngắt phiên trực tuyến. Bài cục bộ vẫn được giữ nguyên.')});
+  el('teacherBtn').addEventListener('click',teacherOpen);
+  el('teacherClose').addEventListener('click',closeTeacher);
+  el('teacherLogin').addEventListener('click',function(){
+    var pass=el('teacherPassword').value;
+    if(pass.length!==8){teacherStatus('Nhập mật khẩu giáo viên đúng 8 ký tự.');return}
+    teacherStatus('Đang đăng nhập…');
+    cloudCall({action:'teacherLogin',password:pass},function(err,res){
+      el('teacherPassword').value='';
+      if(err){teacherStatus(err);return}
+      teacherToken=res.token;
+      el('teacherWorkspace').classList.remove('hidden');el('teacherLoginPanel').classList.add('hidden');
+      teacherStatus(res.mustChange?'Đang dùng mật khẩu ban đầu. Hãy đổi mật khẩu ngay trước khi sử dụng.':'Đăng nhập thành công.');
+      teacherList();
+    });
+  });
+  el('teacherLogout').addEventListener('click',function(){teacherToken='';teacherRecord=null;el('teacherWorkspace').classList.add('hidden');el('teacherLoginPanel').classList.remove('hidden');teacherStatus('Đã đăng xuất chế độ giáo viên.')});
+  el('teacherRefresh').addEventListener('click',teacherList);
+  el('teacherGroups').addEventListener('change',function(){teacherLoadGroup()});
+  el('teacherSite').addEventListener('change',function(){teacherCapture();teacherCurrentSite=this.value;teacherDisplaySite()});
+  el('teacherSave').addEventListener('click',teacherSave);
+  el('teacherRotate').addEventListener('click',teacherRotate);
+  el('teacherChangePassword').addEventListener('click',function(){
+    var newPass=el('teacherNewPassword').value;
+    if(newPass.length!==8){teacherStatus('Mật khẩu mới phải có đúng 8 ký tự.');return}
+    cloudCall({action:'teacherPassword',token:teacherToken,newPassword:newPass},function(err){
+      el('teacherNewPassword').value='';
+      if(err){teacherStatus(err);return}
+      teacherStatus('Đã đổi mật khẩu trên máy chủ. Hãy ghi nhớ mật khẩu mới.');
+    });
+  });
+  window.setInterval(function(){if(cloudSession)cloudHeartbeat()},50000);
+  window.addEventListener('focus',function(){cloudLastActive=Date.now()});
+  document.addEventListener('visibilitychange',function(){cloudLastActive=Date.now()});
+  try{scriptUrl=localStorage.getItem(CLOUD_URL_KEY)||'';if(!validScriptUrl(scriptUrl))scriptUrl='';}catch(e){}
+  try{var st=sessionStorage.getItem(STUDENT_SESSION_KEY);if(st){var session=JSON.parse(st);if(session&&session.token)cloudSession=session}}catch(e){}
+  if(cloudSession&&(!hasProfile()||clean(cloudSession.klass).toLowerCase()!==clean(state.klass).toLowerCase()||clean(cloudSession.group).toLowerCase()!==clean(state.group).toLowerCase())){cloudSession=null;persistCloudSession()}
+  updateCloudUI();
+
   el('cardStyle').addEventListener('change',function(){state.sites[current].cardStyle=this.value;updatePreview();scheduleSave()});
   el('captureBefore').addEventListener('click',function(){captureSnapshot('before')});
   el('captureAfter').addEventListener('click',function(){captureSnapshot('after')});
