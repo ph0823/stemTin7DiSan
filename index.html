@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Hành trình di sản số | STEM Tin học 7</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyo44p3zYQ1l8=" crossorigin="">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
 :root{--ink:#183047;--blue:#17649a;--line:#d8e3ed;--bg:#f3f7fb;--white:#fff;--good:#17734d;--warn:#c05621}
 *{box-sizing:border-box}
@@ -37,7 +37,6 @@ button:disabled{opacity:.5;cursor:default}
 .real-map #leafletMap{position:absolute;top:0;right:0;bottom:0;left:0;height:100%;width:100%;z-index:1}
 .real-map .leaflet-container{background:#e7eee7}
 .real-map .leaflet-tile{max-width:none!important;max-height:none!important}
-.real-map .leaflet-overlay-pane svg{min-height:0!important;height:auto;width:auto;display:block}
 .real-map .leaflet-control{box-sizing:content-box}
 
 .map-controls{position:absolute;top:12px;right:12px;left:auto;z-index:800;display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:65%}
@@ -136,6 +135,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   .panel{break-inside:avoid}
   body{background:#fff}
 }
+.reset-overlay{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(10,32,45,.65);z-index:3000;display:flex;align-items:center;justify-content:center;padding:12px}.reset-box{width:100%;max-width:440px;background:#fff;border-radius:12px;padding:20px;box-shadow:0 12px 38px #0004}.reset-box h3{margin-top:0}.reset-box .actions{justify-content:flex-end}@media print{.reset-overlay{display:none!important}}
 </style>
 </head>
 <body>
@@ -307,6 +307,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     </section>
   </div>
 
+  <div id="resetDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="resetTitle"><div class="reset-box"><h3 id="resetTitle">Khôi phục bài làm?</h3><p>Chỉ khôi phục bài làm đang mở. Hãy xuất JSON trước nếu muốn giữ bản sao.</p><div class="actions"><button type="button" id="resetNo">Hủy</button><button type="button" class="primary" id="resetYes">Khôi phục</button></div></div></div>
   <footer>STEM Tin học 7 · Bản đồ OpenStreetMap cần Internet · Tự lưu cục bộ trên trình duyệt</footer>
 </div>
 
@@ -905,14 +906,13 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   el('print').addEventListener('click', function(){ tab('report'); window.print(); });
   el('reportPrint').addEventListener('click', function(){ window.print(); });
 
-  el('reset').addEventListener('click', function(){
-    if (confirm('Khôi phục dữ liệu mẫu? Dữ liệu chưa xuất sẽ bị mất.')) {
-      apply(base);
-      refresh();
-      save(true);
-      setStatus('Đã khôi phục dữ liệu mẫu.');
-    }
+  el('reset').addEventListener('click',function(){el('resetDialog').classList.remove('hidden');el('resetNo').focus()});
+  el('resetNo').addEventListener('click',function(){el('resetDialog').classList.add('hidden')});
+  el('resetYes').addEventListener('click',function(){
+    var klass=state.klass,group=state.group;apply(base);state.klass=klass;state.group=group;
+    refresh();save(true);el('resetDialog').classList.add('hidden');setStatus('Đã khôi phục bài làm đang mở.');
   });
+  el('resetDialog').addEventListener('keydown',function(e){if(e.key==='Escape')el('resetDialog').classList.add('hidden')});
 
   el('copy').addEventListener('click', function(){
     var v = reportText();
