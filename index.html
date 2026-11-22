@@ -493,9 +493,9 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       state=candidate;activeKey=nextKey;dirty=false;clearTimeout(saveTimer);
       if(cloudSession&&(cloudSession.klass.toLowerCase()!==klass.toLowerCase()||cloudSession.group.toLowerCase()!==group.toLowerCase())){cloudSession=null;persistCloudSession();clearTimeout(remoteSaveTimer)}
       refresh();updateProfileUI();el('groupDialog').classList.add('hidden');
-      setStatus(json?'Đã mở dữ liệu nhóm.':'Đã tạo bản lưu nhóm riêng.');
+      setStatus('');
       if(scriptUrl&&!cloudSession)setTimeout(cloudOpen,150);
-    }catch(e){setStatus('Không chuyển được nhóm. Dữ liệu đang mở được giữ nguyên: '+e.message)}
+    }catch(e){setStatus('Không mở được nhóm. Bài hiện tại vẫn được giữ.');}
   }
   var ids = ['nga', 'cu', 'giong'];
   var base = {
@@ -538,7 +538,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   function hasProfile(){return activeKey!==KEY&&!!clean(state.klass)&&!!clean(state.group)}
   function updateProfileUI(){
     var ok=hasProfile();el('profilePrompt').classList.toggle('hidden',ok);el('workArea').classList.toggle('work-locked',!ok);
-    el('autosaveHint').textContent=ok?(dirty?'Đang lưu…':(cloudSession?'':'Bản trên máy: '+state.group+' · '+state.klass)):'Chưa chọn nhóm';
+    el('autosaveHint').textContent=ok?(dirty?'Đang lưu…':(cloudSession?'':'Chưa mở bài trực tuyến')):'Chưa chọn nhóm';
     el('save').disabled=!ok;el('export').disabled=!ok;
   }
   function setDesignStep(n){designStep=n;document.querySelectorAll('[data-step-panel]').forEach(function(x){x.classList.toggle('hidden',x.getAttribute('data-step-panel')!==String(n))});document.querySelectorAll('[data-step]').forEach(function(x){x.classList.toggle('active',x.getAttribute('data-step')===String(n))});}
@@ -850,38 +850,50 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   function validScriptUrl(url){return /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(String(url||'').trim())}
   function cloudId(){cloudCounter++;return 'stem7_'+Date.now().toString(36)+'_'+cloudCounter+'_'+Math.random().toString(36).slice(2)}
   function cloudStatus(msg){el('cloudStatus').textContent=msg||''}
+  function friendlyError(err){
+    var m=String(err||'');
+    if(/Sai mã nhóm|mã nhóm đã thay đổi|Sai nhóm truy cập/i.test(m))return 'Mã nhóm chưa đúng hoặc đã đổi. Hãy hỏi giáo viên.';
+    if(/Sai mật khẩu/i.test(m))return 'Mật khẩu chưa đúng.';
+    if(/Quá nhiều lần nhập sai/i.test(m))return 'Đã nhập sai nhiều lần. Hãy thử lại sau hoặc nhờ giáo viên.';
+    if(/Phiên.*hết hạn|đăng nhập lại/i.test(m))return 'Phiên làm bài đã hết hạn. Hãy mở lại bằng mã nhóm.';
+    if(/đã tồn tại/i.test(m))return 'Nhóm đã có bài. Hãy nhập mã nhóm để mở lại.';
+    if(/Chưa có nhóm/i.test(m))return 'Không tìm thấy bài nhóm. Kiểm tra lớp và tên nhóm.';
+    if(/revision|conflict|phiên bản mới/i.test(m))return 'Bài đã được sửa ở máy khác. Hãy tải bài mới nhất.';
+    if(/Thiếu dữ liệu|Không hợp lệ|Invalid|Sai kiểu|payload|schema|Exception|TypeError|ReferenceError|setup\(|Script Properties|Spreadsheet/i.test(m))return 'Hệ thống lưu bài gặp lỗi. Hãy báo giáo viên.';
+    return m.length>180?'Có lỗi. Hãy thử lại hoặc nhờ giáo viên.':m;
+  }
   function connectionError(message){
-    var b=el('cloudErrorBanner');b.textContent=message?'Không kết nối được lưu trực tuyến: '+message:'';b.classList.toggle('hidden',!message);
+    var b=el('cloudErrorBanner');b.textContent=message?'Chưa kết nối được. Bài vẫn được giữ trên máy.':'';b.classList.toggle('hidden',!message);
     if(message)cloudStatus(message);
   }
   function teacherStatus(msg){el('teacherStatus').textContent=msg}
   function closeBridgeDialog(which){el(which).classList.add('hidden')}
   function cloudCall(data,callback){
-    if(!validScriptUrl(scriptUrl)){connectionError('Chưa có địa chỉ Web App hợp lệ.');callback('Chưa có địa chỉ Web App hợp lệ.');return}
+    if(!validScriptUrl(scriptUrl)){connectionError('Chưa cài đặt kết nối.');callback('Chưa cài đặt kết nối.');return}
     var id=cloudId(),frame=document.createElement('iframe'),form=document.createElement('form'),payload=document.createElement('input');
     frame.style.display='none';frame.name='stem7_frame_'+id;frame.setAttribute('title','Kết nối Apps Script');
     document.body.appendChild(frame);
     form.style.display='none';form.method='POST';form.action=scriptUrl;form.target=frame.name;form.acceptCharset='UTF-8';
     payload.type='hidden';payload.name='payload';payload.value=JSON.stringify(data);
     form.appendChild(payload);document.body.appendChild(form);
-    function finish(error,result){
+    function finish(error,result,networkError){
       if(!cloudRequests[id])return;
       clearTimeout(cloudRequests[id].timer);delete cloudRequests[id];
       if(form.parentNode)form.parentNode.removeChild(form);
       setTimeout(function(){if(frame.parentNode)frame.parentNode.removeChild(frame)},700);
-      if(error)connectionError(error);else connectionError('');
-      callback(error,result);
+      if(networkError)connectionError(error);else if(!error)connectionError('');
+      callback(error?friendlyError(error):null,result);
     }
-    cloudRequests[id]={finish:finish,frame:frame,timer:setTimeout(function(){finish('Máy chủ không phản hồi sau 25 giây. Kiểm tra Web App và quyền truy cập.')},25000)};
+    cloudRequests[id]={finish:finish,frame:frame,timer:setTimeout(function(){finish('Không nhận được phản hồi. Hãy kiểm tra mạng hoặc nhờ giáo viên.',null,true)},25000)};
     data.requestId=id;payload.value=JSON.stringify(data);
-    try{form.submit()}catch(e){finish('Không gửi được yêu cầu: '+e.message)}
+    try{form.submit()}catch(e){finish('Không gửi được bài. Hãy thử lại.',null,true)}
   }
   window.addEventListener('message',function(event){
     if(!/^https:\/\/(?:script\.google\.com|script\.googleusercontent\.com|[a-z0-9-]+\.googleusercontent\.com)$/.test(event.origin||''))return;
     var msg=event.data;
     if(typeof msg==='string'){try{msg=JSON.parse(msg)}catch(e){return}}
     if(!msg||msg.stem7Bridge!==1||!msg.requestId||!cloudRequests[msg.requestId])return;
-    cloudRequests[msg.requestId].finish(msg.ok?null:(msg.error||'Máy chủ từ chối yêu cầu'),msg.result);
+    cloudRequests[msg.requestId].finish(msg.ok?null:(msg.error||'Không thực hiện được yêu cầu.'),msg.result,false);
   });
   function activeSeconds(){
     var now=Date.now(),seconds=document.hidden?0:Math.max(0,Math.min(60,Math.floor((now-cloudLastActive)/1000)));
@@ -894,7 +906,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     if(ok){el('cloudSessionName').textContent='Đang lưu trực tuyến: '+cloudSession.klass+' / '+cloudSession.group;
       el('cloudTimes').textContent='Lần đầu: '+(cloudSession.firstAt||'—')+' · Cập nhật: '+(cloudSession.updatedAt||'—')+' · Thời gian học: '+Math.floor((cloudSession.seconds||0)/60)+' phút';
     }
-    el('cloudBtn').textContent=ok?'Trực tuyến: '+cloudSession.group:'Lưu trực tuyến';
+    el('cloudBtn').textContent=ok?'Bài nhóm: '+cloudSession.group:'Bài của nhóm';
   }
   function persistCloudSession(){
     try{if(cloudSession)sessionStorage.setItem(STUDENT_SESSION_KEY,JSON.stringify(cloudSession));
@@ -920,11 +932,11 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     if(!hasProfile()||klass.toLowerCase()!==clean(state.klass).toLowerCase()||group.toLowerCase()!==clean(state.group).toLowerCase()){
       cloudStatus('Trước khi tạo nhóm trực tuyến, hãy chọn đúng lớp và nhóm trên máy này.');return;
     }
-    if(!save(true)){cloudStatus('Chưa lưu được bài trên máy, không thể tạo nhóm.');return}
+    if(!save(true)){cloudStatus('Không lưu được bài trên máy. Hãy thử lại.');return}
     cloudStatus('');
     cloudCall({action:'createGroup',klass:klass,group:group,data:state},function(err,res){
       if(err){cloudStatus(err);return}
-      try{adoptCloudRecord(res,res.token);cloudStatus('Đã tạo nhóm! Mã truy cập 4 ký tự: '+res.code+'\nHãy ghi lại và chỉ chia sẻ với thành viên nhóm.')}catch(e){cloudStatus(e.message)}
+      try{adoptCloudRecord(res,res.token);cloudStatus('Mã nhóm: '+res.code+'\nGhi lại mã để mở bài trên máy khác.')}catch(e){cloudStatus(friendlyError(e.message))}
     });
   }
   function cloudLogin(){
@@ -938,7 +950,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   }
   function cloudSave(manual){
     if(!cloudSession||!hasProfile())return;
-    if(cloudConflict){if(manual)cloudStatus('Bài trên máy chủ đã được chỉnh ở nơi khác. Hãy lấy bài mới để tránh ghi đè.');return}
+    if(cloudConflict){if(manual)cloudStatus('Bài đã được sửa trên máy khác. Chọn “Tải bài mới nhất”.');return}
     if(remoteBusy){remotePending=true;return}
     if(!save(true)){connectionError('Không lưu được bản trên máy, chưa gửi lên máy chủ.');return}
     remoteBusy=true;
@@ -946,8 +958,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     if(manual)cloudStatus('');
     cloudCall({action:'studentSave',klass:cloudSession.klass,group:cloudSession.group,token:cloudSession.token,revision:revision,data:JSON.parse(sent),activeSeconds:active},function(err,res){
       remoteBusy=false;
-      if(err){cloudStatus('Lưu trực tuyến chưa thành công: '+err+'. Bài vẫn được giữ trên máy.');return}
-      if(res.conflict){cloudConflict=true;cloudStatus('Có phiên bản mới trên máy chủ (ví dụ do giáo viên hoặc máy khác sửa). Hãy nhấn “Lấy bài từ máy chủ” để đồng bộ.');return}
+      if(err){cloudStatus('Chưa lưu được lên mạng. Bài vẫn còn trên máy. '+err);return}
+      if(res.conflict){cloudConflict=true;cloudStatus('Bài đã có thay đổi trên máy khác. Chọn “Tải bài mới nhất”.');return}
       cloudSession.revision=res.record.revision;cloudSession.updatedAt=res.record.updatedAt;cloudSession.seconds=res.record.seconds;
       persistCloudSession();cloudStatus('');
       if(remotePending||JSON.stringify(state)!==sent){remotePending=false;scheduleCloudSave()}
@@ -960,7 +972,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     cloudStatus('');
     var existingToken=cloudSession.token;
     cloudCall({action:'studentGet',klass:cloudSession.klass,group:cloudSession.group,token:existingToken},function(err,res){
-      if(err){cloudStatus('Phiên truy cập hết hạn hoặc máy chủ không phản hồi. '+err);return}
+      if(err){cloudStatus(err);return}
       try{adoptCloudRecord(res,existingToken);cloudStatus('')}catch(e){cloudStatus(e.message)}
     });
   }
@@ -974,7 +986,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   function teacherOpen(){el('teacherDialog').classList.remove('hidden');el('teacherWorkspace').classList.toggle('hidden',!teacherToken);el('teacherLoginPanel').classList.toggle('hidden',!!teacherToken);
     if(teacherToken)teacherList();}
   function teacherList(){
-    teacherStatus('Đang tải danh sách nhóm…');
+    teacherStatus('');
     cloudCall({action:'teacherList',token:teacherToken},function(err,res){
       if(err){teacherStatus(err);return}
       teacherGroupsData=res.groups||[];var sel=el('teacherGroups');sel.innerHTML='';
@@ -1002,24 +1014,24 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   }
   function teacherLoadGroup(){
     var index=Number(el('teacherGroups').value),item=teacherGroupsData[index];if(!item)return;
-    teacherStatus('Đang đọc bài '+item.klass+' / '+item.group+'…');
+    teacherStatus('');
     cloudCall({action:'teacherGet',token:teacherToken,klass:item.klass,group:item.group},function(err,res){
       if(err){teacherStatus(err);return}
       teacherRecord=res.record;teacherRecord.data=normalizeData(res.record.data);
       teacherCurrentSite='nga';el('teacherGroupTitle').textContent=item.klass+' / '+item.group;
       el('teacherMeta').textContent='Bắt đầu: '+item.firstAt+' · Hoạt động gần nhất: '+item.lastAt+' · HS chỉnh sửa cuối: '+(item.studentEditedAt||item.updatedAt)+' · GV chỉnh sửa: '+(item.teacherEditedAt||'chưa có')+' · Tổng hoạt động: '+Math.floor(item.seconds/60)+' phút · Bản '+item.revision;
       el('teacherNote').value=teacherRecord.teacherNote||'';
-      teacherDisplaySite();teacherStatus('Đã đọc bài làm. Giáo viên có thể chỉnh sửa lời giới thiệu, nguồn và thông điệp.');
+      teacherDisplaySite();teacherStatus('');
     });
   }
   function teacherSave(){
     if(!teacherRecord)return;
-    teacherCapture();teacherStatus('Đang lưu chỉnh sửa của giáo viên…');
+    teacherCapture();teacherStatus('');
     cloudCall({action:'teacherSave',token:teacherToken,klass:teacherRecord.klass,group:teacherRecord.group,revision:teacherRecord.revision,data:teacherRecord.data,note:el('teacherNote').value},function(err,res){
       if(err){teacherStatus(err);return}
       if(res.conflict){teacherStatus('Bài vừa được sửa trên máy khác. Hãy chọn lại nhóm để tải phiên bản mới trước khi chỉnh.');return}
       teacherRecord=res.record;teacherRecord.data=normalizeData(res.record.data);
-      teacherStatus('Đã lưu chỉnh sửa của giáo viên (bản '+teacherRecord.revision+'). Có nhật ký trong Google Sheets.');
+      teacherStatus('Đã lưu chỉnh sửa.');
       teacherDisplaySite();
     });
   }
@@ -1036,12 +1048,12 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     try {
       localStorage.setItem(activeKey, JSON.stringify(state));
       dirty = false;
-      if (el('autosaveHint')) el('autosaveHint').textContent = cloudSession?'':'Bản trên máy: '+(state.klass||'')+' / '+(state.group||'');
-      if (!silent) setStatus('Đã lưu trên trình duyệt này.');
+      if (el('autosaveHint')) el('autosaveHint').textContent = cloudSession?'':'Chưa mở bài trực tuyến';
+      if (!silent) setStatus('Đã lưu bài trên máy.');
       return true;
     } catch (e) {
       if (el('autosaveHint')) el('autosaveHint').textContent = 'Không lưu được';
-      setStatus('Không thể lưu trên trình duyệt. Hãy xuất JSON.');
+      setStatus('Không lưu được bài. Hãy chọn “Tải bài về máy” để giữ bản sao.');
       return false;
     }
   }
@@ -1416,7 +1428,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     document.body.appendChild(a);
     a.click();
     setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
-    setStatus('Đã tạo tệp JSON để nộp.');
+    setStatus('Đã tải bài về máy.');
   });
 
   el('importBtn').addEventListener('click', function(){if(!hasProfile()){openGroups();return}el('importFile').click()});
@@ -1439,8 +1451,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
         if(!save(true))return;
         var old=state;state=candidate;
         if(!save(true)){state=old;setStatus('Không ghi được bài nhập; giữ nguyên dữ liệu cũ.');return}
-        refresh();setStatus('Nhập JSON thành công; đã lưu cho nhóm '+state.group+'.');
-      }catch(e){setStatus('Không thể nhập JSON: '+e.message)}
+        refresh();setStatus('Đã mở bài từ tệp.');
+      }catch(e){setStatus('Không mở được tệp bài làm. Hãy kiểm tra tệp đã chọn.');}
     };
     reader.onerror=function(){setStatus('Không đọc được tệp JSON.')};
     reader.readAsText(file);
@@ -1453,7 +1465,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     if(!hasProfile()){openGroups();return}
     var items=[],prefix=BACKUP_PREFIX+encodeURIComponent(state.klass)+'_'+encodeURIComponent(state.group)+'_';
     try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf(prefix)!==0)continue;var x=JSON.parse(localStorage.getItem(k));if(x&&x.data){validateData(x.data);items.push(x)}}}
-    catch(e){setStatus('Không xuất được bản sao: '+e.message);return}
+    catch(e){setStatus('Không tải được bản sao. Hãy thử lại.');return}
     var payload={version:1,kind:'heritage-group-backups',klass:state.klass,group:state.group,exportedAt:new Date().toISOString(),current:state,backups:items};
     var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Sao_luu_STEM_'+state.klass.replace(/[^a-zA-Z0-9_-]/g,'')+'_'+state.group.replace(/[^a-zA-Z0-9_-]/g,'')+'.json';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},700);setStatus('Đã xuất '+items.length+' bản sao và bài làm hiện tại.');
   });
@@ -1528,7 +1540,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   refresh();
   if(scriptUrl){
     setTimeout(function(){cloudCall({action:'ping'},function(err){if(err)connectionError(err)})},350);
-    if(hasProfile()&&!cloudSession)setTimeout(cloudOpen,500);
+    /* Không tự mở hộp thoại sau F5. */
   }
   setDesignStep(1);
   updateProfileUI();
