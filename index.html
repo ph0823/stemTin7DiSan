@@ -387,7 +387,21 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
             <label for="teacherSite">Di tích cần chỉnh sửa</label><select id="teacherSite"><option value="nga">Ngã Ba Giồng</option><option value="cu">Địa đạo Củ Chi</option><option value="giong">Giồng Cá Vồ</option></select>
             <label for="teacherDesc">Lời giới thiệu của nhóm</label><textarea id="teacherDesc" rows="5"></textarea>
             <label for="teacherSource">Nguồn thông tin</label><input id="teacherSource">
+            <details><summary>Chỉnh hình ảnh và bố cục thẻ</summary>
+              <label for="teacherImage">Đường dẫn ảnh HTTPS</label><input id="teacherImage">
+              <label for="teacherImageSource">Nguồn ảnh HTTPS</label><input id="teacherImageSource">
+              <label for="teacherLicense">Tác giả và giấy phép</label><input id="teacherLicense">
+              <label for="teacherCardStyle">Kiểu thẻ</label><select id="teacherCardStyle"><option value="stack">Ảnh trên</option><option value="side">Ảnh bên trái</option><option value="compact">Tóm tắt</option></select>
+            </details>
             <label for="teacherMessage">Thông điệp bảo tồn</label><textarea id="teacherMessage" rows="3"></textarea>
+            <details><summary>Chỉnh nội dung thiết kế và kiểm thử</summary>
+              <label for="teacherReason">Lí do chọn hành trình</label><textarea id="teacherReason" rows="2"></textarea>
+              <label for="teacherCompare">So sánh phương án</label><textarea id="teacherCompare" rows="2"></textarea>
+              <label for="teacherSketch">Phác thảo thiết kế</label><textarea id="teacherSketch" rows="2"></textarea>
+              <label for="teacherIssues">Lỗi phát hiện</label><textarea id="teacherIssues" rows="2"></textarea>
+              <label for="teacherFix">Cách cải tiến</label><textarea id="teacherFix" rows="2"></textarea>
+              <label for="teacherRecheck">Kết quả kiểm thử lại</label><textarea id="teacherRecheck" rows="2"></textarea>
+            </details>
             <label for="teacherNote">Ghi chú chỉnh sửa của giáo viên</label><textarea id="teacherNote" rows="2" placeholder="Lý do hoặc nội dung đã hỗ trợ"></textarea>
             <div class="actions"><button id="teacherSave" class="primary" type="button">Lưu chỉnh sửa</button><button id="teacherRotate" type="button">Cấp mã nhóm mới</button></div>
           </div>
@@ -953,14 +967,17 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     if(!teacherRecord)return;
     var site=teacherRecord.data.sites[teacherCurrentSite];
     site.desc=el('teacherDesc').value;site.source=el('teacherSource').value;
-    teacherRecord.data.message=el('teacherMessage').value;
+    site.image=el('teacherImage').value;site.imageSource=el('teacherImageSource').value;site.license=el('teacherLicense').value;site.cardStyle=el('teacherCardStyle').value;
+    ['message','reason','compareText','sketch','issues','fix','recheck'].forEach(function(k){var m={message:'teacherMessage',reason:'teacherReason',compareText:'teacherCompare',sketch:'teacherSketch',issues:'teacherIssues',fix:'teacherFix',recheck:'teacherRecheck'};teacherRecord.data[k]=el(m[k]).value});
   }
   function teacherDisplaySite(){
     if(!teacherRecord)return;
     var site=teacherRecord.data.sites[teacherCurrentSite];
     el('teacherSite').value=teacherCurrentSite;el('teacherDesc').value=site.desc||'';
     el('teacherSource').value=site.source||'';
-    el('teacherMessage').value=teacherRecord.data.message||'';
+    el('teacherImage').value=site.image||'';el('teacherImageSource').value=site.imageSource||'';
+    el('teacherLicense').value=site.license||'';el('teacherCardStyle').value=site.cardStyle||'stack';
+    ['message','reason','compareText','sketch','issues','fix','recheck'].forEach(function(k){var m={message:'teacherMessage',reason:'teacherReason',compareText:'teacherCompare',sketch:'teacherSketch',issues:'teacherIssues',fix:'teacherFix',recheck:'teacherRecheck'};el(m[k]).value=teacherRecord.data[k]||''});
   }
   function teacherLoadGroup(){
     var index=Number(el('teacherGroups').value),item=teacherGroupsData[index];if(!item)return;
@@ -969,7 +986,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       if(err){teacherStatus(err);return}
       teacherRecord=res.record;teacherRecord.data=normalizeData(res.record.data);
       teacherCurrentSite='nga';el('teacherGroupTitle').textContent=item.klass+' / '+item.group;
-      el('teacherMeta').textContent='Bắt đầu: '+item.firstAt+' · Gần nhất: '+item.updatedAt+' · Thời gian làm: '+Math.floor(item.seconds/60)+' phút · Bản '+item.revision;
+      el('teacherMeta').textContent='Bắt đầu: '+item.firstAt+' · Hoạt động gần nhất: '+item.lastAt+' · Sửa lần cuối: '+item.updatedAt+' · Thời gian làm: '+Math.floor(item.seconds/60)+' phút · Bản '+item.revision;
       el('teacherNote').value=teacherRecord.teacherNote||'';
       teacherDisplaySite();teacherStatus('Đã đọc bài làm. Giáo viên có thể chỉnh sửa lời giới thiệu, nguồn và thông điệp.');
     });
