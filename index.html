@@ -923,9 +923,10 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     if(!cloudSession)return;
     if(!safeBackup('Trước lấy lại bài từ máy chủ')){cloudStatus('Không sao lưu được bài hiện tại.');return}
     cloudStatus('Đang tải bản mới từ máy chủ…');
-    cloudCall({action:'studentGet',klass:cloudSession.klass,group:cloudSession.group,token:cloudSession.token},function(err,res){
+    var existingToken=cloudSession.token;
+    cloudCall({action:'studentGet',klass:cloudSession.klass,group:cloudSession.group,token:existingToken},function(err,res){
       if(err){cloudStatus('Phiên truy cập hết hạn hoặc máy chủ không phản hồi. '+err);return}
-      try{adoptCloudRecord(res,res.token);cloudStatus('Đã lấy bản mới trên máy chủ.')}catch(e){cloudStatus(e.message)}
+      try{adoptCloudRecord(res,existingToken);cloudStatus('Đã lấy bản mới trên máy chủ.')}catch(e){cloudStatus(e.message)}
     });
   }
   function cloudHeartbeat(){
