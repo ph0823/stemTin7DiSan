@@ -147,6 +147,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 @media print{header,.toolbar,.map,.lesson-panel,.tabbar,#summary,.actions,.profile-prompt,.design-nav,.reset-overlay{display:none!important}.layout{display:block}.layout>section:first-child{display:none!important}.layout>section:nth-child(2){width:100%!important}.tab{display:none!important}#report{display:block!important}.print-sheet{display:block!important;font:11pt/1.3 Arial,sans-serif;color:#111}.print-page{page-break-after:always}.print-page:last-child{page-break-after:auto}.print-sheet h2{font-size:15pt}.print-sheet h3{font-size:12pt;margin:8px 0}.print-sheet p{margin:5px 0}.print-sheet table{width:100%;border-collapse:collapse}.print-sheet td,.print-sheet th{border:1px solid #777;padding:5px;vertical-align:top}.print-sheet .print-card{margin:7px 0;padding:6px;border:1px solid #ccc;break-inside:avoid}}
 .help-box{max-width:760px;max-height:88vh;overflow-y:auto}.help-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid #d8e3ed;padding-bottom:9px}.help-header h2{font-size:20px;margin:0}.help-header button{flex-shrink:0}.help-section{padding:9px 0;border-bottom:1px solid #e8edf2}.help-section h3{font-size:15px;margin:0 0 5px;color:#145681}.help-section p{margin:5px 0}.help-section ol{margin:4px 0 6px;padding-left:23px}.help-section li{margin:4px 0}.help-box .actions{justify-content:flex-end;margin-top:12px}@media(max-width:550px){.help-box{padding:13px;max-height:92vh}.help-header h2{font-size:17px}}
 .panel-stem{border:1px solid #d8e3ed;border-radius:9px;background:#f4f8fb;padding:11px;margin:10px 0}.snapshot-card{font-size:12px;border:1px solid #cfdae5;border-radius:6px;padding:8px;margin:7px 0;background:white;max-height:180px;overflow:auto}.snapshot-card p{margin:4px 0}
+.reference-box details summary{cursor:pointer;font-weight:bold;color:#145681}.reference-box details p{font-size:13px}.student-preview{display:flex;flex-direction:column}.student-preview.side{flex-direction:row;align-items:flex-start}.student-preview.side .student-image{width:43%;flex-shrink:0;margin-right:12px}.student-preview.side .student-writing{flex:1}.student-preview.compact .student-image{display:none}.student-preview .heritage-photo{height:160px}@media(max-width:650px){.student-preview.side{flex-direction:column}.student-preview.side .student-image{width:100%;margin:0}}@media print{.panel-stem{display:none}}
 </style>
 </head>
 <body>
@@ -767,7 +768,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     } else if (lesson === 2) {
       [['reason','Giải thích lí do chọn tuyến'],['compareText','So sánh với phương án khác'],['message','Thông điệp bảo tồn']].forEach(function(a){var ok=!!clean(state[a[0]]);if(ok)completed++;details.push({ok:ok,label:a[1]})});
     } else {
-      var testItems=[{ok:!!clean(state.tester),label:'Có nhóm kiểm thử'}, {ok:!!(clean(state.issues)&&clean(state.fix)),label:'Ghi lỗi và cách cải tiến'}, {ok:!!(clean(state.recheck)&&clean(state.selfAssessment)),label:'Kiểm thử lại và tự đánh giá'}];testItems.forEach(function(x){if(x.ok)completed++;details.push(x)});
+      var testItems=[{ok:!!clean(state.tester)&&!!state.snapshots.before,label:'Có nhóm kiểm thử và bản đầu'}, {ok:!!(clean(state.issues)&&clean(state.fix)),label:'Ghi lỗi và cải tiến'}, {ok:!!(clean(state.recheck)&&clean(state.selfAssessment))&&!!state.snapshots.after,label:'Kiểm tra lại và bản cải tiến'}];testItems.forEach(function(x){if(x.ok)completed++;details.push(x)});
     }
     el('lessonProgress').textContent = completed + '/' + total + ' nhiệm vụ';
     el('progressFill').style.width=Math.round(100*completed/total)+'%';
@@ -794,43 +795,23 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   }
 
   function updatePreview(){
-    var s = state.sites[current];
-    var p = el('preview');
-    while (p.firstChild) p.removeChild(p.firstChild);
-
-    var h = document.createElement('h3');
-    text(h, referenceSites[current].name);
-    p.appendChild(h);
-
-    var loc = document.createElement('div');
-    loc.className = 'muted';
-    text(loc, referenceSites[current].location);
-    p.appendChild(loc);
-
-    var ref=document.createElement('div');ref.className='reference-box';var refTitle=document.createElement('strong');refTitle.textContent='Tư liệu tham khảo (không chỉnh sửa)';ref.appendChild(refTitle);
-    var refP=document.createElement('p');refP.textContent=referenceSites[current].desc;ref.appendChild(refP);
-    var refA=document.createElement('a');refA.href=heritageGeo[current].ref;refA.target='_blank';refA.rel='noopener noreferrer';refA.textContent='Xem nguồn';ref.appendChild(refA);p.appendChild(ref);
-    p.appendChild(makePhoto(current,true));p.appendChild(makeCredit(current));
-
-    var head=document.createElement('h4');head.textContent='Bài làm của nhóm';p.appendChild(head);
-    var d=document.createElement('p');text(d,clean(s.desc)||'Chưa có lời giới thiệu của nhóm.');p.appendChild(d);
-    if(s.image&&!clean(s.license)){var w=document.createElement('p');w.className='source-warning';w.textContent='Ảnh chưa ghi quyền sử dụng.';p.appendChild(w)}
-    if(s.image&&!safeURL(s.image)){var wi=document.createElement('p');wi.className='source-warning';wi.textContent='Đường dẫn ảnh không hợp lệ: cần bắt đầu bằng https://';p.appendChild(wi)}
-    if(/^https?:/i.test(clean(s.source))&&!safeURL(s.source)){var ws=document.createElement('p');ws.className='source-warning';ws.textContent='Liên kết nguồn cần sử dụng HTTPS.';p.appendChild(ws)}
-
-    if (s.source) {
-      var small = document.createElement('p');
-      small.className = 'muted';
-      text(small, 'Nguồn nhóm cung cấp: ' + s.source);
-      p.appendChild(small);
-    }
-
-    var geo = document.createElement('p');
-    geo.className = 'muted';
-    text(geo, 'Ghi chú tọa độ: ' + heritageGeo[current].precision);
-    p.appendChild(geo);
-
-    updateWordCount(s.desc);el('cardStyle').value=state.cardStyle||'stack';
+    var site=state.sites[current],box=el('preview');box.innerHTML='';
+    function node(tag,parent,value,cls){var x=document.createElement(tag);if(value!==null)x.textContent=value||'';if(cls)x.className=cls;parent.appendChild(x);return x}
+    node('h3',box,referenceSites[current].name);
+    node('div',box,referenceSites[current].location,'muted');
+    var ref=node('div',box,null,'reference-box'),details=node('details',ref,null);
+    node('summary',details,'Đọc tư liệu tham khảo');
+    node('p',details,referenceSites[current].desc);
+    var source=node('a',details,'Nguồn tham khảo');source.href=heritageGeo[current].ref;source.target='_blank';source.rel='noopener noreferrer';
+    var product=node('div',box,null,'student-preview '+(state.cardStyle||'stack'));
+    var image=node('div',product,null,'student-image');image.appendChild(makePhoto(current,true));image.appendChild(makeCredit(current));
+    var content=node('div',product,null,'student-writing');node('h4',content,'Bài làm của nhóm');node('p',content,clean(site.desc)||'Nhóm chưa viết lời giới thiệu.');
+    if(site.source)node('p',content,'Nguồn nhóm: '+site.source,'muted');
+    if(site.image&&!clean(site.license))node('p',content,'Chưa ghi tác giả hoặc quyền sử dụng ảnh.','source-warning');
+    if(site.image&&!safeURL(site.image))node('p',content,'Đường dẫn ảnh phải là HTTPS hợp lệ.','source-warning');
+    if(/^https?:/i.test(clean(site.source))&&!safeURL(site.source))node('p',content,'Đường dẫn nguồn phải dùng HTTPS.','source-warning');
+    node('p',box,'Tọa độ tham khảo: '+heritageGeo[current].precision,'muted');
+    updateWordCount(site.desc);el('cardStyle').value=state.cardStyle||'stack';
   }
 
   function showSite(markVisited){
@@ -918,6 +899,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     add('p',pg2,'Cách cải tiến: '+state.fix);add('p',pg2,'Kiểm tra lại: '+state.recheck);
     add('p',pg2,'Tự đánh giá: '+state.selfAssessment);
     add('p',pg2,'Giáo viên nhận xét: ..................................................................................................');
+    add('p',pg2,'Minh chứng: '+(state.snapshots.before?'Có bản 1':'Thiếu bản 1')+'; '+(state.snapshots.after?'Có bản 2':'Thiếu bản 2'));
     add('p',pg2,'Lưu ý: Kết quả tự đánh giá không thay thế rubric của giáo viên.');
   }
   function updateSummary(){
