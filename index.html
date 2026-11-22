@@ -135,7 +135,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   .panel{break-inside:avoid}
   body{background:#fff}
 }
-.reset-overlay{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(10,32,45,.65);z-index:3000;display:flex;align-items:center;justify-content:center;padding:12px}.reset-box{width:100%;max-width:440px;background:#fff;border-radius:12px;padding:20px;box-shadow:0 12px 38px #0004}.reset-box h3{margin-top:0}.reset-box .actions{justify-content:flex-end}@media print{.reset-overlay{display:none!important}}
+.reset-overlay{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(10,32,45,.65);z-index:3000;display:flex;align-items:center;justify-content:center;padding:12px}.reset-box{width:100%;max-width:440px;background:#fff;border-radius:12px;padding:20px;box-shadow:0 12px 38px #0004}.reset-box h3{margin-top:0}.reset-box .actions{justify-content:flex-end}
+
 .reference-box{background:#edf5fa;border-left:3px solid #17649a;padding:10px;margin:8px 0;border-radius:5px}.reference-box p{margin:5px 0}.reference-box a{font-size:12px}.source-warning{color:#a04b17;font-size:12px}#preview h4{margin:9px 0 4px}
 
 /* Thành phần bản đồ và điều hướng STEM - cú pháp phù hợp Chrome 75 */
@@ -147,7 +148,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 @media print{header,.toolbar,.map,.lesson-panel,.tabbar,#summary,.actions,.profile-prompt,.design-nav,.reset-overlay{display:none!important}.layout{display:block}.layout>section:first-child{display:none!important}.layout>section:nth-child(2){width:100%!important}.tab{display:none!important}#report{display:block!important}.print-sheet{display:block!important;font:11pt/1.3 Arial,sans-serif;color:#111}.print-page{page-break-after:always}.print-page:last-child{page-break-after:auto}.print-sheet h2{font-size:15pt}.print-sheet h3{font-size:12pt;margin:8px 0}.print-sheet p{margin:5px 0}.print-sheet table{width:100%;border-collapse:collapse}.print-sheet td,.print-sheet th{border:1px solid #777;padding:5px;vertical-align:top}.print-sheet .print-card{margin:7px 0;padding:6px;border:1px solid #ccc;break-inside:avoid}}
 .help-box{max-width:760px;max-height:88vh;overflow-y:auto}.help-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid #d8e3ed;padding-bottom:9px}.help-header h2{font-size:20px;margin:0}.help-header button{flex-shrink:0}.help-section{padding:9px 0;border-bottom:1px solid #e8edf2}.help-section h3{font-size:15px;margin:0 0 5px;color:#145681}.help-section p{margin:5px 0}.help-section ol{margin:4px 0 6px;padding-left:23px}.help-section li{margin:4px 0}.help-box .actions{justify-content:flex-end;margin-top:12px}@media(max-width:550px){.help-box{padding:13px;max-height:92vh}.help-header h2{font-size:17px}}
 .panel-stem{border:1px solid #d8e3ed;border-radius:9px;background:#f4f8fb;padding:11px;margin:10px 0}.snapshot-card{font-size:12px;border:1px solid #cfdae5;border-radius:6px;padding:8px;margin:7px 0;background:white;max-height:180px;overflow:auto}.snapshot-card p{margin:4px 0}
-.reference-box details summary{cursor:pointer;font-weight:bold;color:#145681}.reference-box details p{font-size:13px}.student-preview{display:flex;flex-direction:column}.student-preview.side{flex-direction:row;align-items:flex-start}.student-preview.side .student-image{width:43%;flex-shrink:0;margin-right:12px}.student-preview.side .student-writing{flex:1}.student-preview.compact .student-image{display:none}.student-preview .heritage-photo{height:160px}@media(max-width:650px){.student-preview.side{flex-direction:column}.student-preview.side .student-image{width:100%;margin:0}}@media print{.panel-stem{display:none}}
+.reference-box details summary{cursor:pointer;font-weight:bold;color:#145681}.reference-box details p{font-size:13px}.student-preview{display:flex;flex-direction:column}.student-preview.side{flex-direction:row;align-items:flex-start}.student-preview.side .student-image{width:43%;flex-shrink:0;margin-right:12px}.student-preview.side .student-writing{flex:1}.student-preview.compact .student-image{display:none}.student-preview .heritage-photo{height:160px}@media(max-width:650px){.student-preview.side{flex-direction:column}.student-preview.side .student-image{width:100%;margin:0}}
+
 @page{size:A4;margin:12mm}
 @media print{
   body{font-size:10pt!important}
@@ -717,7 +719,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   function apply(x){state=normalizeData(x)}
   function validSnapshot(x){
     if(!x||typeof x!=='object'||!x.sites||typeof x.sites!=='object')return null;
-    var copy={date:String(x.date||'').slice(0,50),sites:{},reason:String(x.reason||'').slice(0,1000),sketch:String(x.sketch||'').slice(0,1000),mode:String(x.mode||'').slice(0,120),order:String(x.order||'').slice(0,100)};
+    var copy={date:String(x.date||'').slice(0,50),sites:{},reason:String(x.reason||'').slice(0,1000),sketch:String(x.sketch||'').slice(0,1000),message:String(x.message||'').slice(0,1000),compareText:String(x.compareText||'').slice(0,1000),estimate:String(x.estimate||'').slice(0,1000),mode:String(x.mode||'').slice(0,120),order:String(x.order||'').slice(0,100)};
     ids.forEach(function(id){
       var item=x.sites[id],site={};
       if(typeof item==='string'){site.desc=item.slice(0,1000)}
@@ -730,14 +732,14 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     if(!hasProfile()){openGroups();return}
     if(!safeBackup('Trước lưu minh chứng'))return;
     var sites={};ids.forEach(function(id){var v=state.sites[id];sites[id]={desc:v.desc||'',source:v.source||'',image:v.image||'',imageSource:v.imageSource||'',license:v.license||'',cardStyle:v.cardStyle||'stack'}});
-    state.snapshots[which]={date:new Date().toLocaleString('vi-VN'),sites:sites,reason:state.reason||'',sketch:state.sketch||'',mode:state.mode,order:state.order};
+    state.snapshots[which]={date:new Date().toLocaleString('vi-VN'),sites:sites,reason:state.reason||'',sketch:state.sketch||'',message:state.message||'',compareText:state.compareText||'',estimate:state.estimate||'',mode:state.mode,order:state.order};
     scheduleSave();renderSnapshots();setStatus('Đã lưu phiên bản '+(which==='before'?'1':'2')+'.');
   }
   function snapshotDiff(a,b){
     var fields=[['desc','Nội dung'],['source','Nguồn'],['image','Ảnh'],['imageSource','Nguồn ảnh'],['license','Giấy phép'],['cardStyle','Bố cục']],out=[];
     ids.forEach(function(id){fields.forEach(function(field){var old=a.sites[id]||{},next=b.sites[id]||{};if(String(old[field[0]]||'')!==String(next[field[0]]||''))out.push(referenceSites[id].name+' · '+field[1])})});
     if(a.order!==b.order)out.push('Thứ tự hành trình');if(a.mode!==b.mode)out.push('Hình thức khám phá');
-    if(a.reason!==b.reason)out.push('Lí do');if(a.sketch!==b.sketch)out.push('Thiết kế thẻ');
+    if(a.reason!==b.reason)out.push('Lí do');if(a.sketch!==b.sketch)out.push('Thiết kế thẻ');if(a.message!==b.message)out.push('Thông điệp');if(a.compareText!==b.compareText)out.push('So sánh');if(a.estimate!==b.estimate)out.push('Dữ liệu kiểm chứng');
     return out;
   }
   function renderSnapshots(){
@@ -980,6 +982,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     add('p',pg2,'Lưu ý: Kết quả tự đánh giá không thay thế rubric của giáo viên.');
   }
   function updateSummary(){
+    if(activeTab!=='report')return;
     var box = el('summary');
     if (!box) return;
     box.innerHTML = '';
