@@ -166,6 +166,13 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 .cloud-error{background:#fff6ed;border:1px solid #da9752;color:#843d17;border-radius:9px;padding:9px 12px;margin:0 0 10px;font-size:13px}
 .progress-more{margin-top:8px}.progress-more summary{cursor:pointer;font-size:12px;color:#17649a;font-weight:bold}.server-config{margin:8px 0;padding:8px;border:1px solid #d8e3ed;border-radius:7px}.server-config summary,.cloud-times summary{cursor:pointer;color:#49667b;font-size:12px}.cloud-times{margin:6px 0}
 .status:empty{display:none}
+.learning-mode-bar{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.learning-mode-bar>div{margin:3px 4px}.learning-mode-bar strong{margin-right:9px}.mode-switch{display:flex;border:1px solid #b8cedf;border-radius:9px;padding:3px;background:#f5f9fd}.mode-switch button{border:0;padding:6px 10px;background:transparent}.mode-switch button.active{background:#17649a;color:#fff;box-shadow:0 1px 3px #0002}
+.step-journey{grid-gap:8px;gap:8px}.step-journey button{display:flex;align-items:center;min-height:60px;text-align:left;padding:8px;position:relative;border:1px solid #d6e1eb;background:#f7fafd}.step-journey button.active{background:#e7f3ff;border-color:#17649a}.step-journey button.step-done{border-color:#93cbb4}.step-number{border-radius:50%;min-width:30px;height:30px;background:#dce9f2;display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:bold;margin-right:8px}.step-journey .active .step-number{background:#17649a;color:#fff}.step-journey strong{display:block;font-size:13px;line-height:1.2}.step-journey small{display:block;font-size:11px;color:#586f83;margin-top:3px}.step-check{position:absolute;right:5px;top:4px;color:#17734d;font-weight:bold}
+.step-instruction{display:flex;align-items:center;margin:-2px 0 12px;padding:10px 12px;border-radius:9px;background:#f2f7fb;font-size:13px}.step-time{font-weight:bold;color:#17649a;background:#e2f0fa;border-radius:15px;padding:3px 9px;margin-right:10px;white-space:nowrap}.step-actions{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e5edf2;padding-top:12px;margin-top:16px}.step-actions .step-position{font-size:12px;color:#607386}.basic-report-intro{padding:10px;border-radius:8px;background:#f2f8fd;margin-bottom:10px}.basic-report-intro p{margin:3px 0;font-size:13px}
+body.mode-basic .advanced-only{display:none!important}body.mode-basic .design-step,body.mode-basic .design-step.hidden{display:block!important;padding:3px 0}
+@media(max-width:650px){.learning-mode-bar{display:block}.mode-switch{width:100%}.mode-switch button{flex:1}.step-journey{grid-template-columns:repeat(2,minmax(0,1fr))}.step-journey button{min-height:55px}.step-journey small{font-size:10px}}
+@media print{.learning-mode-bar,.step-instruction,.step-actions{display:none!important}}
 </style>
 </head>
 <body>
@@ -201,6 +208,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     </div>
   </div>
 
+  <div class="learning-mode-bar"><div><strong>Chế độ học</strong> <span id="modeDescription" class="muted">Cơ bản · 45 phút</span></div><div class="mode-switch" role="group" aria-label="Chế độ học tập"><button type="button" id="basicModeBtn" class="active" aria-pressed="true">Cơ bản · 45 phút</button><button type="button" id="advancedModeBtn" aria-pressed="false">Mở rộng</button></div></div>
   <div id="cloudErrorBanner" class="cloud-error hidden" role="alert"></div>
   <div class="layout" id="workArea">
     <section>
@@ -216,7 +224,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 
       <div class="panel lesson-panel">
         <div class="lesson-head">
-          <strong id="lessonTitle">Tiết 1 · Khám phá di sản</strong>
+          <strong id="lessonTitle">Bước 1 · Khám phá di sản</strong>
           <span class="tag" id="lessonProgress">0/3 nhiệm vụ</span>
         </div>
         <p id="lessonTask" class="muted">Chọn từng điểm trên bản đồ, tìm hiểu vị trí và bổ sung thông tin có nguồn.</p>
@@ -227,12 +235,13 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 
     <section>
       <div class="panel">
-        <div class="tabbar">
-          <button data-tab="explore" class="active" type="button">1. Khám phá</button>
-          <button data-tab="design" type="button">2. Thiết kế</button>
-          <button data-tab="test" type="button">3. Kiểm thử</button>
-          <button data-tab="report" type="button">4. Báo cáo</button>
-        </div>
+        <nav class="tabbar step-journey" aria-label="Hành trình STEM bốn bước">
+          <button data-tab="explore" class="active" type="button" aria-current="step"><span class="step-number">1</span><span><strong>Khám phá</strong><small>3 di tích</small></span><span class="step-check"></span></button>
+          <button data-tab="design" type="button"><span class="step-number">2</span><span><strong>Thiết kế</strong><small>Chọn hành trình</small></span><span class="step-check"></span></button>
+          <button data-tab="test" type="button"><span class="step-number">3</span><span><strong>Kiểm thử</strong><small>Góp ý, sửa bài</small></span><span class="step-check"></span></button>
+          <button data-tab="report" type="button"><span class="step-number">4</span><span><strong>Báo cáo</strong><small>Giới thiệu kết quả</small></span><span class="step-check"></span></button>
+        </nav>
+        <div class="step-instruction"><span class="step-time" id="stepTime">5 phút</span><span id="stepInstruction">Xem ba di tích và ghi thông tin chính.</span></div>
 
         <div id="explore" class="tab">
           <label for="site">Chọn di tích</label>
@@ -251,17 +260,17 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 
           <div id="editFields" class="hidden">
             <div class="field">
-              <label for="cardStyle">Kiểu thẻ thông tin</label><select id="cardStyle"><option value="stack">Ảnh trên – chữ dưới</option><option value="side">Ảnh trái – chữ phải</option><option value="compact">Thẻ tóm tắt</option></select><label for="desc">Lời giới thiệu của nhóm (50–80 từ)</label>
+              <label for="cardStyle">Kiểu thẻ thông tin</label><select id="cardStyle"><option value="stack">Ảnh trên – chữ dưới</option><option value="side">Ảnh trái – chữ phải</option><option value="compact">Thẻ tóm tắt</option></select><label for="desc" id="descLabel">Lời giới thiệu của nhóm (25–50 từ)</label>
               <textarea id="desc" rows="4" maxlength="1000"></textarea>
               <div id="wordCount" class="word-count"></div>
             </div>
-            <div class="field">
+            <div class="field advanced-only">
               <label for="image">Link hình ảnh (không bắt buộc)</label>
               <input id="image" type="url" placeholder="https://...">
             </div>
             <div class="field">
               <label for="source">Nguồn thông tin</label>
-              <input id="source" placeholder="Tên nguồn hoặc URL"><label for="license">Tác giả và quyền sử dụng hình</label><input id="license" maxlength="300" placeholder="Nguồn · giấy phép/cho phép"><label for="imageSource">Link nguồn hình ảnh</label><input id="imageSource" type="url" placeholder="https://...">
+              <input id="source" placeholder="Ví dụ: Tư liệu giáo viên cung cấp"><div class="advanced-only"><label for="license">Tác giả và quyền sử dụng hình</label><input id="license" maxlength="300" placeholder="Nguồn · giấy phép/cho phép"><label for="imageSource">Link nguồn hình ảnh</label><input id="imageSource" type="url" placeholder="https://..."></div>
             </div>
           </div>
 
@@ -272,8 +281,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
         </div>
 
         <div id="design" class="tab hidden">
-          <h3>Thiết kế hành trình</h3><div class="design-nav"><button data-step="1" type="button" class="active">1. Chọn tuyến</button><button data-step="2" type="button">2. Giải thích</button><button data-step="3" type="button">3. Hoàn thiện</button></div>
-          <div class="design-step" data-step-panel="1"><div class="field"><label for="mode">Hình thức khám phá</label>
+          <h3>Thiết kế hành trình</h3><div class="design-nav advanced-only"><button data-step="1" type="button" class="active">1. Chọn tuyến</button><button data-step="2" type="button">2. Giải thích</button><button data-step="3" type="button">3. Hoàn thiện</button></div>
+          <div class="design-step" data-step-panel="1"><div class="field advanced-only"><label for="mode">Hình thức khám phá</label>
             <select id="mode">
               <option>Tham quan trực tuyến</option>
               <option>Tham quan thực địa (cần xác minh lịch trình)</option>
@@ -287,14 +296,14 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
           <div id="orderHint" class="muted"></div></div><div class="design-step hidden" data-step-panel="2"><div class="field"><label for="reason">Vì sao nhóm chọn phương án này?</label>
             <textarea id="reason" placeholder="Nêu tiêu chí lựa chọn: nội dung học tập, thời gian, điều kiện di chuyển..."></textarea>
           </div>
-          <div class="field">
+          <div class="field advanced-only">
             <label for="estimate">Dữ liệu quãng đường/thời gian đã kiểm chứng (nếu có)</label>
             <textarea id="estimate" placeholder="Ghi tuyến, nguồn tra cứu và thời điểm; không tự suy ra từ đường nối minh họa"></textarea>
           </div>
-          <div class="field"><label for="compareOrder">Phương án khác để so sánh</label><select id="compareOrder"></select></div><div class="field"><label for="compareText">So sánh hai phương án</label><textarea id="compareText" placeholder="Phương án nào phù hợp mục tiêu học tập hơn? Vì sao?"></textarea></div><p id="modeQuestions" class="muted"></p></div><div class="design-step hidden" data-step-panel="3"><div class="field"><label for="message">Thông điệp bảo tồn di sản</label>
+          <div class="field advanced-only"><label for="compareOrder">Phương án khác để so sánh</label><select id="compareOrder"></select></div><div class="field advanced-only"><label for="compareText">So sánh hai phương án</label><textarea id="compareText" placeholder="Phương án nào phù hợp mục tiêu học tập hơn? Vì sao?"></textarea></div><p id="modeQuestions" class="muted advanced-only"></p></div><div class="design-step hidden" data-step-panel="3"><div class="field"><label for="message">Thông điệp bảo tồn di sản</label>
             <textarea id="message" placeholder="Viết một thông điệp ngắn"></textarea>
           </div>
-          <div class="field">
+          <div class="field advanced-only">
             <label for="sketch">Mô tả thiết kế thẻ thông tin của nhóm</label>
             <textarea id="sketch" placeholder="Nêu cách sắp xếp tiêu đề, ảnh, nội dung và liên kết"></textarea>
           </div></div>
@@ -303,16 +312,16 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
         <div id="test" class="tab hidden">
           <h3>Nhóm em kiểm tra sản phẩm</h3>
           <p class="muted">Nhờ nhóm khác xem thử và góp ý để nhóm em cải thiện sản phẩm.</p>
-          <div class="panel-stem"><h4>Minh chứng thiết kế và cải tiến</h4><p class="muted">Lưu bản đầu trước khi kiểm thử và bản cải tiến sau khi sửa.</p><div class="actions"><button type="button" id="captureBefore">Lưu bài trước khi sửa</button><button type="button" id="captureAfter">Lưu bài sau khi sửa</button></div><div id="snapshotCompare"></div></div><div id="checks"></div>
+          <div class="panel-stem"><h4>Minh chứng thiết kế và cải tiến</h4><p class="muted">Lưu bản đầu trước khi kiểm thử và bản cải tiến sau khi sửa.</p><div class="actions"><button type="button" id="captureBefore">Lưu bài trước khi sửa</button><button type="button" id="captureAfter">Lưu bài sau khi sửa</button></div><div id="snapshotCompare"></div></div><details class="advanced-only"><summary>Bảng kiểm chi tiết</summary><div id="checks"></div></details>
           <div class="field"><label for="tester">Nhóm kiểm thử</label><input id="tester"></div>
           <div class="field"><label for="issues">Lỗi / điểm cần cải thiện</label><textarea id="issues"></textarea></div>
           <div class="field"><label for="fix">Cách nhóm em đã cải tiến</label><textarea id="fix"></textarea></div>
-          <div class="field"><label for="recheck">Kết quả kiểm tra lại</label><textarea id="recheck"></textarea></div>
+          <div class="field advanced-only"><label for="recheck">Kết quả kiểm tra lại</label><textarea id="recheck"></textarea></div>
         </div>
 
         <div id="report" class="tab hidden">
           <h3>Báo cáo sản phẩm</h3><div class="field"><label for="selfAssessment">Tự đánh giá của nhóm</label><select id="selfAssessment"><option value="">Chưa tự đánh giá</option><option value="Cần hoàn thiện">Cần hoàn thiện</option><option value="Đã hoàn thành nhiệm vụ">Đã hoàn thành nhiệm vụ</option><option value="Sẵn sàng nhận đánh giá của giáo viên">Sẵn sàng nhận đánh giá của giáo viên</option></select></div><p class="muted">Giáo viên đánh giá chất lượng theo rubric KHBD; tiến độ chỉ thể hiện thông tin đã hoàn thành.</p>
-          <div id="summary"></div><div id="printSheet" class="print-sheet"></div>
+          <div class="basic-report-intro"><strong>Nhóm em đã hoàn thành những gì?</strong><p>Giới thiệu 3 di tích, giải thích hành trình và nêu điểm cải tiến.</p></div><div id="summary"></div><div id="printSheet" class="print-sheet"></div>
           <div class="actions">
             <button id="copy" type="button">Sao chép báo cáo</button>
             <button id="reportPrint" type="button">In báo cáo</button>
@@ -320,6 +329,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
           <p class="muted">Nếu giáo viên yêu cầu nộp tệp, chọn “Tải bài về máy”.</p>
         </div>
 
+        <div class="step-actions"><button type="button" id="stepBack">← Bước trước</button><span id="stepPosition" class="step-position">Bước 1/4</span><button type="button" id="stepNext" class="primary">Tiếp tục →</button></div>
         <div class="status" id="status" role="status"></div>
       </div>
     </section>
