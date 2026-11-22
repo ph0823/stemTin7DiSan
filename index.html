@@ -1309,8 +1309,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       if(err){teacherStatus(err);return}
       teacherToken=res.token;
       el('teacherWorkspace').classList.remove('hidden');el('teacherLoginPanel').classList.add('hidden');
-      teacherStatus(res.mustChange?'Đang dùng mật khẩu ban đầu. Hãy đổi mật khẩu ngay trước khi sử dụng.':'Đăng nhập thành công.');
-      teacherList();
+      teacherStatus(res.mustChange?'Đang dùng mật khẩu ban đầu. Phải đổi mật khẩu 8 ký tự ở cuối bảng trước khi xem bài.':'Đăng nhập thành công.');
+      if(!res.mustChange)teacherList();
     });
   });
   el('teacherLogout').addEventListener('click',function(){teacherToken='';teacherRecord=null;el('teacherWorkspace').classList.add('hidden');el('teacherLoginPanel').classList.remove('hidden');teacherStatus('Đã đăng xuất chế độ giáo viên.')});
@@ -1325,15 +1325,13 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     cloudCall({action:'teacherPassword',token:teacherToken,newPassword:newPass},function(err){
       el('teacherNewPassword').value='';
       if(err){teacherStatus(err);return}
-      teacherStatus('Đã đổi mật khẩu trên máy chủ. Hãy ghi nhớ mật khẩu mới.');
+      teacherStatus('Đã đổi mật khẩu trên máy chủ. Hãy ghi nhớ mật khẩu mới.');teacherList();
     });
   });
   window.setInterval(function(){if(cloudSession)cloudHeartbeat()},50000);
   window.addEventListener('focus',function(){cloudLastActive=Date.now()});
   document.addEventListener('visibilitychange',function(){cloudLastActive=Date.now()});
   try{scriptUrl=localStorage.getItem(CLOUD_URL_KEY)||'';if(!validScriptUrl(scriptUrl))scriptUrl='';}catch(e){}
-  try{var st=sessionStorage.getItem(STUDENT_SESSION_KEY);if(st){var session=JSON.parse(st);if(session&&session.token)cloudSession=session}}catch(e){}
-  if(cloudSession&&(!hasProfile()||clean(cloudSession.klass).toLowerCase()!==clean(state.klass).toLowerCase()||clean(cloudSession.group).toLowerCase()!==clean(state.group).toLowerCase())){cloudSession=null;persistCloudSession()}
   updateCloudUI();
 
   el('cardStyle').addEventListener('change',function(){state.sites[current].cardStyle=this.value;updatePreview();scheduleSave()});
@@ -1485,6 +1483,9 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 
   populateOrders();
   restore();
+  try{var st=sessionStorage.getItem(STUDENT_SESSION_KEY);if(st){var session=JSON.parse(st);if(session&&session.token)cloudSession=session}}catch(e){}
+  if(cloudSession&&(!hasProfile()||clean(cloudSession.klass).toLowerCase()!==clean(state.klass).toLowerCase()||clean(cloudSession.group).toLowerCase()!==clean(state.group).toLowerCase())){cloudSession=null;persistCloudSession()}
+  updateCloudUI();
   refresh();
   setDesignStep(1);
   updateProfileUI();
