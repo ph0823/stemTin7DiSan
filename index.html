@@ -986,7 +986,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       if(err){teacherStatus(err);return}
       teacherRecord=res.record;teacherRecord.data=normalizeData(res.record.data);
       teacherCurrentSite='nga';el('teacherGroupTitle').textContent=item.klass+' / '+item.group;
-      el('teacherMeta').textContent='Bắt đầu: '+item.firstAt+' · Hoạt động gần nhất: '+item.lastAt+' · Sửa lần cuối: '+item.updatedAt+' · Thời gian làm: '+Math.floor(item.seconds/60)+' phút · Bản '+item.revision;
+      el('teacherMeta').textContent='Bắt đầu: '+item.firstAt+' · Hoạt động gần nhất: '+item.lastAt+' · HS chỉnh sửa cuối: '+(item.studentEditedAt||item.updatedAt)+' · GV chỉnh sửa: '+(item.teacherEditedAt||'chưa có')+' · Tổng hoạt động: '+Math.floor(item.seconds/60)+' phút · Bản '+item.revision;
       el('teacherNote').value=teacherRecord.teacherNote||'';
       teacherDisplaySite();teacherStatus('Đã đọc bài làm. Giáo viên có thể chỉnh sửa lời giới thiệu, nguồn và thông điệp.');
     });
