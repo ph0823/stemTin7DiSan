@@ -339,7 +339,7 @@ body.mode-basic .advanced-only{display:none!important}body.mode-basic .design-st
   <div id="helpDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
     <div class="reset-box help-box">
       <div class="help-header"><h2 id="helpTitle">Hướng dẫn sử dụng – Hành trình di sản số</h2><button id="helpClose" type="button" aria-label="Đóng hướng dẫn">Đóng ×</button></div>
-      <p class="muted">Dành cho học sinh lớp 7 · Thực hiện lần lượt 4 bước để hoàn thành sản phẩm.</p>
+      <p class="muted">Chế độ Cơ bản 45 phút gồm 4 bước. Nhóm có thể chuyển sang Mở rộng để thêm ảnh và các thông tin chi tiết.</p>
       <div class="help-section"><h3>Trước khi bắt đầu: chọn lớp và nhóm</h3>
         <p>Nhấn <strong>Chọn nhóm</strong>, nhập lớp (ví dụ 7A1) và tên nhóm (ví dụ Nhóm 1), sau đó nhấn <strong>Mở nhóm</strong>. Nếu nhóm đã làm trên máy này, chọn đúng bản lưu từ danh sách. Không sử dụng bài làm của nhóm khác.</p></div>
       <div class="help-section"><h3>Bước 1 – Khám phá di sản</h3>
@@ -1116,55 +1116,108 @@ body.mode-basic .advanced-only{display:none!important}body.mode-basic .design-st
     el('editToggle').setAttribute('aria-expanded', String(editOpen));
   }
 
-  function updateLesson(){
-    var lesson = activeTab === 'explore' ? 1 : activeTab === 'design' ? 2 : 3;
-    var captions = {
-      1: ['Bước 1 · Khám phá di sản', 'Khám phá ba địa điểm, viết lời giới thiệu và ghi nguồn.'],
-      2: ['Bước 2 · Thiết kế hành trình', 'Chọn thứ tự, giải thích lựa chọn và viết thông điệp bảo tồn.'],
-      3: ['Bước 3–4 · Kiểm thử và báo cáo', 'Nhờ nhóm khác góp ý, chỉnh sửa và giới thiệu sản phẩm.']
-    };
-    if (!el('lessonTitle')) return;
-    el('lessonTitle').textContent = captions[lesson][0];
-    el('lessonTask').textContent = captions[lesson][1];
-    var completed=0,total=3,details=[];
-    if(lesson===1){ids.forEach(function(id){var d=clean(state.sites[id].desc),w=d?d.split(/\s+/).length:0;
-      var site=state.sites[id],hasImg=!site.image||(!!safeURL(site.image)&&!!safeURL(site.imageSource)&&!!clean(site.license));
-      var ok=!!(state.visited[id]&&w>=50&&w<=80&&clean(site.source)&&hasImg);if(ok)completed++;details.push({ok:ok,label:referenceSites[id].name+': '+(ok?'đủ mô tả và nguồn':'cần xem, viết 50–80 từ và ghi nguồn')});
-    });
-    } else if (lesson === 2) {
-      [['reason','Giải thích lí do chọn tuyến'],['compareText','So sánh với phương án khác'],['message','Thông điệp bảo tồn']].forEach(function(a){var ok=clean(state[a[0]]).length>=20;if(ok)completed++;details.push({ok:ok,label:a[1]})});
-    } else {
-      var testItems=[
-        {ok:clean(state.tester).length>=2&&!!state.snapshots.before,label:'Có nhóm kiểm thử và bản 1'},
-        {ok:clean(state.issues).length>=12&&clean(state.fix).length>=12,label:'Có nhận xét và mô tả cách cải tiến'},
-        {ok:clean(state.recheck).length>=12&&!!state.selfAssessment&&!!state.snapshots.after&&!!state.snapshots.before&&snapshotDiff(state.snapshots.before,state.snapshots.after).length>0,label:'Kiểm thử lại, tự đánh giá và có thay đổi ở bản 2'}
-      ];testItems.forEach(function(x){if(x.ok)completed++;details.push(x)});
+  /* Chế độ học tập là tùy chọn giao diện riêng trên từng máy.
+     Không thay đổi tên nhóm, nội dung bài hoặc cấu trúc JSON gửi máy chủ. */
+  var UI_MODE_KEY='stem7_student_mode_v1';
+  var uiMode='basic';
+  var stageNames=['explore','design','test','report'];
+  var stageInstructions={
+    explore:['13 phút','Đọc tư liệu ba di tích, viết lời giới thiệu và ghi nguồn.'],
+    design:['22 phút','Chọn thứ tự khám phá, giải thích lựa chọn và viết thông điệp bảo tồn.'],
+    test:['7 phút','Lưu bài trước khi sửa, nhận góp ý rồi cải tiến và lưu lại.'],
+    report:['3 phút','Tự đánh giá và giới thiệu điều nhóm em đã cải tiến.']
+  };
+  function isBasic(){return uiMode==='basic'}
+  function countWords(value){var t=clean(value);return t?t.split(/\s+/).length:0}
+  function stageMetrics(step){
+    var list=[];
+    function task(ok,label){list.push({ok:!!ok,label:label})}
+    if(step==='explore'){
+      ids.forEach(function(id){
+        var site=state.sites[id],words=countWords(site.desc),target=isBasic()?25:50;
+        var photoOK=isBasic()||!site.image||(safeURL(site.image)&&safeURL(site.imageSource)&&clean(site.license));
+        task(state.visited[id]&&words>=target&&words<=80&&clean(site.source)&&photoOK,
+          referenceSites[id].name+': '+(isBasic()?'viết ít nhất 25 từ và ghi nguồn':'viết 50–80 từ, ghi nguồn và kiểm tra ảnh'));
+      });
+    }else if(step==='design'){
+      task(clean(state.reason).length>=(isBasic()?12:20),'Giải thích vì sao chọn hành trình');
+      if(!isBasic())task(clean(state.compareText).length>=20,'So sánh với phương án khác');
+      task(clean(state.message).length>=(isBasic()?12:20),'Viết thông điệp bảo tồn');
+    }else if(step==='test'){
+      task(!!state.snapshots.before,'Đã lưu bài trước khi sửa');
+      task(clean(state.issues).length>=(isBasic()?5:12)&&clean(state.fix).length>=(isBasic()?5:12),'Ghi góp ý và cách cải tiến');
+      var before=state.snapshots.before,after=state.snapshots.after;
+      task(!!before&&!!after&&snapshotDiff(before,after).length>0&&
+        (isBasic()||clean(state.recheck).length>=12),
+        'Đã lưu bài sau khi sửa và có thay đổi');
+    }else if(step==='report'){
+      task(!!clean(state.selfAssessment),'Đã tự đánh giá sản phẩm');
+      task(!!state.snapshots.before&&!!state.snapshots.after,'Có hai bản trước và sau cải tiến');
     }
-    el('lessonProgress').textContent = completed + '/' + total + ' nhiệm vụ';
-    el('progressFill').style.width=Math.round(100*completed/total)+'%';
-    var box=el('lessonDetails');box.innerHTML='';details.forEach(function(d){var p=document.createElement('div');p.className='lesson-row '+(d.ok?'done':'todo');p.textContent=(d.ok?'✓ ':'○ ')+d.label;box.appendChild(p)});
+    var done=0;list.forEach(function(t){if(t.ok)done++});
+    return {done:done,total:list.length,items:list};
+  }
+  function renderStageNavigation(){
+    var idx=stageNames.indexOf(activeTab);if(idx<0)idx=0;
+    document.querySelectorAll('[data-tab]').forEach(function(b){
+      var name=b.getAttribute('data-tab'),metric=stageMetrics(name),selected=name===activeTab;
+      b.classList.toggle('step-done',metric.done===metric.total);
+      b.setAttribute('aria-current',selected?'step':'false');
+      var mark=b.querySelector('.step-check');if(mark)mark.textContent=metric.done===metric.total?'✓':'';
+    });
+    el('stepTime').textContent=stageInstructions[activeTab][0];
+    el('stepInstruction').textContent=stageInstructions[activeTab][1];
+    el('stepPosition').textContent='Bước '+(idx+1)+'/4';
+    el('stepBack').disabled=idx===0;
+    el('stepNext').textContent=idx===3?'Xem lại từ đầu':'Tiếp tục →';
+  }
+  function setStudyMode(mode,initial){
+    uiMode=mode==='advanced'?'advanced':'basic';
+    document.body.classList.toggle('mode-basic',isBasic());
+    document.body.classList.toggle('mode-advanced',!isBasic());
+    el('basicModeBtn').classList.toggle('active',isBasic());
+    el('advancedModeBtn').classList.toggle('active',!isBasic());
+    el('basicModeBtn').setAttribute('aria-pressed',String(isBasic()));
+    el('advancedModeBtn').setAttribute('aria-pressed',String(!isBasic()));
+    el('modeDescription').textContent=isBasic()?'Tập trung hoàn thành sản phẩm trong 45 phút':'Đầy đủ công cụ thiết kế, kiểm chứng và mở rộng';
+    el('descLabel').textContent=isBasic()?'Lời giới thiệu của nhóm (25–50 từ)':'Lời giới thiệu của nhóm (50–80 từ)';
+    if(isBasic()&&activeTab==='explore'&&hasProfile())toggleEditor(true);
+    if(!initial){try{localStorage.setItem(UI_MODE_KEY,uiMode)}catch(e){}}
+    updateWordCount(state.sites[current].desc);
+    updateLesson();
+  }
+  function updateLesson(){
+    var captions={
+      explore:'Bước 1 · Khám phá di sản',
+      design:'Bước 2 · Thiết kế hành trình',
+      test:'Bước 3 · Kiểm thử và cải tiến',
+      report:'Bước 4 · Báo cáo sản phẩm'
+    };
+    var m=stageMetrics(activeTab);
+    el('lessonTitle').textContent=captions[activeTab];
+    el('lessonTask').textContent=stageInstructions[activeTab][1];
+    el('lessonProgress').textContent=m.done+'/'+m.total+' nhiệm vụ';
+    el('progressFill').style.width=Math.round(100*m.done/m.total)+'%';
+    var box=el('lessonDetails');box.innerHTML='';
+    m.items.forEach(function(item){
+      var p=document.createElement('div');p.className='lesson-row '+(item.ok?'done':'todo');
+      p.textContent=(item.ok?'✓ ':'○ ')+item.label;box.appendChild(p);
+    });
+    renderStageNavigation();
     updateQuestions();
   }
 
-  function updateWordCount(descText){
-    var words = clean(descText) ? clean(descText).split(/\s+/).length : 0;
-    var wc = el('wordCount');
-    if (words >= 50 && words <= 80) {
-      wc.textContent = words + ' từ · Đạt yêu cầu (50–80 từ)';
-      wc.className = 'word-count ok';
-    } else if (words === 0) {
-      wc.textContent = '0 từ · Cần viết khoảng 50–80 từ';
-      wc.className = 'word-count warn';
-    } else if (words < 50) {
-      wc.textContent = words + ' từ · Còn hơi ngắn (cần 50–80 từ)';
-      wc.className = 'word-count warn';
-    } else {
-      wc.textContent = words + ' từ · Hơi dài (nên cô đọng trong 50–80 từ)';
-      wc.className = 'word-count warn';
-    }
+    function updateWordCount(descText){
+    var words=countWords(descText),lower=isBasic()?25:50,upper=isBasic()?50:80;
+    var label=words+' từ',wc=el('wordCount'),ok=words>=lower&&words<=upper;
+    if(!words)label+=' · Hãy viết '+lower+'–'+upper+' từ';
+    else if(words<lower)label+=' · Cần thêm '+(lower-words)+' từ';
+    else if(words>upper)label+=' · Có thể viết ngắn gọn hơn';
+    else label+=' · Đạt yêu cầu';
+    wc.textContent=label;wc.className='word-count '+(ok?'ok':'warn');
   }
 
-  function photoSourceState(site){
+    function photoSourceState(site){
     if(!site.image)return 'Ảnh minh họa có nguồn riêng trong tư liệu tham khảo';
     if(!safeURL(site.image))return 'Link hình ảnh không hợp lệ';
     if(!safeURL(site.imageSource))return 'Chưa ghi link nguồn hình ảnh';
@@ -1309,6 +1362,7 @@ body.mode-basic .advanced-only{display:none!important}body.mode-basic .design-st
       b.classList.toggle('active', b.getAttribute('data-tab') === t);
     });
     if (t === 'report') updateSummary();
+    if(t==='explore'&&isBasic()&&hasProfile())toggleEditor(true);
     updateLesson();
     if (realMap) setTimeout(function(){ realMap.invalidateSize({ pan: false }); }, 100);
   }
@@ -1420,6 +1474,10 @@ body.mode-basic .advanced-only{display:none!important}body.mode-basic .design-st
   document.querySelectorAll('[data-tab]').forEach(function(b){
     b.addEventListener('click', function(){ tab(b.getAttribute('data-tab')); });
   });
+  el('basicModeBtn').addEventListener('click',function(){setStudyMode('basic',false)});
+  el('advancedModeBtn').addEventListener('click',function(){setStudyMode('advanced',false)});
+  el('stepBack').addEventListener('click',function(){var i=stageNames.indexOf(activeTab);if(i>0)tab(stageNames[i-1])});
+  el('stepNext').addEventListener('click',function(){var i=stageNames.indexOf(activeTab);tab(stageNames[(i+1)%stageNames.length])});
 
   /* Đã sửa nút Di tích tiếp theo để tự động di chuyển bản đồ và mở popup */
   el('next').addEventListener('click', function(){
@@ -1564,6 +1622,8 @@ body.mode-basic .advanced-only{display:none!important}body.mode-basic .design-st
   setDesignStep(1);
   updateProfileUI();
   toggleEditor(false);
+  var initialMode='basic';try{initialMode=localStorage.getItem(UI_MODE_KEY)||'basic'}catch(e){}
+  setStudyMode(initialMode,true);
   initRealMap();
   updateLesson();
 })();
