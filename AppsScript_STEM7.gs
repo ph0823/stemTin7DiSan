@@ -197,7 +197,18 @@ function doPost(e){
   // Response only to the GitHub Pages app origin, never to arbitrary embedding sites.
   // The browser client also verifies the requestId and Google origin.
   var json=JSON.stringify(out).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/&/g,'\\u0026');
-  var html='<!doctype html><meta charset="utf-8"><script>(function(){var m='+json+';var w=window;for(var i=0;i<7;i++){if(w.parent===w)break;w=w.parent;try{w.postMessage(m,"https://ph0823.github.io")}catch(e){}}})();</script>';
+  var html='<!doctype html><meta charset="utf-8"><script>(function(){'
+    +'var m='+json+';var target="https://ph0823.github.io";'
+    +'var origins=window.location.ancestorOrigins,w=window;'
+    +'if(origins&&origins.length){'
+    +'for(var i=0;i<origins.length;i++){'
+    +'if(origins[i]===target){for(var j=0;j<=i;j++)w=w.parent;w.postMessage(m,target);return;}'
+    +'}'
+    +'}'
+    +'/* Chrome 75 supports ancestorOrigins. Without it, try the usual '
+    +'Apps Script double-frame path without broadcasting credentials. */'
+    +'try{window.parent.parent.postMessage(m,target)}catch(e){}'
+    +'})();</script>';
   return HtmlService.createHtmlOutput(html).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 function doGet(){return HtmlService.createHtmlOutput('<p>STEM Tin 7 API đang hoạt động. Dữ liệu yêu cầu gửi bằng POST.</p>')}
