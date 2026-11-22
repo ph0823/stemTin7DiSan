@@ -10,7 +10,7 @@
 var APP_VERSION = 1;
 var SHEET_NAME = 'Nhom_STEM7';
 var AUDIT_NAME = 'Lich_su_chinh_sua';
-var COLS = ['id','klass','group','accessHash','payload','createdAt','firstAt','lastAt','updatedAt','seconds','revision','teacherEditedAt','teacherNote','lastEditor'];
+var COLS = ['id','klass','group','accessHash','payload','createdAt','firstAt','lastAt','updatedAt','seconds','revision','teacherEditedAt','teacherNote','lastEditor','codeVersion'];
 var PIN_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 var MAX_JSON_LENGTH = 35000;
 function setup(){
@@ -20,6 +20,7 @@ function setup(){
   p.setProperty('STEM_SPREADSHEET_ID',ss.getId());
   if(!p.getProperty('STEM_PEPPER'))p.setProperty('STEM_PEPPER',Utilities.getUuid()+Utilities.getUuid());
   if(!p.getProperty('STEM_TEACHER_HASH'))p.setProperty('STEM_TEACHER_HASH',digest_('22112026'));
+  if(!p.getProperty('STEM_TEACHER_EPOCH'))p.setProperty('STEM_TEACHER_EPOCH','1');
   ensureSheet_(ss,SHEET_NAME,COLS);
   ensureSheet_(ss,AUDIT_NAME,['time','klass','group','actor','action','revision','oldPayload','newPayload','note']);
   Logger.log('Bảng tính: '+ss.getUrl());
@@ -28,6 +29,7 @@ function setup(){
 function ensureSheet_(ss,name,headers){
   var sh=ss.getSheetByName(name)||ss.insertSheet(name);
   if(sh.getLastRow()===0){sh.appendRow(headers);sh.setFrozenRows(1)}
+  else if(sh.getLastColumn()<headers.length){sh.getRange(1,sh.getLastColumn()+1,1,headers.length-sh.getLastColumn()).setValues([headers.slice(sh.getLastColumn())])}
   return sh;
 }
 function env_(){
@@ -48,16 +50,20 @@ function rowOf_(sh,klass,group){
   for(var i=0;i<rows.length;i++)if(key_(rows[i][1],rows[i][2])===search)return {row:i+2,v:rows[i]};
   return null;
 }
-function authToken_(role,groupId){
-  var tok=Utilities.getUuid()+Utilities.getUuid(),hash=digest_(tok);
-  CacheService.getScriptCache().put('session:'+hash,JSON.stringify({role:role,groupId:groupId||'',created:Date.now()}),21600);
+function authToken_(role,groupId,extra){
+  var tok=Utilities.getUuid()+Utilities.getUuid(),hash=digest_(tok),p=PropertiesService.getScriptProperties();
+  var session={role:role,groupId:groupId||'',created:Date.now(),epoch:p.getProperty('STEM_TEACHER_EPOCH')||'1'};
+  if(extra){Object.keys(extra).forEach(function(k){session[k]=extra[k]})}
+  CacheService.getScriptCache().put('session:'+hash,JSON.stringify(session),21600);
   return tok;
 }
-function requireSession_(token,role,groupId){
+function requireSession_(token,role,groupId,allowDefault){
   var value=CacheService.getScriptCache().get('session:'+digest_(clean_(token,150)));
   if(!value)throw Error('Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.');
   var s=JSON.parse(value);
   if(role==='teacher'&&s.role!=='teacher')throw Error('Không có quyền giáo viên');
+  if(role==='teacher'&&s.epoch!==(PropertiesService.getScriptProperties().getProperty('STEM_TEACHER_EPOCH')||'1'))throw Error('Phiên giáo viên đã hết hạn sau khi đổi mật khẩu');
+  if(role==='teacher'&&s.mustChange&&!allowDefault)throw Error('Cần đổi mật khẩu mặc định trước khi xem hoặc chỉnh sửa bài');
   if(role==='student'&&s.role!=='student')throw Error('Không có quyền học sinh');
   if(role==='student'&&s.groupId!==groupId)throw Error('Sai nhóm truy cập');
   return s;
@@ -104,14 +110,18 @@ function handle_(q){
     var rate=throttle_('teacher',5),pwd=clean_(q.password,128);
     if(pwd.length!==8||digest_(pwd)!==E.p.getProperty('STEM_TEACHER_HASH')){wrong_(rate);throw Error('Sai mật khẩu giáo viên')}
     clearFails_(rate);
-    return {token:authToken_('teacher'),mustChange:pwd==='22112026'};
+    return {token:authToken_('teacher','',{mustChange:pwd==='22112026'}),mustChange:pwd==='22112026'};
   }
   if(action==='teacherPassword'){
-    requireSession_(q.token,'teacher');
+    requireSession_(q.token,'teacher',null,true);
     var newPass=clean_(q.newPassword,128);
     if(newPass.length!==8)throw Error('Mật khẩu giáo viên phải có đúng 8 ký tự');
     if(newPass==='22112026')throw Error('Không sử dụng lại mật khẩu mặc định');
-    E.p.setProperty('STEM_TEACHER_HASH',digest_(newPass));return {changed:true};
+    E.p.setProperty('STEM_TEACHER_HASH',digest_(newPass));
+    var nextEpoch=String(Number(E.p.getProperty('STEM_TEACHER_EPOCH')||'1')+1);
+    E.p.setProperty('STEM_TEACHER_EPOCH',nextEpoch);
+    CacheService.getScriptCache().put('session:'+digest_(q.token),JSON.stringify({role:'teacher',groupId:'',created:Date.now(),epoch:nextEpoch,mustChange:false}),21600);
+    return {changed:true};
   }
   if(action==='teacherList'){
     requireSession_(q.token,'teacher');
@@ -129,23 +139,25 @@ function handle_(q){
       assertName_(klass,group);
       if(entry)throw Error('Lớp/nhóm đã tồn tại. Nhập mã nhóm để mở bài.');
       var pin=pin_(),now=new Date(),data=filteredPayload_(q.data);
-      var id=Utilities.getUuid(),v=[id,klass,group,digest_(pin),data,now,now,now,now,0,1,'','','Học sinh'];
-      sh.appendRow(v);return {code:pin,token:authToken_('student',id),record:publicRecord_(v,true)};
+      var id=Utilities.getUuid(),v=[id,klass,group,digest_(pin),data,now,now,now,now,0,1,'','','Học sinh',1];
+      sh.appendRow(v);return {code:pin,token:authToken_('student',id,{codeVersion:1}),record:publicRecord_(v,true)};
     }
     if(!entry)throw Error('Chưa có nhóm trên máy chủ');
     var row=entry.row,v=entry.v;
     if(action==='studentGet'){
-      requireSession_(q.token,'student',v[0]);
+      var session=requireSession_(q.token,'student',v[0]);
+      if(Number(session.codeVersion||1)!==Number(v[14]||1))throw Error('Phiên cũ đã bị vô hiệu hóa khi đổi mã nhóm');
       return {record:publicRecord_(v,true)};
     }
     if(action==='studentLogin'){
       var rate=throttle_('group:'+key_(klass,group),5),code=clean_(q.code,10).toUpperCase();
       if(code.length!==4||digest_(code)!==v[3]){wrong_(rate);throw Error('Sai mã nhóm')}
       clearFails_(rate);v[7]=new Date();sh.getRange(row,8).setValue(v[7]);
-      return {token:authToken_('student',v[0]),record:publicRecord_(v,true)};
+      return {token:authToken_('student',v[0],{codeVersion:Number(v[14]||1)}),record:publicRecord_(v,true)};
     }
     if(action==='studentSave'||action==='studentHeartbeat'){
-      requireSession_(q.token,'student',v[0]);
+      var session=requireSession_(q.token,'student',v[0]);
+      if(Number(session.codeVersion||1)!==Number(v[14]||1))throw Error('Mã nhóm đã thay đổi. Đăng nhập lại bằng mã mới.');
       var now=new Date(),delta=Math.max(0,Math.min(60,Number(q.activeSeconds)||0));
       v[7]=now;v[9]=Number(v[9]||0)+Math.floor(delta);
       if(action==='studentSave'){
@@ -167,8 +179,8 @@ function handle_(q){
       return {record:publicRecord_(v,true)};
     }
     if(action==='teacherRotateCode'){
-      requireSession_(q.token,'teacher');var newCode=pin_();v[3]=digest_(newCode);
-      sh.getRange(row,4).setValue(v[3]);
+      requireSession_(q.token,'teacher');var newCode=pin_();v[3]=digest_(newCode);v[14]=Number(v[14]||1)+1;
+      sh.getRange(row,4).setValue(v[3]);sh.getRange(row,15).setValue(v[14]);
       writeAudit_(ss,klass,group,'Giáo viên','Đổi mã nhóm',v[10],'','','Đã tạo mã truy cập mới');
       return {code:newCode};
     }
