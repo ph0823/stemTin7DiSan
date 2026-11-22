@@ -1733,6 +1733,49 @@ footer{padding:4px 0;font-size:10px}
     updateSummary();
   }
 
+
+  /* Trạng thái thu gọn chỉ lưu trên trình duyệt, không nằm trong bài của nhóm. */
+  var COMPACT_PREF_KEY='stem7_compact_panels_v1';
+  var compactPrefs={map:false,lesson:true,mode:true,preview:false,photo:false};
+  function applyCompactPanel(which,collapsed,savePref){
+    var cfg={
+      map:{card:'mapShell',button:'mapCollapseBtn',open:'Thu gọn bản đồ ▴',closed:'Mở bản đồ ▾',aria:'expanded'},
+      lesson:{card:'lessonPanel',button:'lessonCollapseBtn',open:'Thu gọn tiến độ ▴',closed:'Mở tiến độ ▾',aria:'expanded'},
+      mode:{card:'learningModeBar',button:'modeCollapseBtn',open:'Thu gọn ▴',closed:'Đổi chế độ ▾',aria:'expanded'},
+      preview:{card:'preview',button:'previewCollapseBtn',open:'Thu gọn thẻ ▴',closed:'Mở thẻ ▾',aria:'expanded'},
+      photo:{card:'preview',button:'photoCollapseBtn',open:'Ẩn ảnh',closed:'Hiện ảnh',aria:'pressed'}
+    };
+    var x=cfg[which];if(!x)return;
+    compactPrefs[which]=!!collapsed;
+    var card=el(x.card),button=el(x.button);
+    card.classList.toggle(which==='photo'?'photo-collapsed':'is-collapsed',!!collapsed);
+    button.textContent=collapsed?x.closed:x.open;
+    if(which==='photo')button.setAttribute('aria-pressed',String(collapsed));
+    else button.setAttribute('aria-expanded',String(!collapsed));
+    if(savePref){try{localStorage.setItem(COMPACT_PREF_KEY,JSON.stringify(compactPrefs))}catch(e){}}
+    if(which==='map'&&!collapsed&&realMap){
+      setTimeout(function(){realMap.invalidateSize({pan:false})},80);
+      setTimeout(function(){realMap.invalidateSize({pan:false})},300);
+    }
+  }
+  function restoreCompactPanels(){
+    try{
+      var stored=JSON.parse(localStorage.getItem(COMPACT_PREF_KEY)||'null');
+      if(stored&&typeof stored==='object'){
+        ['map','lesson','mode','preview','photo'].forEach(function(k){if(typeof stored[k]==='boolean')compactPrefs[k]=stored[k]});
+      }
+    }catch(e){}
+    ['map','lesson','mode','preview','photo'].forEach(function(k){applyCompactPanel(k,compactPrefs[k],false)});
+  }
+  function bindCompactPanels(){
+    ['map','lesson','mode','preview','photo'].forEach(function(k){
+      var buttons={map:'mapCollapseBtn',lesson:'lessonCollapseBtn',mode:'modeCollapseBtn',preview:'previewCollapseBtn',photo:'photoCollapseBtn'};
+      el(buttons[k]).addEventListener('click',function(){
+        applyCompactPanel(k,!compactPrefs[k],true);
+      });
+    });
+  }
+
   populateOrders();
   restore();
   try{var st=sessionStorage.getItem(STUDENT_SESSION_KEY);if(st){var session=JSON.parse(st);if(session&&session.token)cloudSession=session}}catch(e){}
@@ -1749,6 +1792,8 @@ footer{padding:4px 0;font-size:10px}
   var initialMode='basic';try{initialMode=localStorage.getItem(UI_MODE_KEY)||'basic'}catch(e){}
   setStudyMode(initialMode,true);
   initRealMap();
+  bindCompactPanels();
+  restoreCompactPanels();
   updateLesson();
 })();
 </script>
