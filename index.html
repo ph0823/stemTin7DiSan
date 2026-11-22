@@ -491,6 +491,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       if(cloudSession&&(cloudSession.klass.toLowerCase()!==klass.toLowerCase()||cloudSession.group.toLowerCase()!==group.toLowerCase())){cloudSession=null;persistCloudSession();clearTimeout(remoteSaveTimer)}
       refresh();updateProfileUI();el('groupDialog').classList.add('hidden');
       setStatus(json?'Đã mở dữ liệu nhóm.':'Đã tạo bản lưu nhóm riêng.');
+      if(scriptUrl&&!cloudSession)setTimeout(cloudOpen,150);
     }catch(e){setStatus('Không chuyển được nhóm. Dữ liệu đang mở được giữ nguyên: '+e.message)}
   }
   var ids = ['nga', 'cu', 'giong'];
@@ -839,13 +840,13 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
      No teacher passwords or group codes are stored in source code or persistent storage. */
   /* Sau khi triển khai Apps Script, đặt URL /exec vào đây để mọi máy tự kết nối.
      Để trống nếu giáo viên muốn cấu hình từ nút "Lưu trực tuyến" trên từng máy. */
-  var DEFAULT_SCRIPT_URL='';
+  var DEFAULT_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwSPofyS3booetjjI90Vc1eCsCectWbJHAr5mCQAaVhumjkVR62dsr1JuDZEdESozC0/exec';
   var CLOUD_URL_KEY='stem7_apps_script_url',STUDENT_SESSION_KEY='stem7_cloud_student_session';
   var scriptUrl='',cloudRequests={},cloudCounter=0,cloudSession=null,teacherToken='',teacherGroupsData=[],teacherRecord=null;
   var teacherCurrentSite='nga',remoteSaveTimer=null,remoteBusy=false,remotePending=false,cloudConflict=false,cloudLastActive=Date.now();
   function validScriptUrl(url){return /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(String(url||'').trim())}
   function cloudId(){cloudCounter++;return 'stem7_'+Date.now().toString(36)+'_'+cloudCounter+'_'+Math.random().toString(36).slice(2)}
-  function cloudStatus(msg){el('cloudStatus').textContent=msg}
+  function cloudStatus(msg){el('cloudStatus').textContent=msg||''}
   function teacherStatus(msg){el('teacherStatus').textContent=msg}
   function closeBridgeDialog(which){el(which).classList.add('hidden')}
   function cloudCall(data,callback){
@@ -912,7 +913,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       cloudStatus('Trước khi tạo nhóm trực tuyến, hãy chọn đúng lớp và nhóm trên máy này.');return;
     }
     if(!save(true)){cloudStatus('Chưa lưu được bài trên máy, không thể tạo nhóm.');return}
-    cloudStatus('Đang tạo nhóm trực tuyến…');
+    cloudStatus('');
     cloudCall({action:'createGroup',klass:klass,group:group,data:state},function(err,res){
       if(err){cloudStatus(err);return}
       try{adoptCloudRecord(res,res.token);cloudStatus('Đã tạo nhóm! Mã truy cập 4 ký tự: '+res.code+'\nHãy ghi lại và chỉ chia sẻ với thành viên nhóm.')}catch(e){cloudStatus(e.message)}
@@ -921,10 +922,10 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   function cloudLogin(){
     var klass=clean(el('cloudClass').value),group=clean(el('cloudGroup').value),code=clean(el('cloudCode').value).toUpperCase();
     if(!klass||!group||code.length!==4){cloudStatus('Nhập lớp, nhóm và mã nhóm đúng 4 ký tự.');return}
-    cloudStatus('Đang xác minh mã nhóm…');
+    cloudStatus('');
     cloudCall({action:'studentLogin',klass:klass,group:group,code:code},function(err,res){
       if(err){cloudStatus(err);return}
-      try{adoptCloudRecord(res,res.token);el('cloudCode').value='';cloudStatus('Đã mở bài từ Google Sheets. Có thể chỉnh sửa và lưu từ máy này.')}catch(e){cloudStatus(e.message)}
+      try{adoptCloudRecord(res,res.token);el('cloudCode').value='';cloudStatus('')}catch(e){cloudStatus(e.message)}
     });
   }
   function cloudSave(manual){
@@ -934,13 +935,13 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     if(!save(true)){cloudStatus('Không lưu được bản trên máy, chưa gửi lên máy chủ.');return}
     remoteBusy=true;
     var sent=JSON.stringify(state),revision=cloudSession.revision,active=activeSeconds();
-    if(manual)cloudStatus('Đang lưu bài lên Google Sheets…');
+    if(manual)cloudStatus('');
     cloudCall({action:'studentSave',klass:cloudSession.klass,group:cloudSession.group,token:cloudSession.token,revision:revision,data:JSON.parse(sent),activeSeconds:active},function(err,res){
       remoteBusy=false;
       if(err){cloudStatus('Lưu trực tuyến chưa thành công: '+err+'. Bài vẫn được giữ trên máy.');return}
       if(res.conflict){cloudConflict=true;cloudStatus('Có phiên bản mới trên máy chủ (ví dụ do giáo viên hoặc máy khác sửa). Hãy nhấn “Lấy bài từ máy chủ” để đồng bộ.');return}
       cloudSession.revision=res.record.revision;cloudSession.updatedAt=res.record.updatedAt;cloudSession.seconds=res.record.seconds;
-      persistCloudSession();cloudStatus('Đã lưu lên Google Sheets. Cập nhật lần cuối: '+res.record.updatedAt);
+      persistCloudSession();cloudStatus('');
       if(remotePending||JSON.stringify(state)!==sent){remotePending=false;scheduleCloudSave()}
     });
   }
@@ -948,11 +949,11 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   function cloudReload(){
     if(!cloudSession)return;
     if(!safeBackup('Trước lấy lại bài từ máy chủ')){cloudStatus('Không sao lưu được bài hiện tại.');return}
-    cloudStatus('Đang tải bản mới từ máy chủ…');
+    cloudStatus('');
     var existingToken=cloudSession.token;
     cloudCall({action:'studentGet',klass:cloudSession.klass,group:cloudSession.group,token:existingToken},function(err,res){
       if(err){cloudStatus('Phiên truy cập hết hạn hoặc máy chủ không phản hồi. '+err);return}
-      try{adoptCloudRecord(res,existingToken);cloudStatus('Đã lấy bản mới trên máy chủ.')}catch(e){cloudStatus(e.message)}
+      try{adoptCloudRecord(res,existingToken);cloudStatus('')}catch(e){cloudStatus(e.message)}
     });
   }
   function cloudHeartbeat(){
@@ -1317,11 +1318,11 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     var url=clean(el('scriptUrl').value);
     if(!validScriptUrl(url)){cloudStatus('Đường dẫn cần có dạng https://script.google.com/macros/s/.../exec');return}
     scriptUrl=url;try{localStorage.setItem(CLOUD_URL_KEY,scriptUrl)}catch(e){}
-    cloudStatus('Đã lưu địa chỉ Web App trên máy này.');
+    cloudStatus('');
   });
   el('pingServer').addEventListener('click',function(){var v=clean(el('scriptUrl').value);
     if(!validScriptUrl(v)){cloudStatus('Đường dẫn Web App chưa hợp lệ.');return}
-    scriptUrl=v;cloudStatus('Đang kiểm tra…');cloudCall({action:'ping'},function(err,res){cloudStatus(err||('Đã kết nối Apps Script · phiên bản '+res.version))});
+    scriptUrl=v;cloudStatus('');cloudCall({action:'ping'},function(err,res){cloudStatus(err||'')});
   });
   el('createCloud').addEventListener('click',cloudCreate);
   el('openCloud').addEventListener('click',cloudLogin);
@@ -1361,7 +1362,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   window.setInterval(function(){if(cloudSession)cloudHeartbeat()},50000);
   window.addEventListener('focus',function(){cloudLastActive=Date.now()});
   document.addEventListener('visibilitychange',function(){cloudLastActive=Date.now()});
-  try{scriptUrl=localStorage.getItem(CLOUD_URL_KEY)||DEFAULT_SCRIPT_URL;if(!validScriptUrl(scriptUrl))scriptUrl=validScriptUrl(DEFAULT_SCRIPT_URL)?DEFAULT_SCRIPT_URL:'';}catch(e){scriptUrl=validScriptUrl(DEFAULT_SCRIPT_URL)?DEFAULT_SCRIPT_URL:''}
+  scriptUrl=DEFAULT_SCRIPT_URL;if(!validScriptUrl(scriptUrl))scriptUrl='';
   updateCloudUI();
 
   el('cardStyle').addEventListener('change',function(){state.sites[current].cardStyle=this.value;updatePreview();scheduleSave()});
@@ -1517,6 +1518,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   if(cloudSession&&(!hasProfile()||clean(cloudSession.klass).toLowerCase()!==clean(state.klass).toLowerCase()||clean(cloudSession.group).toLowerCase()!==clean(state.group).toLowerCase())){cloudSession=null;persistCloudSession()}
   updateCloudUI();
   refresh();
+  if(scriptUrl&&hasProfile()&&!cloudSession){setTimeout(cloudOpen,350)}
   setDesignStep(1);
   updateProfileUI();
   toggleEditor(false);
