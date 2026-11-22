@@ -174,7 +174,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
         <div class="tools-menu">
           <button id="importBtn" type="button">Nhập JSON</button>
           <button id="print" type="button">In sản phẩm</button>
-          <button id="reset" type="button">Khôi phục mẫu</button>
+          <button id="reset" type="button">Khôi phục mẫu</button><button id="restoreBackup" type="button">Bản sao lưu</button>
         </div>
       </details>
       <input type="file" id="importFile" accept=".json,application/json" class="hidden">
@@ -332,6 +332,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     </div>
   </div>
   <div id="groupDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="groupTitle"><div class="reset-box"><h3 id="groupTitle">Chọn bài làm của nhóm</h3><p class="muted">Các nhóm được lưu riêng trên máy này. Dữ liệu cũ không bị xóa.</p><label for="savedGroups">Nhóm đã lưu</label><select id="savedGroups"><option value="">Tạo nhóm mới / nhập tên dưới đây</option></select><label for="newClass">Lớp</label><input id="newClass" maxlength="30" placeholder="7A1"><label for="newGroup">Nhóm</label><input id="newGroup" maxlength="50" placeholder="Nhóm 1"><div class="actions"><button type="button" id="groupNo">Hủy</button><button type="button" class="primary" id="groupYes">Mở nhóm</button></div></div></div>
+  <div id="backupDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="backupTitle"><div class="reset-box"><h3 id="backupTitle">Khôi phục bản sao lưu</h3><p class="muted">Chọn bản sao của nhóm hiện tại. Ứng dụng sẽ sao lưu trạng thái trước khi khôi phục.</p><label for="backupList">Bản lưu gần đây</label><select id="backupList"></select><div class="actions"><button type="button" id="backupCancel">Hủy</button><button type="button" class="primary" id="backupApply">Khôi phục bản đã chọn</button></div></div></div>
   <div id="resetDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="resetTitle"><div class="reset-box"><h3 id="resetTitle">Khôi phục bài làm?</h3><p>Chỉ khôi phục bài làm đang mở. Hãy xuất JSON trước nếu muốn giữ bản sao.</p><div class="actions"><button type="button" id="resetNo">Hủy</button><button type="button" class="primary" id="resetYes">Khôi phục</button></div></div></div>
   <footer>STEM Tin học 7 · Bản đồ OpenStreetMap cần Internet · Tự lưu cục bộ trên trình duyệt</footer>
 </div>
@@ -549,6 +550,12 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     a.rel = 'noopener noreferrer';
     a.textContent = state.sites[id].image ? ('Ảnh nhóm chọn · '+(state.sites[id].license||'chưa ghi giấy phép')) : g.credit;
     p.appendChild(a);
+    if(!state.sites[id].image&&id==='nga'){
+      var license=document.createElement('a');license.href='https://creativecommons.org/licenses/by-sa/4.0/';license.textContent=' · Xem giấy phép';license.target='_blank';license.rel='noopener noreferrer';p.appendChild(license);
+    }
+    if(!state.sites[id].image&&id==='cu'){
+      var cc0=document.createElement('a');cc0.href='https://creativecommons.org/publicdomain/zero/1.0/';cc0.textContent=' · Xem giấy phép';cc0.target='_blank';cc0.rel='noopener noreferrer';p.appendChild(cc0);
+    }
     return p;
   }
 
@@ -899,7 +906,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     add('p',pg2,'Cách cải tiến: '+state.fix);add('p',pg2,'Kiểm tra lại: '+state.recheck);
     add('p',pg2,'Tự đánh giá: '+state.selfAssessment);
     add('p',pg2,'Giáo viên nhận xét: ..................................................................................................');
-    add('p',pg2,'Minh chứng: '+(state.snapshots.before?'Có bản 1':'Thiếu bản 1')+'; '+(state.snapshots.after?'Có bản 2':'Thiếu bản 2'));
+    add('p',pg2,'Minh chứng: '+(state.snapshots.before?'Có bản 1 ('+state.snapshots.before.date+')':'Thiếu bản 1')+'; '+(state.snapshots.after?'Có bản 2 ('+state.snapshots.after.date+')':'Thiếu bản 2'));
+    if(state.snapshots.before&&state.snapshots.after){ids.forEach(function(id){add('p',pg2,referenceSites[id].name+' – Trước: '+(state.snapshots.before.sites[id]||'').slice(0,90)+'; Sau: '+(state.snapshots.after.sites[id]||'').slice(0,90))})}
     add('p',pg2,'Lưu ý: Kết quả tự đánh giá không thay thế rubric của giáo viên.');
   }
   function updateSummary(){
@@ -1041,6 +1049,27 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   el('print').addEventListener('click', function(){if(!hasProfile()){openGroups();return}tab('report');renderPrintSheet();window.print()});
   el('reportPrint').addEventListener('click', function(){if(!hasProfile()){openGroups();return}renderPrintSheet();window.print()});
 
+  el('restoreBackup').addEventListener('click',function(){
+    if(!hasProfile()){openGroups();return}
+    var prefix=BACKUP_PREFIX+encodeURIComponent(state.klass)+'_'+encodeURIComponent(state.group)+'_';
+    var list=el('backupList');list.innerHTML='';var entries=[];
+    try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf(prefix)===0){var v=JSON.parse(localStorage.getItem(k));entries.push({key:k,time:v.time,reason:v.reason})}}}catch(e){}
+    entries.sort(function(a,b){return a.key<b.key?1:-1});
+    entries.forEach(function(x){var opt=document.createElement('option');opt.value=x.key;opt.textContent=(x.time||'')+' · '+(x.reason||'Bản sao');list.appendChild(opt)});
+    if(!entries.length){setStatus('Nhóm chưa có bản sao lưu.');return}
+    el('backupDialog').classList.remove('hidden');
+  });
+  el('backupCancel').addEventListener('click',function(){el('backupDialog').classList.add('hidden')});
+  el('backupApply').addEventListener('click',function(){
+    var key=el('backupList').value;if(!key)return;
+    try{
+      var x=JSON.parse(localStorage.getItem(key));if(!x||!x.data||!x.data.sites)throw Error('Invalid backup');
+      if(clean(x.data.klass).toLowerCase()!==clean(state.klass).toLowerCase()||clean(x.data.group).toLowerCase()!==clean(state.group).toLowerCase())throw Error('Wrong group');
+      if(!safeBackup('Trước khôi phục bản sao'))return;
+      apply(x.data);refresh();save(true);el('backupDialog').classList.add('hidden');setStatus('Đã khôi phục bản sao của nhóm.');
+    }catch(e){setStatus('Bản sao không hợp lệ hoặc không thuộc nhóm này.')}
+  });
+  el('backupDialog').addEventListener('keydown',function(e){if(e.key==='Escape')el('backupDialog').classList.add('hidden')});
   el('reset').addEventListener('click',function(){if(!hasProfile()){openGroups();return}el('resetDialog').classList.remove('hidden');el('resetNo').focus()});
   el('resetNo').addEventListener('click',function(){el('resetDialog').classList.add('hidden')});
   el('resetYes').addEventListener('click',function(){
