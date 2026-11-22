@@ -175,6 +175,57 @@ body.mode-basic .advanced-only{display:none!important}body.mode-advanced .site-q
 @media print{.learning-mode-bar,.step-instruction,.step-actions{display:none!important}}
 .site-quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-gap:6px;gap:6px;margin-bottom:10px}.site-quick button{font-size:12px;line-height:1.3;padding:10px 6px;min-height:46px;background:#f3f8fc;border:1px solid #d0dfeb}.site-quick button.active{background:#e4f2ff;border-color:#17649a;font-weight:bold}.site-quick button span{color:#17734d;margin-left:2px}.basic-report-line{padding:5px 0;border-bottom:1px solid #edf1f4}@media(max-width:450px){.site-quick button{font-size:11px}}
 .teacher-dialog-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}.teacher-dialog-heading h2{margin:0 12px 6px 0}.teacher-dialog-heading button{margin-bottom:6px}#studentHelp.hidden,#teacherHelp.hidden{display:none!important}
+
+/* Bố cục compact 16:9 TV – không thay đổi dữ liệu học sinh */
+header{padding:8px 16px}header h1{font-size:19px;line-height:1.2}header p{font-size:12px;margin:2px 0 0}
+.wrap{max-width:1800px;padding:8px 10px}
+.toolbar{padding:5px 10px;margin-bottom:7px;min-height:42px}
+.toolbar button,.tools-more summary{padding:6px 9px;font-size:12px}
+.student-fields,.toolbar-actions{margin:0}.student-fields>*{margin:1px 5px 1px 0}.toolbar-actions>*{margin:1px 0 1px 5px}
+.student-fields input{height:32px;width:117px}.student-fields #klass{width:65px}
+.learning-mode-bar{padding:5px 10px;margin-bottom:7px;min-height:38px}.learning-mode-bar>div{margin:1px 3px}.learning-mode-bar .mode-summary{display:flex;align-items:center;flex-wrap:wrap}
+.learning-mode-bar.is-collapsed .mode-switch{display:none}.mode-summary strong{margin-right:4px}.mode-summary .muted{font-size:12px}
+.collapse-control{font-size:12px!important;font-weight:normal!important;padding:4px 9px!important;color:#17649a;background:#f3f8fc;border:1px solid #cedfeb;white-space:nowrap}
+.mode-summary .collapse-control{margin-left:9px}
+.layout{grid-template-columns:minmax(0,1.36fr) minmax(400px,1fr);grid-gap:9px;gap:9px}
+.map-shell{background:#fff;border:1px solid var(--line);border-radius:10px;padding:5px;margin-bottom:7px}
+.compact-card-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;min-height:31px;padding:2px 5px;gap:4px}
+.compact-card-head strong{font-size:13px}.card-head-actions{display:flex;gap:5px}
+.map-shell .map{height:calc(100vh - 230px);min-height:350px;max-height:700px;border-radius:7px}
+.map-shell.is-collapsed #map{display:none}
+.map-controls{top:8px;right:7px}.map-legend-panel{top:45px;right:8px}
+.map-note{font-size:10px;bottom:5px;left:5px;right:5px}
+.lesson-panel{padding:6px 10px;margin-bottom:7px}.lesson-head{min-height:30px}.lesson-head strong{font-size:13px}
+.lesson-panel.is-collapsed #lessonBody{display:none}
+.lesson-panel .tag{padding:2px 6px}.lesson-panel .muted{margin:4px 0}
+.work-panel{padding:9px;margin-bottom:7px}
+.step-journey{grid-gap:4px;gap:4px;margin-bottom:6px}
+.step-journey button{min-height:45px;padding:5px 6px}.step-number{min-width:24px;height:24px;font-size:12px;margin-right:5px}
+.step-journey strong{font-size:12px}.step-journey small{font-size:10px;margin-top:1px}
+.step-instruction{padding:5px 9px;margin:0 0 7px;font-size:12px;min-height:30px}
+.step-time{padding:2px 7px;margin-right:7px}
+.site-quick{margin-bottom:6px}.site-quick button{min-height:34px;padding:5px;font-size:12px}
+.preview-head{margin-top:4px}
+.preview{padding:8px;margin:3px 0 7px}.preview h3{font-size:16px}
+.preview .heritage-photo{height:125px;max-height:125px;margin-top:5px}
+.preview.photo-collapsed .student-image{display:none!important}
+.preview.is-collapsed{display:none}
+.preview .reference-box{padding:6px 8px;margin:5px 0}
+.preview .student-writing h4{margin:5px 0 2px}
+.preview .student-writing p{margin:3px 0}
+.preview .photo-credit{font-size:10px}
+.edit-bar{margin:3px 0 5px}.edit-bar button{padding:6px 10px;font-size:12px}
+#editFields{padding:8px;margin-bottom:6px}#editFields .field{margin-bottom:6px}
+#editFields textarea{min-height:68px}
+#explore .actions{margin-top:4px}
+#explore .actions button{padding:6px 9px;font-size:12px}
+.step-actions{margin-top:9px;padding-top:8px}.step-actions button{padding:6px 10px}
+footer{padding:4px 0;font-size:10px}
+@media(max-width:1100px){.layout{grid-template-columns:minmax(0,1fr) minmax(360px,1fr)}.map-shell .map{min-height:330px;height:calc(100vh - 190px)}}
+@media(max-width:950px){.layout{grid-template-columns:1fr}.map-shell .map{height:390px;min-height:300px;max-height:500px}.compact-card-head{min-height:30px}}
+@media(max-width:560px){.wrap{padding:5px}.toolbar{padding:5px}.map-shell .map{height:330px;min-height:290px}.mode-summary{font-size:12px}.step-journey{grid-template-columns:repeat(2,minmax(0,1fr))}.toolbar-actions{flex-wrap:wrap}}
+@media print{.compact-card-head,.map-shell .compact-card-head,.learning-mode-bar{display:none!important}.preview.is-collapsed{display:block}}
+
 </style>
 </head>
 <body>
@@ -197,10 +248,10 @@ body.mode-basic .advanced-only{display:none!important}body.mode-advanced .site-q
       <button id="cloudBtn" type="button">Bài của nhóm</button>
       <button id="teacherBtn" type="button">Giáo viên</button>
       <button id="save" class="primary" type="button">Lưu bài</button>
-      <button id="export" type="button">Tải bài về máy</button>
       <details class="tools-more">
         <summary>Tùy chọn</summary>
         <div class="tools-menu">
+          <button id="export" type="button">Tải bài về máy</button>
           <button id="importBtn" type="button">Mở bài từ tệp</button>
           <button id="print" type="button">In sản phẩm</button>
           <button id="reset" type="button">Khôi phục mẫu</button><button id="restoreBackup" type="button">Bản sao lưu</button><button id="exportBackup" type="button">Tải bản sao lưu</button>
@@ -210,10 +261,12 @@ body.mode-basic .advanced-only{display:none!important}body.mode-advanced .site-q
     </div>
   </div>
 
-  <div class="learning-mode-bar"><div><strong>Chế độ học</strong> <span id="modeDescription" class="muted">Cơ bản · 45 phút</span></div><div class="mode-switch" role="group" aria-label="Chế độ học tập"><button type="button" id="basicModeBtn" class="active" aria-pressed="true">Cơ bản · 45 phút</button><button type="button" id="advancedModeBtn" aria-pressed="false">Mở rộng</button></div></div>
+  <div class="learning-mode-bar is-collapsed" id="learningModeBar"><div class="mode-summary"><strong>Chế độ:</strong> <span id="modeDescription" class="muted">Cơ bản · 45 phút</span><button type="button" id="modeCollapseBtn" class="collapse-control" aria-expanded="false" aria-controls="modeSwitch">Đổi chế độ ▾</button></div><div class="mode-switch" id="modeSwitch" role="group" aria-label="Chế độ học tập"><button type="button" id="basicModeBtn" class="active" aria-pressed="true">Cơ bản · 45 phút</button><button type="button" id="advancedModeBtn" aria-pressed="false">Mở rộng</button></div></div>
   <div id="cloudErrorBanner" class="cloud-error hidden" role="alert"></div>
   <div class="layout" id="workArea">
-    <section>
+    <section class="map-column">
+      <div class="map-shell" id="mapShell">
+        <div class="compact-card-head"><strong>Bản đồ 3 di tích</strong><button type="button" id="mapCollapseBtn" class="collapse-control" aria-expanded="true" aria-controls="map">Thu gọn bản đồ ▴</button></div>
       <div class="map real-map" id="map" aria-label="Bản đồ địa lý tương tác ba di tích">
         <div id="leafletMap" aria-label="Bản đồ OpenStreetMap; có thể kéo và thu phóng"></div>
         <div class="map-controls">
@@ -221,22 +274,22 @@ body.mode-basic .advanced-only{display:none!important}body.mode-advanced .site-q
           <span class="map-legend">Số 1–2–3 hiển thị thứ tự hành trình</span>
         </div>
         <div class="map-legend-panel" id="mapLegend" aria-label="Chú giải điểm di tích"></div><div class="map-note">Đường nét đứt chỉ thứ tự khám phá, không phải đường đi thực tế.</div>
-        <div id="mapFallback" class="map-fallback hidden">Không tải được bản đồ trực tuyến. Hãy kiểm tra Internet hoặc mở địa điểm bằng nút “Đối chiếu Google Maps”.</div>
+        <div id="mapFallback" class="map-fallback hidden">Không tải được bản đồ trực tuyến. Hãy kiểm tra Internet hoặc mở địa điểm bằng nút “Xem vị trí trên bản đồ”.</div>
+      </div>
       </div>
 
-      <div class="panel lesson-panel">
+      <div class="panel lesson-panel is-collapsed" id="lessonPanel">
         <div class="lesson-head">
           <strong id="lessonTitle">Bước 1 · Khám phá di sản</strong>
-          <span class="tag" id="lessonProgress">0/3 nhiệm vụ</span>
+          <span class="tag" id="lessonProgress">0/3 nhiệm vụ</span><button id="lessonCollapseBtn" class="collapse-control" type="button" aria-expanded="false" aria-controls="lessonBody">Mở tiến độ ▾</button>
         </div>
-        <p id="lessonTask" class="muted">Chọn từng điểm trên bản đồ, tìm hiểu vị trí và bổ sung thông tin có nguồn.</p>
-        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div><details class="progress-more"><summary>Xem nhiệm vụ còn thiếu</summary><div id="lessonDetails" class="lesson-details" aria-live="polite"></div></details>
-        
+        <div id="lessonBody"><p id="lessonTask" class="muted">Chọn từng điểm trên bản đồ, tìm hiểu vị trí và bổ sung thông tin có nguồn.</p>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div><details class="progress-more"><summary>Xem nhiệm vụ còn thiếu</summary><div id="lessonDetails" class="lesson-details" aria-live="polite"></div></details></div>
       </div>
     </section>
 
     <section>
-      <div class="panel">
+      <div class="panel work-panel">
         <nav class="tabbar step-journey" aria-label="Hành trình STEM bốn bước">
           <button data-tab="explore" class="active" type="button" aria-current="step"><span class="step-number">1</span><span><strong>Khám phá</strong><small>3 di tích</small></span><span class="step-check"></span></button>
           <button data-tab="design" type="button"><span class="step-number">2</span><span><strong>Thiết kế</strong><small>Chọn hành trình</small></span><span class="step-check"></span></button>
@@ -258,6 +311,7 @@ body.mode-basic .advanced-only{display:none!important}body.mode-advanced .site-q
             <option value="giong">Giồng Cá Vồ</option>
           </select>
 
+          <div class="compact-card-head preview-head"><strong>Thẻ thông tin di tích</strong><div class="card-head-actions"><button id="photoCollapseBtn" type="button" class="collapse-control" aria-pressed="false">Ẩn ảnh</button><button id="previewCollapseBtn" type="button" class="collapse-control" aria-expanded="true" aria-controls="preview">Thu gọn thẻ ▴</button></div></div>
           <div class="preview" id="preview"></div>
 
           <div class="edit-bar">
