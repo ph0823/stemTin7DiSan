@@ -146,6 +146,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 @media(max-width:650px){.map-legend-panel{top:100px;right:7px;max-width:170px;font-size:11px}.map-controls{max-width:90%}.map-controls button{font-size:11px}.map-legend{display:none}}
 @media print{header,.toolbar,.map,.lesson-panel,.tabbar,#summary,.actions,.profile-prompt,.design-nav,.reset-overlay{display:none!important}.layout{display:block}.layout>section:first-child{display:none!important}.layout>section:nth-child(2){width:100%!important}.tab{display:none!important}#report{display:block!important}.print-sheet{display:block!important;font:11pt/1.3 Arial,sans-serif;color:#111}.print-page{page-break-after:always}.print-page:last-child{page-break-after:auto}.print-sheet h2{font-size:15pt}.print-sheet h3{font-size:12pt;margin:8px 0}.print-sheet p{margin:5px 0}.print-sheet table{width:100%;border-collapse:collapse}.print-sheet td,.print-sheet th{border:1px solid #777;padding:5px;vertical-align:top}.print-sheet .print-card{margin:7px 0;padding:6px;border:1px solid #ccc;break-inside:avoid}}
 .help-box{max-width:760px;max-height:88vh;overflow-y:auto}.help-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid #d8e3ed;padding-bottom:9px}.help-header h2{font-size:20px;margin:0}.help-header button{flex-shrink:0}.help-section{padding:9px 0;border-bottom:1px solid #e8edf2}.help-section h3{font-size:15px;margin:0 0 5px;color:#145681}.help-section p{margin:5px 0}.help-section ol{margin:4px 0 6px;padding-left:23px}.help-section li{margin:4px 0}.help-box .actions{justify-content:flex-end;margin-top:12px}@media(max-width:550px){.help-box{padding:13px;max-height:92vh}.help-header h2{font-size:17px}}
+.panel-stem{border:1px solid #d8e3ed;border-radius:9px;background:#f4f8fb;padding:11px;margin:10px 0}.snapshot-card{font-size:12px;border:1px solid #cfdae5;border-radius:6px;padding:8px;margin:7px 0;background:white;max-height:180px;overflow:auto}.snapshot-card p{margin:4px 0}
 </style>
 </head>
 <body>
@@ -228,7 +229,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 
           <div id="editFields" class="hidden">
             <div class="field">
-              <label for="desc">Lời giới thiệu của nhóm (50–80 từ)</label>
+              <label for="cardStyle">Kiểu thẻ thông tin</label><select id="cardStyle"><option value="stack">Ảnh trên – chữ dưới</option><option value="side">Ảnh trái – chữ phải</option><option value="compact">Thẻ tóm tắt</option></select><label for="desc">Lời giới thiệu của nhóm (50–80 từ)</label>
               <textarea id="desc" rows="4" maxlength="1000"></textarea>
               <div id="wordCount" class="word-count"></div>
             </div>
@@ -280,7 +281,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
         <div id="test" class="tab hidden">
           <h3>Phiếu kiểm thử chéo</h3>
           <p class="muted">Nhóm bạn kiểm tra sản phẩm, đánh dấu từng tiêu chí rồi ghi lỗi cần sửa.</p>
-          <div id="checks"></div>
+          <div class="panel-stem"><h4>Minh chứng thiết kế và cải tiến</h4><p class="muted">Lưu bản đầu trước khi kiểm thử và bản cải tiến sau khi sửa.</p><div class="actions"><button type="button" id="captureBefore">Lưu bản 1</button><button type="button" id="captureAfter">Lưu bản 2</button></div><div id="snapshotCompare"></div></div><div id="checks"></div>
           <div class="field"><label for="tester">Nhóm kiểm thử</label><input id="tester"></div>
           <div class="field"><label for="issues">Lỗi / điểm cần cải thiện</label><textarea id="issues"></textarea></div>
           <div class="field"><label for="fix">Cách nhóm em đã cải tiến</label><textarea id="fix"></textarea></div>
@@ -829,7 +830,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     text(geo, 'Ghi chú tọa độ: ' + heritageGeo[current].precision);
     p.appendChild(geo);
 
-    updateWordCount(s.desc);
+    updateWordCount(s.desc);el('cardStyle').value=state.cardStyle||'stack';
   }
 
   function showSite(markVisited){
@@ -980,6 +981,9 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   el('promptSelect').addEventListener('click',openGroups);
 
   el('switchGroup').addEventListener('click',openGroups);
+  el('cardStyle').addEventListener('change',function(){state.cardStyle=this.value;updatePreview();scheduleSave()});
+  el('captureBefore').addEventListener('click',function(){captureSnapshot('before')});
+  el('captureAfter').addEventListener('click',function(){captureSnapshot('after')});
   function openHelp(){el('helpDialog').classList.remove('hidden');el('helpClose').focus()}
   function closeHelp(){el('helpDialog').classList.add('hidden');el('helpBtn').focus()}
   el('helpBtn').addEventListener('click',openHelp);
