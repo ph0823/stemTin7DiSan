@@ -137,6 +137,14 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 }
 .reset-overlay{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(10,32,45,.65);z-index:3000;display:flex;align-items:center;justify-content:center;padding:12px}.reset-box{width:100%;max-width:440px;background:#fff;border-radius:12px;padding:20px;box-shadow:0 12px 38px #0004}.reset-box h3{margin-top:0}.reset-box .actions{justify-content:flex-end}@media print{.reset-overlay{display:none!important}}
 .reference-box{background:#edf5fa;border-left:3px solid #17649a;padding:10px;margin:8px 0;border-radius:5px}.reference-box p{margin:5px 0}.reference-box a{font-size:12px}.source-warning{color:#a04b17;font-size:12px}#preview h4{margin:9px 0 4px}
+
+/* Thành phần bản đồ và điều hướng STEM - cú pháp phù hợp Chrome 75 */
+.map-legend-panel{position:absolute;top:57px;right:12px;z-index:450;background:rgba(255,255,255,.96);padding:6px 9px;border-radius:8px;box-shadow:0 2px 8px #0002;font-size:12px;max-width:220px}
+.legend-entry{display:flex;align-items:center;margin:3px 0;cursor:pointer}.legend-entry b{background:#17649a;border-radius:50%;color:#fff;min-width:22px;height:22px;line-height:22px;text-align:center;margin-right:7px}
+.map-controls{max-width:85%}.map-controls button{padding:6px 8px}.lesson-details{font-size:12px;margin-top:8px}.lesson-row{margin:3px 0}.lesson-row.done{color:#16734d}.lesson-row.todo{color:#ad5827}
+.design-nav{display:flex;flex-wrap:wrap;margin-bottom:12px}.design-nav button{margin:0 5px 5px 0;font-size:12px}.design-nav button.active{background:#17649a;color:#fff}.design-step{padding:4px 0}.profile-prompt{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:2000;max-width:90%;background:#fff;border:2px solid #17649a;border-radius:10px;padding:12px 16px;box-shadow:0 6px 25px #0003}.profile-prompt button{margin-left:8px}.work-locked{opacity:.62;pointer-events:none}.print-sheet{display:none}
+@media(max-width:650px){.map-legend-panel{top:100px;right:7px;max-width:170px;font-size:11px}.map-controls{max-width:90%}.map-controls button{font-size:11px}.map-legend{display:none}}
+@media print{header,.toolbar,.map,.lesson-panel,.tabbar,#summary,.actions,.profile-prompt,.design-nav,.reset-overlay{display:none!important}.layout{display:block}.layout>section:first-child{display:none!important}.layout>section:nth-child(2){width:100%!important}.tab{display:none!important}#report{display:block!important}.print-sheet{display:block!important;font:11pt/1.3 Arial,sans-serif;color:#111}.print-page{page-break-after:always}.print-page:last-child{page-break-after:auto}.print-sheet h2{font-size:15pt}.print-sheet h3{font-size:12pt;margin:8px 0}.print-sheet p{margin:5px 0}.print-sheet table{width:100%;border-collapse:collapse}.print-sheet td,.print-sheet th{border:1px solid #777;padding:5px;vertical-align:top}.print-sheet .print-card{margin:7px 0;padding:6px;border:1px solid #ccc;break-inside:avoid}}
 </style>
 </head>
 <body>
@@ -169,15 +177,15 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     </div>
   </div>
 
-  <div class="layout">
+  <div class="layout" id="workArea">
     <section>
       <div class="map real-map" id="map" aria-label="Bản đồ địa lý tương tác ba di tích">
         <div id="leafletMap" aria-label="Bản đồ OpenStreetMap; có thể kéo và thu phóng"></div>
         <div class="map-controls">
-          <button id="fitMap" type="button">Xem cả 3 di tích</button>
+          <button id="fitMap" type="button">Xem cả 3</button><button id="focusMap" type="button">Đến điểm chọn</button><button id="toggleRoute" type="button" aria-pressed="true">Ẩn đường nối</button>
           <span class="map-legend">Số 1–2–3 hiển thị thứ tự hành trình</span>
         </div>
-        <div class="map-note">Bản đồ OpenStreetMap · Đường nét đứt chỉ minh họa thứ tự điểm dừng (không phải tuyến đường giao thông thực tế).</div>
+        <div class="map-legend-panel" id="mapLegend" aria-label="Chú giải điểm di tích"></div><div class="map-note">Bản đồ OpenStreetMap · Đường nét đứt chỉ minh họa thứ tự điểm dừng (không phải tuyến đường giao thông thực tế).</div>
         <div id="mapFallback" class="map-fallback hidden">Không tải được bản đồ trực tuyến. Hãy kiểm tra Internet hoặc mở địa điểm bằng nút “Đối chiếu Google Maps”.</div>
       </div>
 
@@ -187,7 +195,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
           <span class="tag" id="lessonProgress">0/3 nhiệm vụ</span>
         </div>
         <p id="lessonTask" class="muted">Chọn từng điểm trên bản đồ, tìm hiểu vị trí và bổ sung thông tin có nguồn.</p>
-        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div><div id="lessonDetails" class="lesson-details" aria-live="polite"></div>
         <p class="muted compact-note">Bài làm được tự lưu trong trình duyệt này. Hãy xuất JSON để nộp hoặc chuyển máy.</p>
       </div>
     </section>
@@ -239,9 +247,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
         </div>
 
         <div id="design" class="tab hidden">
-          <h3>Thiết kế hành trình</h3>
-          <div class="field">
-            <label for="mode">Hình thức khám phá</label>
+          <h3>Thiết kế hành trình</h3><div class="design-nav"><button data-step="1" type="button" class="active">1. Chọn tuyến</button><button data-step="2" type="button">2. Giải thích</button><button data-step="3" type="button">3. Hoàn thiện</button></div>
+          <div class="design-step" data-step-panel="1"><div class="field"><label for="mode">Hình thức khám phá</label>
             <select id="mode">
               <option>Tham quan trực tuyến</option>
               <option>Tham quan thực địa (cần xác minh lịch trình)</option>
@@ -250,29 +257,22 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
           </div>
           <div class="field">
             <label for="order">Thứ tự khám phá (tự động vẽ trên bản đồ)</label>
-            <select id="order">
-              <option value="nga,cu,giong">Ngã Ba Giồng → Củ Chi → Giồng Cá Vồ</option>
-              <option value="cu,nga,giong">Củ Chi → Ngã Ba Giồng → Giồng Cá Vồ</option>
-              <option value="giong,nga,cu">Giồng Cá Vồ → Ngã Ba Giồng → Củ Chi</option>
-              <option value="giong,cu,nga">Giồng Cá Vồ → Củ Chi → Ngã Ba Giồng</option>
-            </select>
+            <select id="order"></select>
           </div>
-          <div class="field">
-            <label for="reason">Vì sao nhóm chọn phương án này?</label>
+          <div id="orderHint" class="muted"></div></div><div class="design-step hidden" data-step-panel="2"><div class="field"><label for="reason">Vì sao nhóm chọn phương án này?</label>
             <textarea id="reason" placeholder="Nêu tiêu chí lựa chọn: nội dung học tập, thời gian, điều kiện di chuyển..."></textarea>
           </div>
           <div class="field">
             <label for="estimate">Dữ liệu quãng đường/thời gian đã kiểm chứng (nếu có)</label>
             <textarea id="estimate" placeholder="Ghi tuyến, nguồn tra cứu và thời điểm; không tự suy ra từ đường nối minh họa"></textarea>
           </div>
-          <div class="field">
-            <label for="message">Thông điệp bảo tồn di sản</label>
+          <div class="field"><label for="compareOrder">Phương án khác để so sánh</label><select id="compareOrder"></select></div><div class="field"><label for="compareText">So sánh hai phương án</label><textarea id="compareText" placeholder="Phương án nào phù hợp mục tiêu học tập hơn? Vì sao?"></textarea></div><p id="modeQuestions" class="muted"></p></div><div class="design-step hidden" data-step-panel="3"><div class="field"><label for="message">Thông điệp bảo tồn di sản</label>
             <textarea id="message" placeholder="Viết một thông điệp ngắn"></textarea>
           </div>
           <div class="field">
             <label for="sketch">Mô tả thiết kế thẻ thông tin của nhóm</label>
             <textarea id="sketch" placeholder="Nêu cách sắp xếp tiêu đề, ảnh, nội dung và liên kết"></textarea>
-          </div>
+          </div></div>
         </div>
 
         <div id="test" class="tab hidden">
@@ -287,7 +287,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
 
         <div id="report" class="tab hidden">
           <h3>Báo cáo sản phẩm</h3><div class="field"><label for="selfAssessment">Tự đánh giá của nhóm</label><select id="selfAssessment"><option value="">Chưa tự đánh giá</option><option value="Cần hoàn thiện">Cần hoàn thiện</option><option value="Đã hoàn thành nhiệm vụ">Đã hoàn thành nhiệm vụ</option><option value="Sẵn sàng nhận đánh giá của giáo viên">Sẵn sàng nhận đánh giá của giáo viên</option></select></div><p class="muted">Giáo viên đánh giá chất lượng theo rubric KHBD; tiến độ chỉ thể hiện thông tin đã hoàn thành.</p>
-          <div id="summary"></div>
+          <div id="summary"></div><div id="printSheet" class="print-sheet"></div>
           <div class="actions">
             <button id="copy" type="button">Sao chép báo cáo</button>
             <button id="reportPrint" type="button">In báo cáo</button>
@@ -300,6 +300,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     </section>
   </div>
 
+  <div id="profilePrompt" class="profile-prompt">Hãy chọn <b>Lớp – Nhóm</b> trước khi làm bài. Dữ liệu các nhóm được lưu riêng trên máy này. <button type="button" id="promptSelect">Chọn nhóm</button></div>
   <div id="groupDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="groupTitle"><div class="reset-box"><h3 id="groupTitle">Chọn bài làm của nhóm</h3><p class="muted">Các nhóm được lưu riêng trên máy này. Dữ liệu cũ không bị xóa.</p><label for="savedGroups">Nhóm đã lưu</label><select id="savedGroups"><option value="">Tạo nhóm mới / nhập tên dưới đây</option></select><label for="newClass">Lớp</label><input id="newClass" maxlength="30" placeholder="7A1"><label for="newGroup">Nhóm</label><input id="newGroup" maxlength="50" placeholder="Nhóm 1"><div class="actions"><button type="button" id="groupNo">Hủy</button><button type="button" class="primary" id="groupYes">Mở nhóm</button></div></div></div>
   <div id="resetDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="resetTitle"><div class="reset-box"><h3 id="resetTitle">Khôi phục bài làm?</h3><p>Chỉ khôi phục bài làm đang mở. Hãy xuất JSON trước nếu muốn giữ bản sao.</p><div class="actions"><button type="button" id="resetNo">Hủy</button><button type="button" class="primary" id="resetYes">Khôi phục</button></div></div></div>
   <footer>STEM Tin học 7 · Bản đồ OpenStreetMap cần Internet · Tự lưu cục bộ trên trình duyệt</footer>
@@ -322,7 +323,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   function changeGroup(){
     var klass=String(el('newClass').value||'').trim(),group=String(el('newGroup').value||'').trim();
     if(!klass||!group){setStatus('Nhập lớp và tên nhóm trước khi mở.');return}
-    save(true);
+    if(hasProfile())save(true);
     var nextKey=groupKey(klass,group),next=null;
     try{var json=localStorage.getItem(nextKey);if(json)next=JSON.parse(json)}catch(e){setStatus('Bản lưu nhóm bị lỗi; vui lòng xuất JSON để sao lưu.');return}
     if(!next&&activeKey===KEY&&String(state.klass||'').toLowerCase()===klass.toLowerCase()&&String(state.group||'').toLowerCase()===group.toLowerCase())next=JSON.parse(JSON.stringify(state));
@@ -330,7 +331,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     next.klass=klass;next.group=group;
     activeKey=nextKey;apply(next);
     try{localStorage.setItem(ACTIVE_KEY,activeKey)}catch(e){}
-    refresh();save(true);el('groupDialog').classList.add('hidden');
+    refresh();save(true);updateProfileUI();el('groupDialog').classList.add('hidden');
     setStatus(json?'Đã mở dữ liệu nhóm.':'Đã tạo bản lưu nhóm riêng.');
   }
   var ids = ['nga', 'cu', 'giong'];
@@ -358,15 +359,30 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     },
     mode: 'Tham quan trực tuyến',
     order: 'nga,cu,giong',
-    reason: '', estimate: '', message: '', sketch: '',
+    reason: '', estimate: '', compareOrder:'cu,nga,giong',compareText:'', message: '', sketch: '',
     checks: {}, tester: '', issues: '', fix: '', recheck: ''
   };
 
   var referenceSites=JSON.parse(JSON.stringify(base.sites));
   ids.forEach(function(id){base.sites[id].desc='';base.sites[id].source='';base.sites[id].image='';base.sites[id].license=''});
-  base.visited={};base.selfAssessment='';
+  base.visited={};base.selfAssessment='';base.showRoute=true;
   var state = JSON.parse(JSON.stringify(base));
-  var current = 'nga';
+  var current='nga', designStep=1, started=false;
+  var allOrders=['nga,cu,giong','nga,giong,cu','cu,nga,giong','cu,giong,nga','giong,nga,cu','giong,cu,nga'];
+  function populateOrders(){
+    ['order','compareOrder'].forEach(function(field){var sel=el(field);sel.innerHTML='';allOrders.forEach(function(order){var o=document.createElement('option');o.value=order;o.textContent=order.split(',').map(function(id){return referenceSites[id].name}).join(' → ');sel.appendChild(o)})});
+  }
+  function hasProfile(){return activeKey!==KEY&&!!clean(state.klass)&&!!clean(state.group)}
+  function updateProfileUI(){
+    var ok=hasProfile();el('profilePrompt').classList.toggle('hidden',ok);el('workArea').classList.toggle('work-locked',!ok);
+    el('autosaveHint').textContent=ok?(dirty?'Đang lưu…':'Bản lưu của '+state.group+' · '+state.klass):'Chưa chọn nhóm – chưa lưu bài';
+    el('save').disabled=!ok;el('export').disabled=!ok;
+  }
+  function setDesignStep(n){designStep=n;document.querySelectorAll('[data-step-panel]').forEach(function(x){x.classList.toggle('hidden',x.getAttribute('data-step-panel')!==String(n))});document.querySelectorAll('[data-step]').forEach(function(x){x.classList.toggle('active',x.getAttribute('data-step')===String(n))});}
+  function updateQuestions(){var mode=state.mode||'';el('modeQuestions').textContent=mode.indexOf('thực địa')!==-1?'Gợi ý: Nhóm đã kiểm chứng đường đi, thời gian, phương tiện và an toàn chưa?':mode.indexOf('Kết hợp')!==-1?'Gợi ý: Di tích nào nên tìm hiểu trực tuyến trước, nơi nào có thể đi thực địa?':'Gợi ý: Thứ tự này giúp người xem hiểu nội dung lịch sử và khảo cổ như thế nào? Không bắt buộc tính thời gian di chuyển.';}
+  function renderLegend(){var box=el('mapLegend');box.innerHTML='';getOrderList().forEach(function(id,i){var item=document.createElement('div');item.className='legend-entry';var num=document.createElement('b');num.textContent=String(i+1);var name=document.createElement('span');name.textContent=referenceSites[id].name;item.appendChild(num);item.appendChild(name);item.addEventListener('click',function(){current=id;showSite();selectMarker(id,true)});box.appendChild(item)})}
+  function updateRouteToggle(){var showing=state.showRoute!==false;el('toggleRoute').textContent=showing?'Ẩn đường nối':'Hiện đường nối';el('toggleRoute').setAttribute('aria-pressed',String(showing));if(routeLine){if(showing&&!realMap.hasLayer(routeLine))routeLine.addTo(realMap);if(!showing&&realMap.hasLayer(routeLine))realMap.removeLayer(routeLine)}}
+
 
   var heritageGeo = {
     nga: {
@@ -457,6 +473,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
         opacity: 0.85
       }).addTo(realMap);
     }
+    renderLegend();updateRouteToggle();
   }
 
   function makePhoto(id, allowPlaceholder){
@@ -575,9 +592,9 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     updateRoute();
     realMap.fitBounds(mapBounds, { padding: [36, 36] });
 
-    el('fitMap').addEventListener('click', function(){
-      realMap.fitBounds(mapBounds, { padding: [36, 36] });
-    });
+    el('fitMap').addEventListener('click',function(){realMap.fitBounds(mapBounds,{padding:[36,36]})});
+    el('focusMap').addEventListener('click',function(){selectMarker(current,true)});
+    el('toggleRoute').addEventListener('click',function(){state.showRoute=!(state.showRoute!==false);updateRouteToggle();scheduleSave()});
 
     function resizeMap(){
       if (realMap) realMap.invalidateSize({ pan: false });
@@ -603,7 +620,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   function apply(x){
     if (!x || typeof x !== 'object' || !x.sites) throw Error('Dữ liệu không hợp lệ');
     state = JSON.parse(JSON.stringify(base));
-    ['group','klass','mode','order','reason','estimate','message','sketch','tester','issues','fix','recheck'].forEach(function(k){
+    ['group','klass','mode','order','reason','estimate','compareOrder','compareText','message','sketch','tester','issues','fix','recheck'].forEach(function(k){
       if (typeof x[k] === 'string') state[k] = x[k].slice(0, 6000);
     });
     ids.forEach(function(id){
@@ -617,14 +634,16 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     if (x.checks && typeof x.checks === 'object') state.checks=x.checks;
     state.visited=x.visited&&typeof x.visited==='object'?x.visited:{};
     state.selfAssessment=typeof x.selfAssessment==='string'?x.selfAssessment.slice(0,100):'';
+    state.showRoute=x.showRoute!==false;
   }
 
   var saveTimer = null, dirty = false;
   function save(silent){
+    if(!hasProfile()){updateProfileUI();return false}
     try {
       localStorage.setItem(activeKey, JSON.stringify(state));
       dirty = false;
-      if (el('autosaveHint')) el('autosaveHint').textContent = 'Đã lưu trên máy';
+      if (el('autosaveHint')) el('autosaveHint').textContent = 'Đã lưu · '+(state.klass||'')+' / '+(state.group||'');
       if (!silent) setStatus('Đã lưu trên trình duyệt này.');
     } catch (e) {
       if (el('autosaveHint')) el('autosaveHint').textContent = 'Không lưu được';
@@ -632,6 +651,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     }
   }
   function scheduleSave(){
+    if(!hasProfile()){updateProfileUI();return}
     dirty = true;
     if (el('autosaveHint')) el('autosaveHint').textContent = 'Đang lưu…';
     clearTimeout(saveTimer);
@@ -681,19 +701,19 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     if (!el('lessonTitle')) return;
     el('lessonTitle').textContent = captions[lesson][0];
     el('lessonTask').textContent = captions[lesson][1];
-    var completed = 0, total = 3;
+    var completed=0,total=3,details=[];
     if(lesson===1){ids.forEach(function(id){var d=clean(state.sites[id].desc),w=d?d.split(/\s+/).length:0;
-      if(state.visited[id]&&w>=50&&w<=80&&clean(state.sites[id].source))completed++;
+      var ok=!!(state.visited[id]&&w>=50&&w<=80&&clean(state.sites[id].source));if(ok)completed++;details.push({ok:ok,label:referenceSites[id].name+': '+(ok?'đủ mô tả và nguồn':'cần xem, viết 50–80 từ và ghi nguồn')});
     });
     } else if (lesson === 2) {
-      ['reason','message','sketch'].forEach(function(k){ if (clean(state[k])) completed++; });
+      [['reason','Giải thích lí do chọn tuyến'],['compareText','So sánh với phương án khác'],['message','Thông điệp bảo tồn']].forEach(function(a){var ok=!!clean(state[a[0]]);if(ok)completed++;details.push({ok:ok,label:a[1]})});
     } else {
-      if (clean(state.tester)) completed++;
-      if (clean(state.issues) && clean(state.fix)) completed++;
-      if (clean(state.recheck) && clean(state.selfAssessment)) completed++;
+      var testItems=[{ok:!!clean(state.tester),label:'Có nhóm kiểm thử'}, {ok:!!(clean(state.issues)&&clean(state.fix)),label:'Ghi lỗi và cách cải tiến'}, {ok:!!(clean(state.recheck)&&clean(state.selfAssessment)),label:'Kiểm thử lại và tự đánh giá'}];testItems.forEach(function(x){if(x.ok)completed++;details.push(x)});
     }
     el('lessonProgress').textContent = completed + '/' + total + ' nhiệm vụ';
-    el('progressFill').style.width = Math.round(100 * completed / total) + '%';
+    el('progressFill').style.width=Math.round(100*completed/total)+'%';
+    var box=el('lessonDetails');box.innerHTML='';details.forEach(function(d){var p=document.createElement('div');p.className='lesson-row '+(d.ok?'done':'todo');p.textContent=(d.ok?'✓ ':'○ ')+d.label;box.appendChild(p)});
+    updateQuestions();
   }
 
   function updateWordCount(descText){
@@ -808,6 +828,8 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
       'Hình thức: ' + state.mode,
       'Thứ tự: ' + getOrderList().map(function(id){ return state.sites[id] ? state.sites[id].name : id; }).join(' → '),
       'Lí do: ' + state.reason,
+      'Phương án đối chiếu: ' + (state.compareOrder||''),
+      'So sánh: ' + (state.compareText||''),
       'Dữ liệu kiểm chứng: ' + state.estimate,
       'Thông điệp: ' + state.message,
       'Thiết kế: ' + state.sketch,
@@ -820,10 +842,30 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     return lines.join('\n');
   }
 
+  function renderPrintSheet(){
+    var root=el('printSheet');root.innerHTML='';
+    function add(tag,parent,value){var node=document.createElement(tag);node.textContent=value||'';parent.appendChild(node);return node}
+    var pg=add('div',root,'');pg.className='print-page';
+    add('h2',pg,'HÀNH TRÌNH DI SẢN SỐ – SẢN PHẨM STEM TIN HỌC 7');
+    add('p',pg,'Lớp: '+(state.klass||'...')+'    Nhóm: '+(state.group||'...'));
+    add('h3',pg,'1. Khám phá di sản');
+    ids.forEach(function(id,i){var card=add('div',pg,'');card.className='print-card';add('strong',card,(i+1)+'. '+referenceSites[id].name);add('p',card,'Vị trí: '+referenceSites[id].location);add('p',card,'Giới thiệu: '+(state.sites[id].desc||'Chưa viết'));add('p',card,'Nguồn: '+(state.sites[id].source||'Chưa ghi'))});
+    add('h3',pg,'2. Thiết kế hành trình');
+    add('p',pg,'Hình thức: '+state.mode);add('p',pg,'Thứ tự: '+getOrderList().map(function(id){return referenceSites[id].name}).join(' → '));
+    add('p',pg,'Lí do: '+state.reason);add('p',pg,'So sánh: '+state.compareText);
+    var pg2=add('div',root,'');pg2.className='print-page';add('h3',pg2,'3. Thiết kế và cải tiến');
+    add('p',pg2,'Phác thảo thẻ: '+state.sketch);add('p',pg2,'Thông điệp: '+state.message);
+    add('p',pg2,'Nhóm kiểm thử: '+state.tester);add('p',pg2,'Lỗi phát hiện: '+state.issues);
+    add('p',pg2,'Cách cải tiến: '+state.fix);add('p',pg2,'Kiểm tra lại: '+state.recheck);
+    add('p',pg2,'Tự đánh giá: '+state.selfAssessment);
+    add('p',pg2,'Giáo viên nhận xét: ..................................................................................................');
+    add('p',pg2,'Lưu ý: Kết quả tự đánh giá không thay thế rubric của giáo viên.');
+  }
   function updateSummary(){
     var box = el('summary');
     if (!box) return;
     box.innerHTML = '';
+    renderPrintSheet();
     var pre = document.createElement('div');
     pre.style.whiteSpace = 'pre-wrap';
     pre.style.fontSize = '13px';
@@ -875,7 +917,10 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     });
   });
 
-  ['mode','order','reason','estimate','message','sketch','tester','issues','fix','recheck','selfAssessment'].forEach(function(k){bind(k,k)});
+  ['mode','order','reason','estimate','compareOrder','compareText','message','sketch','tester','issues','fix','recheck','selfAssessment'].forEach(function(k){bind(k,k)});
+  document.querySelectorAll('[data-step]').forEach(function(b){b.addEventListener('click',function(){setDesignStep(Number(b.getAttribute('data-step')))})});
+  el('promptSelect').addEventListener('click',openGroups);
+
   el('switchGroup').addEventListener('click',openGroups);
   el('savedGroups').addEventListener('change',function(){if(!this.value)return;try{var x=JSON.parse(localStorage.getItem(this.value));el('newClass').value=x.klass||'';el('newGroup').value=x.group||''}catch(e){}});
   el('groupNo').addEventListener('click',function(){el('groupDialog').classList.add('hidden')});
@@ -903,7 +948,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     save(false);
   });
 
-  el('export').addEventListener('click', function(){
+  el('export').addEventListener('click', function(){if(!hasProfile()){openGroups();return}
     var blob = new Blob([JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), data: state }, null, 2)], { type: 'application/json' });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -914,10 +959,10 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     setStatus('Đã tạo tệp JSON để nộp.');
   });
 
-  el('importBtn').addEventListener('click', function(){ el('importFile').click(); });
+  el('importBtn').addEventListener('click', function(){if(!hasProfile()){openGroups();return}el('importFile').click()});
   el('importFile').addEventListener('change', function(){
     var f = this.files && this.files[0];
-    if (!f) return;
+    if (!f) return;if(!hasProfile()){openGroups();return}
     if (f.size > 300000) { setStatus('Tệp quá lớn (tối đa 300 KB).'); return; }
     var r = new FileReader();
     r.onload = function(){
@@ -973,7 +1018,7 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
   });
 
   function refresh(){
-    ['group','klass','mode','order','reason','estimate','message','sketch','tester','issues','fix','recheck','selfAssessment'].forEach(function(k){
+    ['group','klass','mode','order','reason','estimate','compareOrder','compareText','message','sketch','tester','issues','fix','recheck','selfAssessment'].forEach(function(k){
       el(k).value = state[k] || '';
     });
     renderChecks();
@@ -982,8 +1027,11 @@ footer{text-align:center;color:#637888;padding:10px 0 24px;font-size:12px}
     updateSummary();
   }
 
+  populateOrders();
   restore();
   refresh();
+  setDesignStep(1);
+  updateProfileUI();
   toggleEditor(false);
   initRealMap();
   updateLesson();
