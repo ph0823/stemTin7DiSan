@@ -354,11 +354,11 @@ body.mode-basic .order-legacy{display:none}
       </div>
       <details class="map-challenge" id="mapChallenge">
         <summary>Thử thách đọc bản đồ <span class="map-challenge-sub">2 câu · Quan sát và kiểm chứng</span></summary>
-        <div class="map-challenge-body"><p class="muted">Nhóm trả lời bằng cách quan sát. Câu trả lời được lưu cùng bài làm, không tính điểm tự động.</p>
-          <label for="mapPrediction"><strong>1. Dự đoán:</strong> Di tích nào nằm xa nhất về phía Nam trong ba di tích?</label>
+        <div class="map-challenge-body"><p class="muted">Em hãy quan sát bản đồ, chọn câu trả lời rồi nhấn “Kiểm tra”. Kết quả không tính điểm.</p>
+          <label for="mapPrediction"><strong>Câu 1.</strong> Em hãy quan sát và chọn di tích nằm xa nhất về phía Nam.</label>
           <div class="map-challenge-row"><select id="mapPrediction"><option value="">Chọn đáp án</option><option value="nga">Ngã Ba Giồng</option><option value="cu">Địa đạo Củ Chi</option><option value="giong">Giồng Cá Vồ</option></select><button id="mapCheckPrediction" type="button">Kiểm tra</button></div>
           <p id="mapPredictionFeedback" class="map-feedback" role="status"></p>
-          <label for="mapLineAnswer"><strong>2. Nhận xét:</strong> Đường nét đứt nối các điểm trên bản đồ thể hiện điều gì?</label>
+          <label for="mapLineAnswer"><strong>Câu 2.</strong> Theo em, đường nét đứt nối ba điểm trên bản đồ có ý nghĩa gì?</label>
           <div class="map-challenge-row"><select id="mapLineAnswer"><option value="">Chọn đáp án</option><option value="road">Đường giao thông thực tế</option><option value="order">Thứ tự khám phá do nhóm chọn</option><option value="distance">Khoảng cách chính xác giữa các điểm</option></select><button id="mapCheckLine" type="button">Kiểm tra</button></div>
           <p id="mapLineFeedback" class="map-feedback" role="status"></p>
           <p class="muted">Gợi ý: chọn “Xem cả 3” để quan sát. Vị trí là điểm tham khảo, không phải lối vào thực tế.</p>
@@ -399,12 +399,12 @@ body.mode-basic .order-legacy{display:none}
             <option value="giong">Giồng Cá Vồ</option>
           </select>
 
-          <p class="site-task-line" id="siteTaskLine">Viết 25–50 từ về di tích đang chọn, sau đó ghi nguồn thông tin.</p>
+          <p class="site-task-line" id="siteTaskLine">Em hãy viết lời giới thiệu của em hoặc nhóm em về di tích này (25–50 từ), rồi ghi nguồn thông tin.</p>
           <div class="edit-bar"><strong id="writingTitle">Viết lời giới thiệu</strong><button id="editToggle" type="button" aria-expanded="true" aria-controls="editFields">Thu gọn phần viết ▴</button></div>
 
           <div id="editFields">
             <div class="field">
-              <details class="card-style-options" id="cardStyleOptions"><summary>Đổi cách trình bày thẻ</summary><label for="cardStyle">Kiểu thẻ</label><select id="cardStyle"><option value="stack">Ảnh trên – chữ dưới</option><option value="side">Ảnh trái – chữ phải</option><option value="compact">Thẻ tóm tắt</option></select></details><label for="desc" id="descLabel">Lời giới thiệu của nhóm (25–50 từ)</label>
+              <details class="card-style-options" id="cardStyleOptions"><summary>Đổi cách trình bày thẻ</summary><label for="cardStyle">Kiểu thẻ</label><select id="cardStyle"><option value="stack">Ảnh trên – chữ dưới</option><option value="side">Ảnh trái – chữ phải</option><option value="compact">Thẻ tóm tắt</option></select></details><label for="desc" id="descLabel">Em hãy viết lời giới thiệu của em/nhóm em về di tích này (25–50 từ)</label>
               <textarea id="desc" rows="4" maxlength="1000"></textarea>
               <div id="wordCount" class="word-count"></div>
             </div>
@@ -413,7 +413,7 @@ body.mode-basic .order-legacy{display:none}
               <input id="image" type="url" placeholder="https://...">
             </div>
             <div class="field">
-              <label for="source">Nguồn thông tin</label>
+              <label for="source">Em đã sử dụng nguồn thông tin nào?</label>
               <input id="source" placeholder="Ví dụ: Tư liệu giáo viên cung cấp"><div class="advanced-only"><label for="license">Tác giả và quyền sử dụng hình</label><input id="license" maxlength="300" placeholder="Nguồn · giấy phép/cho phép"><label for="imageSource">Link nguồn hình ảnh</label><input id="imageSource" type="url" placeholder="https://..."></div>
             </div>
           </div>
@@ -445,14 +445,14 @@ body.mode-basic .order-legacy{display:none}
             <div class="route-choice"><label for="routePlanA">Phương án A</label><select id="routePlanA"></select></div>
             <div class="route-choice"><label for="routePlanB">Phương án B</label><select id="routePlanB"></select></div>
             <div class="route-choice"><label for="preferredRoute">Nhóm lựa chọn</label><select id="preferredRoute"><option value="A">Phương án A</option><option value="B">Phương án B</option></select><button id="applyRoutePlan" type="button">Hiển thị hành trình chọn</button></div>
-          </div></div><div class="design-step hidden" data-step-panel="2"><div class="field"><label for="reason">Vì sao em chọn cách sắp xếp này?</label>
+          </div></div><div class="design-step hidden" data-step-panel="2"><div class="field"><label for="reason">Em/nhóm em hãy nêu lí do chọn thứ tự khám phá này.</label>
             <textarea id="reason" placeholder="Nêu tiêu chí lựa chọn: nội dung học tập, thời gian, điều kiện di chuyển..."></textarea>
           </div>
           <div class="field advanced-only">
             <label for="estimate">Dữ liệu quãng đường/thời gian đã kiểm chứng (nếu có)</label>
             <textarea id="estimate" placeholder="Ghi tuyến, nguồn tra cứu và thời điểm; không tự suy ra từ đường nối minh họa"></textarea>
           </div>
-          <div class="field advanced-only"><label for="compareOrder">Phương án khác (công cụ cũ)</label><select id="compareOrder"></select></div><div class="field"><label for="compareText">Hai cách sắp xếp khác nhau ở điểm nào? (1 câu)</label><textarea id="compareText" placeholder="Phương án em chọn giúp người xem tìm hiểu nội dung theo thứ tự nào? Vì sao tốt hơn phương án còn lại?"></textarea></div><p id="modeQuestions" class="muted advanced-only"></p></div><div class="design-step hidden" data-step-panel="3"><div class="field"><label for="message">Em muốn nhắn gửi điều gì để bảo vệ di sản?</label>
+          <div class="field advanced-only"><label for="compareOrder">Phương án khác (công cụ cũ)</label><select id="compareOrder"></select></div><div class="field"><label for="compareText">Em hãy so sánh hai cách sắp xếp A và B bằng một câu.</label><textarea id="compareText" placeholder="Phương án em chọn giúp người xem tìm hiểu nội dung theo thứ tự nào? Vì sao tốt hơn phương án còn lại?"></textarea></div><p id="modeQuestions" class="muted advanced-only"></p></div><div class="design-step hidden" data-step-panel="3"><div class="field"><label for="message">Em/nhóm em hãy viết một thông điệp bảo vệ di sản.</label>
             <textarea id="message" placeholder="Viết một thông điệp ngắn"></textarea>
           </div>
           <div class="field advanced-only">
@@ -463,28 +463,28 @@ body.mode-basic .order-legacy{display:none}
 
         <div id="test" class="tab hidden">
           <h3>Kiểm thử và góp ý chéo</h3>
-          <div class="peer-actions"><button id="peerOpenBtn" type="button" class="primary">Xem và góp ý bài nhóm bạn</button><button id="peerInboxBtn" type="button">Xem góp ý dành cho nhóm em <span id="peerInboxCount"></span></button></div>
+          <div class="peer-actions"><button id="peerOpenBtn" type="button" class="primary">Xem và góp ý bài nhóm bạn</button><button id="peerInboxBtn" type="button">Xem góp ý dành cho em/nhóm em <span id="peerInboxCount"></span></button></div>
           <div id="peerNotice" class="peer-notice hidden" role="status"></div>
           <div id="peerInboxPanel" class="peer-inbox hidden"><strong>Nhận xét từ các nhóm khác và giáo viên</strong><div id="peerInboxEntries"></div><button id="peerInboxClose" type="button">Đóng</button></div>
-          <p class="muted">Em ngồi tại máy của nhóm mình. Xem bài nhóm bạn và gửi một góp ý lịch sự.</p>
+          <p class="muted">Em hãy mở bài của bạn/nhóm khác trong lớp, đọc và gửi một góp ý lịch sự. Không cần đổi máy.</p>
           <div class="panel-stem"><h4>Lưu bài trước và sau khi sửa</h4><p class="muted">Bấm “Lưu bài trước khi sửa”, đọc góp ý, sửa bài rồi bấm “Lưu bài sau khi sửa”.</p><div class="actions"><button type="button" id="captureBefore">Lưu bài trước khi sửa</button><button type="button" id="captureAfter">Lưu bài sau khi sửa</button></div><div id="snapshotCompare"></div></div><details class="advanced-only"><summary>Bảng kiểm chi tiết</summary><div id="checks"></div></details>
           <details class="feedback-work" id="feedbackWork"><summary>Ghi góp ý và phần đã sửa</summary>
-          <p class="muted">Sau khi đọc góp ý của nhóm bạn, em ghi điều cần sửa và việc nhóm đã sửa.</p>
-          <div class="field"><label for="tester">Nhóm đã góp ý</label><input id="tester" placeholder="Ví dụ: Nhóm 2"></div>
-          <div class="guided-feedback"><strong>Nhóm bạn kiểm thử điều gì?</strong><div class="quick-test-checks">
+          <p class="muted">Em hãy ghi góp ý đã nhận và điều em/nhóm em đã chỉnh sửa.</p>
+          <div class="field"><label for="tester">Bạn hoặc nhóm đã góp ý</label><input id="tester" placeholder="Ví dụ: Nhóm 2"></div>
+          <div class="guided-feedback"><strong>Em hãy đánh dấu những điều đã kiểm tra:</strong><div class="quick-test-checks">
             <label><input type="checkbox" id="quickCheckInfo"> Đủ 3 di tích, nội dung có nguồn</label>
             <label><input type="checkbox" id="quickCheckCard"> Thẻ dễ đọc, hình rõ</label>
             <label><input type="checkbox" id="quickCheckRoute"> Hiểu thứ tự khám phá và lí do</label>
           </div>
-          <div class="field"><label for="issues">Bạn góp ý điều gì?</label><textarea id="issues" placeholder="Ví dụ: Lời giới thiệu Địa đạo Củ Chi còn dài, nên rút gọn."></textarea></div>
-          <div class="field"><label for="fix">Nhóm em đã thay đổi như thế nào?</label><textarea id="fix" placeholder="Ví dụ: Đã rút ngắn lời giới thiệu, thêm nguồn và kiểm tra lại."></textarea></div></div>
+          <div class="field"><label for="issues">Em nhận được góp ý nào từ bạn hoặc giáo viên?</label><textarea id="issues" placeholder="Ví dụ: Lời giới thiệu Địa đạo Củ Chi còn dài, nên rút gọn."></textarea></div>
+          <div class="field"><label for="fix">Sau khi đọc góp ý, em/nhóm em đã sửa điều gì?</label><textarea id="fix" placeholder="Ví dụ: Đã rút ngắn lời giới thiệu, thêm nguồn và kiểm tra lại."></textarea></div></div>
           </details>
           <div class="field advanced-only"><label for="recheck">Kết quả kiểm tra lại</label><textarea id="recheck"></textarea></div>
         </div>
 
         <div id="report" class="tab hidden">
-          <h3>Báo cáo sản phẩm</h3><div class="field"><label for="selfAssessment">Tự đánh giá của nhóm</label><select id="selfAssessment"><option value="">Chưa tự đánh giá</option><option value="Cần hoàn thiện">Cần hoàn thiện</option><option value="Đã hoàn thành nhiệm vụ">Đã hoàn thành nhiệm vụ</option><option value="Sẵn sàng nhận đánh giá của giáo viên">Sẵn sàng nhận đánh giá của giáo viên</option></select></div><p class="muted">Giáo viên đánh giá chất lượng theo rubric KHBD; tiến độ chỉ thể hiện thông tin đã hoàn thành.</p>
-          <div class="basic-report-intro"><strong>Báo cáo 1 phút</strong><p>Giới thiệu ba di tích, hành trình nhóm chọn và một điều đã cải tiến. Có thể trình chiếu trực tiếp các thẻ dưới đây.</p></div><div id="summary" class="one-minute-report"></div><div id="printSheet" class="print-sheet"></div>
+          <h3>Báo cáo sản phẩm</h3><div class="field"><label for="selfAssessment">Em/nhóm em tự đánh giá sản phẩm:</label><select id="selfAssessment"><option value="">Chưa tự đánh giá</option><option value="Cần hoàn thiện">Cần hoàn thiện</option><option value="Đã hoàn thành nhiệm vụ">Đã hoàn thành nhiệm vụ</option><option value="Sẵn sàng nhận đánh giá của giáo viên">Sẵn sàng nhận đánh giá của giáo viên</option></select></div><p class="muted">Giáo viên đánh giá chất lượng theo rubric KHBD; tiến độ chỉ thể hiện thông tin đã hoàn thành.</p>
+          <div class="basic-report-intro"><strong>Báo cáo 1 phút</strong><p>Em hãy giới thiệu ba di tích, thứ tự khám phá đã chọn và một điều em/nhóm em đã sửa.</p></div><div id="summary" class="one-minute-report"></div><div id="printSheet" class="print-sheet"></div>
           <div class="actions">
             <button id="copy" type="button">Sao chép báo cáo</button>
             <button id="reportPrint" type="button">In báo cáo</button>
@@ -567,21 +567,21 @@ body.mode-basic .order-legacy{display:none}
   </div>
   <div id="cloudDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="cloudTitle">
     <div class="reset-box cloud-box">
-      <h2 id="cloudTitle">Bài làm của nhóm</h2>
-      <p class="muted">Nhập mã 4 ký tự để mở lại bài của nhóm trên máy khác. Nếu chưa có mã, hãy tạo bài mới.</p>
+      <h2 id="cloudTitle">Bài của em / nhóm em</h2>
+      <p class="muted">Nếu làm trên máy khác, em hãy nhập mã 4 ký tự của bài mình để mở lại. Không chia sẻ mã với người khác.</p>
       <details class="server-config"><summary>Cài đặt kết nối (dành cho giáo viên)</summary><label for="scriptUrl">Địa chỉ hệ thống lưu bài</label>
       <input id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
       <div class="actions"><button id="saveScriptUrl" type="button">Lưu địa chỉ</button><button id="pingServer" type="button">Kiểm tra kết nối</button></div></details>
       <div id="cloudConnectPanel">
         <label for="cloudClass">Lớp</label><input id="cloudClass" maxlength="30" placeholder="7A1">
-        <label for="cloudGroup">Nhóm</label><input id="cloudGroup" maxlength="50" placeholder="Nhóm 1">
-        <label for="cloudCode">Mã nhóm (4 ký tự, chỉ nhập khi mở lại)</label><input id="cloudCode" maxlength="4" autocomplete="off" placeholder="AB23">
-        <div class="actions"><button id="createCloud" type="button">Tạo bài mới</button><button id="openCloud" class="primary" type="button">Mở bài của nhóm</button></div>
+        <label for="cloudGroup">Tên học sinh hoặc nhóm</label><input id="cloudGroup" maxlength="50" placeholder="Nhóm 1">
+        <label for="cloudCode">Mã bài (4 ký tự, dùng khi mở trên máy khác)</label><input id="cloudCode" maxlength="4" autocomplete="off" placeholder="AB23">
+        <div class="actions"><button id="createCloud" type="button">Tạo bài mới</button><button id="openCloud" class="primary" type="button">Mở bài đã tạo</button></div>
       </div>
       <div id="cloudSessionPanel" class="hidden">
         <p><strong id="cloudSessionName"></strong></p>
         <details class="cloud-times"><summary>Thời gian học của nhóm</summary><p id="cloudTimes" class="muted"></p></details>
-        <div class="actions"><button id="cloudSaveNow" class="primary" type="button">Lưu bài</button><button id="cloudReload" type="button">Tải bài mới nhất</button><button id="cloudLogout" type="button">Đổi nhóm</button></div>
+        <div class="actions"><button id="cloudSaveNow" class="primary" type="button">Lưu bài</button><button id="cloudReload" type="button">Tải bài mới nhất</button><button id="cloudLogout" type="button">Đổi bài đang mở</button></div>
       </div>
       <p id="cloudStatus" role="status" class="muted"></p>
       <div class="actions"><button id="cloudClose" type="button">Đóng</button></div>
@@ -1754,10 +1754,10 @@ body.mode-basic .order-legacy{display:none}
   var uiMode='basic';
   var stageNames=['explore','design','test','report'];
   var stageInstructions={
-    explore:['Bước 1','Chọn từng di tích, viết lời giới thiệu và ghi nguồn.'],
-    design:['Bước 2','Chọn hành trình A/B và giải thích lí do.'],
-    test:['Bước 3','Xem góp ý, sửa bài rồi lưu bản sau khi sửa.'],
-    report:['Bước 4','Xem lại sản phẩm và chuẩn bị báo cáo một phút.']
+    explore:['Bước 1','Em hãy chọn từng di tích, viết lời giới thiệu của em/nhóm em và ghi nguồn.'],
+    design:['Bước 2','Em hãy chọn hai thứ tự A/B và nêu lí do lựa chọn.'],
+    test:['Bước 3','Em hãy đọc góp ý, sửa một điểm và lưu bản sau khi sửa.'],
+    report:['Bước 4','Em hãy xem lại sản phẩm và chuẩn bị giới thiệu trong một phút.']
   };
   function isBasic(){return uiMode==='basic'}
   function countWords(value){var t=clean(value);return t?t.split(/\s+/).length:0}
@@ -1800,10 +1800,10 @@ body.mode-basic .order-legacy{display:none}
       var mark=b.querySelector('.step-check');if(mark)mark.textContent=metric.done===metric.total?'✓':'';
     });
     var focus={
-      explore:['Bước 1 · Tìm hiểu di tích','Ba lời giới thiệu có nguồn'],
-      design:['Bước 2 · Chọn hành trình','Hai cách sắp xếp và lí do'],
-      test:['Bước 3 · Nhận góp ý','Một điều được sửa'],
-      report:['Bước 4 · Giới thiệu sản phẩm','Báo cáo trong một phút']
+      explore:['Bước 1 · Em tìm hiểu di tích','3 lời giới thiệu có nguồn'],
+      design:['Bước 2 · Em chọn hành trình','2 cách sắp xếp và lí do'],
+      test:['Bước 3 · Em xem góp ý','1 điều được sửa'],
+      report:['Bước 4 · Em giới thiệu sản phẩm','Báo cáo trong 1 phút']
     };
     el('stepTime').textContent=stageInstructions[activeTab][0];
     el('taskFocusTitle').textContent=focus[activeTab][0];
@@ -1831,7 +1831,7 @@ body.mode-basic .order-legacy{display:none}
     el('basicModeBtn').setAttribute('aria-pressed',String(isBasic()));
     el('advancedModeBtn').setAttribute('aria-pressed',String(!isBasic()));
     el('modeDescription').textContent=isBasic()?'Cơ bản · Làm bài trong 45 phút':'Mở rộng · Thêm công cụ';
-    el('descLabel').textContent=isBasic()?'Lời giới thiệu của nhóm (25–50 từ)':'Lời giới thiệu của nhóm (50–80 từ)';
+    el('descLabel').textContent=isBasic()?'Em hãy viết lời giới thiệu của em/nhóm em về di tích này (25–50 từ)':'Em hãy viết lời giới thiệu của em/nhóm em về di tích này (50–80 từ)';
     if(isBasic()&&activeTab==='explore'&&hasProfile())toggleEditor(true);
     if(!initial){try{localStorage.setItem(UI_MODE_KEY,uiMode)}catch(e){}}
     updateWordCount(state.sites[current].desc);
@@ -1887,8 +1887,8 @@ body.mode-basic .order-legacy{display:none}
     var source=node('a',details,'Nguồn tham khảo');source.href=heritageGeo[current].ref;source.target='_blank';source.rel='noopener noreferrer';
     var product=node('div',box,null,'student-preview '+(site.cardStyle||state.cardStyle||'stack'));
     var image=node('div',product,null,'student-image');image.appendChild(makePhoto(current,true));image.appendChild(makeCredit(current));
-    var content=node('div',product,null,'student-writing');node('h4',content,'Bài làm của nhóm');node('p',content,clean(site.desc)||'Nhóm chưa viết lời giới thiệu.');
-    if(site.source)node('p',content,'Nguồn nhóm: '+site.source,'muted');
+    var content=node('div',product,null,'student-writing');node('h4',content,'Bài làm của em/nhóm em');node('p',content,clean(site.desc)||'Em chưa viết lời giới thiệu.');
+    if(site.source)node('p',content,'Nguồn thông tin: '+site.source,'muted');
     if(site.image&&!clean(site.license))node('p',content,'Chưa ghi tác giả hoặc quyền sử dụng ảnh.','source-warning');
     node('p',content,photoSourceState(site),'muted');
     if(site.image&&!safeURL(site.image))node('p',content,'Hình ảnh chưa mở được. Hãy kiểm tra link.','source-warning');
@@ -1921,9 +1921,9 @@ body.mode-basic .order-legacy{display:none}
     el('writingTitle').textContent='Viết về '+siteName;
     el('previewHeading').textContent='Xem thẻ '+siteName;
     el('siteTaskLine').textContent=!hasWriting?
-      'Viết 25–50 từ giới thiệu '+siteName+'. Sau đó ghi nguồn thông tin.':
-      !hasSource?'Đã có lời giới thiệu. Em hãy ghi nguồn thông tin bên dưới.':
-      'Đã có lời giới thiệu và nguồn. Em có thể chọn di tích tiếp theo.';
+      'Em hãy viết lời giới thiệu của em/nhóm em về '+siteName+' (25–50 từ), rồi ghi nguồn.':
+      !hasSource?'Em đã viết lời giới thiệu. Hãy ghi nguồn thông tin em đã sử dụng.':
+      'Em đã có lời giới thiệu và nguồn. Hãy chọn di tích tiếp theo.';
     el('site').value = current;
     if(markVisited&&hasProfile()){state.visited[current]=true;scheduleSave()}
     updatePreview();
@@ -1964,7 +1964,7 @@ body.mode-basic .order-legacy{display:none}
   function reportText(){
     var lines = [
       'HÀNH TRÌNH DI SẢN SỐ – BÁO CÁO STEM TIN HỌC 7',
-      'Nhóm: ' + state.group + ' | Lớp: ' + state.klass,
+      'Học sinh / Nhóm: ' + state.group + ' | Lớp: ' + state.klass,
       ''
     ];
     ids.forEach(function(id, i){
@@ -1996,7 +1996,7 @@ body.mode-basic .order-legacy{display:none}
     function add(tag,parent,value){var node=document.createElement(tag);node.textContent=value||'';parent.appendChild(node);return node}
     var pg=add('div',root,'');pg.className='print-page';
     add('h2',pg,'HÀNH TRÌNH DI SẢN SỐ – SẢN PHẨM STEM TIN HỌC 7');
-    add('p',pg,'Lớp: '+(state.klass||'...')+'    Nhóm: '+(state.group||'...'));
+    add('p',pg,'Lớp: '+(state.klass||'...')+'    Học sinh/Nhóm: '+(state.group||'...'));
     add('h3',pg,'1. Khám phá di sản');
     ids.forEach(function(id,i){var card=add('div',pg,'');card.className='print-card';add('strong',card,(i+1)+'. '+referenceSites[id].name);add('p',card,'Vị trí: '+referenceSites[id].location);add('p',card,'Giới thiệu: '+(state.sites[id].desc||'Chưa viết'));add('p',card,'Nguồn: '+(state.sites[id].source||'Chưa ghi'));add('p',card,'Kiểu thẻ: '+(state.sites[id].cardStyle||'stack')+'; Nguồn ảnh: '+(state.sites[id].imageSource||'Chưa bổ sung'))});
     add('h3',pg,'2. Thiết kế hành trình');
@@ -2029,7 +2029,7 @@ body.mode-basic .order-legacy{display:none}
         var h=document.createElement('strong');h.textContent=title;c.appendChild(h);
         var p=document.createElement('p');p.textContent=detail||'Chưa hoàn thành';c.appendChild(p);box.appendChild(c);
       }
-      card('Sản phẩm của '+(state.group||'nhóm')+' – '+(state.klass||'lớp'),
+      card('Sản phẩm của '+(state.group||'học sinh/nhóm')+' – '+(state.klass||'lớp'),
         'Ba di tích và hành trình khám phá di sản Thành phố Hồ Chí Minh.',true);
       ids.forEach(function(id){
         var site=state.sites[id];
