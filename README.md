@@ -2,6 +2,19 @@
 
 Ứng dụng: https://ph0823.github.io/stemTin7DiSan/
 
+## Tự động lưu lên Google Sheets (Apps Script V3)
+
+- Khi học sinh chọn **Tạo bài lần đầu**, ứng dụng lưu bài ngay trên máy và kiểm tra máy chủ. Nếu Apps Script đã nâng cấp **V3**, ứng dụng tự tạo bản trên Google Sheets và cấp mã bài 4 ký tự.
+- Nhấn **Lưu bài**: luôn lưu bản cục bộ trước, sau đó gửi lên Google Sheets nếu phiên trực tuyến hợp lệ. Các thay đổi được tự đồng bộ sau khoảng 12 giây khi có kết nối.
+- Phân biệt rõ **Đã lưu trên Google Sheets** (máy chủ đã phản hồi) và **Chỉ lưu trên máy / đang chờ xác nhận** (không được xem là đã đồng bộ).
+- Mã bài 4 ký tự được hiển thị khi tạo thành công; học sinh cần ghi lại để dùng trên máy khác. Có thể nhấn **Xem mã bài** trong cùng phiên.
+- Mỗi lần tạo bài có một khóa ngẫu nhiên được lưu tại máy. Nếu mất phản hồi hoặc F5 khi tạo, lần thử sau dùng **cùng khóa**. Apps Script V3 chỉ trả lại bản đã tạo, không tạo dòng trùng và không cấp lại mã nếu giáo viên đã thay mã.
+- Nếu tên lớp + học sinh/nhóm đã tồn tại nhưng không phải cùng lần tạo, máy chủ **từ chối ghi đè**. Mở bằng mã của bài đã có hoặc hỏi giáo viên.
+- Khi F5, phiên trực tuyến đang có sẽ kiểm tra phiên bản từ Google Sheets trước khi gửi tiếp. Khi mở bài trên máy khác, nếu bài trên máy và bài trực tuyến khác nhau, giữ bản cục bộ và yêu cầu người dùng chọn cách xử lý; không tự ghi đè.
+- Nếu chưa có mạng hoặc phiên hết hạn, học sinh tiếp tục làm bài trên máy và có thể xuất bản JSON dự phòng.
+
+**Bắt buộc triển khai lại Apps Script V3 theo hướng dẫn bên dưới.** Phiên bản Apps Script V2 cũ sẽ không được dùng để tự tạo bài, vì không có cơ chế thử lại an toàn.
+
 ## Kiểm thử chéo trực tuyến, không đổi máy
 
 Học sinh ở **nhóm đã lưu bài trực tuyến** có thể chọn **Bước 3 – Kiểm thử → Xem và góp ý bài nhóm bạn**. Danh sách chỉ có các nhóm cùng lớp đang lưu trên hệ thống. Học sinh mở bản chỉ xem gồm bản đồ với ba địa điểm, lời giới thiệu, nguồn tham khảo, hành trình và thông điệp bảo tồn. Không yêu cầu mã 4 ký tự của nhóm bạn và không thể sửa trực tiếp bài nhóm bạn.
@@ -18,12 +31,12 @@ Cập nhật `index.html` trên GitHub Pages **không** tự cập nhật Web Ap
 
 1. Mở **dự án Apps Script đang được ứng dụng sử dụng** (không tạo dự án mới làm mất liên kết với dữ liệu cũ).
 2. Thay nội dung mã bằng **[AppsScript_STEM7.gs](AppsScript_STEM7.gs)** mới nhất trong repository và lưu.
-3. Chạy `setup()` để tạo hoặc xác nhận trang tính `Gop_y_cheo_STEM7` trong bảng tính hiện tại. Hàm này không xóa các nhóm đã lưu và không đặt lại mật khẩu giáo viên đã đổi.
+3. Chạy `setup()` để tạo hoặc xác nhận trang tính `Gop_y_cheo_STEM7` và bổ sung cột `createRequestHash` ở cuối `Nhom_STEM7` (tổng 17 cột) trong bảng tính hiện tại. Hàm này không xóa các nhóm đã lưu và không đặt lại mật khẩu giáo viên đã đổi.
 4. Chọn **Deploy → Manage deployments → Edit (biểu tượng bút chì)**, chọn **New version**, sau đó **Deploy**. Đặt **Execute as: Me**, **Who has access: Anyone**, theo cấu hình ứng dụng hiện có.
-5. Giữ URL `/exec` cũ. Nếu URL thay đổi, cập nhật trong **Bài của nhóm → Cài đặt kết nối (dành cho giáo viên)**.
-6. Trên máy học sinh, nhấn **Ctrl + F5**. Thử đăng nhập một nhóm ở lớp 7, xem bài nhóm thứ hai, gửi góp ý, rồi mở lại bằng nhóm nhận. Giáo viên kiểm tra chức năng ẩn/hiện góp ý.
+5. Giữ URL `/exec` cũ. Nếu URL thay đổi, cập nhật trong **Bài của em/nhóm em → Cài đặt kết nối (dành cho giáo viên)**.
+6. Trên máy học sinh, nhấn **Ctrl + F5**. Tạo một tên thử mới, kiểm tra đã xuất hiện trên `Nhom_STEM7`, ghi lại mã 4 ký tự, lưu một thay đổi, nhấn F5 rồi mở trên máy khác bằng mã. Cuối cùng kiểm thử góp ý chéo và quản lý giáo viên.
 
-Nếu hiện “Chức năng góp ý chưa được bật trên hệ thống”, nghĩa là bản triển khai Apps Script đang dùng chưa có API mới. Khi đó kiểm tra lại bước 2–4.
+Nếu hiện “Cần phiên bản Apps Script mới để lưu an toàn”, bản triển khai đang chạy chưa phải V3. Nếu hiện “Chức năng góp ý chưa được bật trên hệ thống”, phiên bản đang chạy chưa hỗ trợ API góp ý. Kiểm tra lại các bước 2–4.
 
 ## Quyền riêng tư và tương thích
 
