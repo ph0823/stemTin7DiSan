@@ -301,9 +301,38 @@ body.mode-basic .order-legacy{display:none}
 .group-picker-status:empty{display:none}
 @media(max-width:550px){.profile-prompt{width:94%;min-width:0}.profile-prompt-actions{display:block}.profile-prompt-actions button{width:100%;margin:4px 0}}
 
+
+/* Màn hình khởi động: chỉ một quyết định trước khi làm bài. */
+body.needs-profile .learning-mode-bar,
+body.needs-profile #cloudErrorBanner,
+body.needs-profile #workArea,
+body.needs-profile footer{display:none!important}
+body.needs-profile .toolbar .student-fields,
+body.needs-profile .toolbar #autosaveHint,
+body.needs-profile .toolbar #cloudBtn,
+body.needs-profile .toolbar #save,
+body.needs-profile .toolbar .tools-more{display:none!important}
+body.needs-profile .toolbar{justify-content:flex-end;min-height:44px}
+body.needs-profile .toolbar-actions{margin-left:auto}
+body.needs-profile .toolbar-actions>button{margin-left:7px}
+.profile-prompt{position:relative;bottom:auto;left:auto;transform:none;z-index:auto;width:min(680px,100%);max-width:680px;min-width:0;margin:clamp(20px,5vh,56px) auto 30px;padding:28px 32px;border:1px solid #c9dce9;border-radius:16px;box-shadow:0 8px 30px rgba(20,57,86,.08);background:#fff;text-align:center}
+.profile-prompt.hidden{display:none!important}
+.profile-prompt .welcome-kicker{color:#216394;letter-spacing:.09em;font-size:11px;font-weight:700}
+.profile-prompt h2{font-size:23px;color:#153b56;line-height:1.3;margin:9px 0 10px}
+.profile-prompt .welcome-intro{font-size:14px;line-height:1.6;max-width:535px;margin:0 auto 18px;color:#435a6b}
+.profile-prompt .welcome-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 22px}
+.profile-prompt .welcome-steps span{padding:9px 4px;background:#f3f8fc;border:1px solid #e1ebf3;border-radius:9px;font-size:12px;color:#2e5370}
+.profile-prompt .welcome-steps b{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#216394;color:#fff;margin-right:3px}
+.profile-prompt .welcome-choice{border-top:1px solid #e1ebf3;padding-top:16px}
+.profile-prompt .welcome-choice>p:first-child{font-size:14px;margin:0 0 12px}
+.profile-prompt .profile-prompt-actions{display:flex;justify-content:center;gap:10px}
+.profile-prompt .profile-prompt-actions button{font-size:14px;padding:11px 18px;margin:0;min-width:185px}
+.profile-prompt .welcome-hint{font-size:12px;line-height:1.5;color:#60788a;max-width:480px;margin:13px auto 0}
+@media(max-width:620px){.profile-prompt{padding:20px 14px;margin:16px auto}.profile-prompt h2{font-size:19px}.profile-prompt .welcome-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.profile-prompt .profile-prompt-actions{flex-direction:column}.profile-prompt .profile-prompt-actions button{width:100%;min-width:0}}
+
 </style>
 </head>
-<body>
+<body class="needs-profile">
 <header>
   <h1>HÀNH TRÌNH DI SẢN SỐ</h1>
   <p>Bài học STEM Tin học 7 · Khám phá và bảo tồn di sản Thành phố Hồ Chí Minh</p>
@@ -336,6 +365,25 @@ body.mode-basic .order-legacy{display:none}
     </div>
   </div>
 
+  <section id="profilePrompt" class="profile-prompt" aria-labelledby="welcomeTitle">
+    <div class="welcome-kicker">STEM TIN HỌC 7 · 45 PHÚT</div>
+    <h2 id="welcomeTitle">Bắt đầu hành trình khám phá di sản</h2>
+    <p class="welcome-intro">Em sẽ tìm hiểu ba di tích tại Thành phố Hồ Chí Minh, viết lời giới thiệu của mình và tạo một hành trình khám phá.</p>
+    <div class="welcome-steps" aria-label="Các bước của bài học">
+      <span><b>1</b> Khám phá</span>
+      <span><b>2</b> Thiết kế</span>
+      <span><b>3</b> Kiểm thử</span>
+      <span><b>4</b> Báo cáo</span>
+    </div>
+    <div class="welcome-choice">
+      <p><strong>Em muốn bắt đầu như thế nào?</strong></p>
+      <div class="profile-prompt-actions">
+        <button type="button" id="promptCreate" class="primary">Tạo bài lần đầu</button>
+        <button type="button" id="promptSelect">Mở bài đã làm</button>
+      </div>
+      <p class="welcome-hint">Em có thể làm một mình hoặc cùng nhóm. Nếu đã có bài trên máy này, hãy chọn “Mở bài đã làm”.</p>
+    </div>
+  </section>
   <div class="learning-mode-bar is-collapsed" id="learningModeBar"><div class="mode-summary"><strong>Chế độ:</strong> <span id="modeDescription" class="muted">Cơ bản · 45 phút</span><button type="button" id="modeCollapseBtn" class="collapse-control" aria-expanded="false" aria-controls="modeSwitch">Đổi chế độ ▾</button><button type="button" id="compactPresetBtn" class="collapse-control" aria-pressed="false">Gọn cho TV</button></div><div class="mode-switch" id="modeSwitch" role="group" aria-label="Chế độ học tập"><button type="button" id="basicModeBtn" class="active" aria-pressed="true">Cơ bản · 45 phút</button><button type="button" id="advancedModeBtn" aria-pressed="false">Mở rộng</button></div></div>
   <div id="cloudErrorBanner" class="cloud-error hidden" role="alert"></div>
   <div class="layout" id="workArea">
@@ -498,13 +546,6 @@ body.mode-basic .order-legacy{display:none}
     </section>
   </div>
 
-  <div id="profilePrompt" class="profile-prompt">
-    <strong>Bắt đầu làm bài</strong>
-    <div class="profile-prompt-actions">
-      <button type="button" id="promptCreate" class="primary">Nhập tên học sinh/nhóm (lần đầu)</button>
-      <button type="button" id="promptSelect">Chọn tên đã tạo</button>
-    </div>
-  </div>
   <div id="helpDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
     <div class="reset-box help-box">
       <div class="help-header"><h2 id="helpTitle">Hướng dẫn sử dụng – Hành trình di sản số</h2><button id="helpClose" type="button" aria-label="Đóng hướng dẫn">Đóng ×</button></div>
@@ -877,7 +918,11 @@ body.mode-basic .order-legacy{display:none}
   }
   function hasProfile(){return activeKey!==KEY&&!!clean(state.klass)&&!!clean(state.group)}
   function updateProfileUI(){
-    var ok=hasProfile();el('profilePrompt').classList.toggle('hidden',ok);el('workArea').classList.toggle('work-locked',!ok);
+    var ok=hasProfile();
+    document.body.classList.toggle('needs-profile',!ok);
+    el('profilePrompt').classList.toggle('hidden',ok);
+    el('workArea').classList.toggle('work-locked',!ok);
+    if(ok&&realMap)setTimeout(function(){realMap.invalidateSize({pan:false})},100);
     el('autosaveHint').textContent=ok?(dirty?'Đang lưu…':(cloudSession?'Đã mở bài trực tuyến':(storagePersistent?'Bài lưu trên máy':'Chỉ lưu tạm · tải bài về máy'))):'Chưa chọn tên';
     el('save').disabled=!ok;el('export').disabled=!ok;
   }
