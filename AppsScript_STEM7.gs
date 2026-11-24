@@ -7,9 +7,11 @@
  * IMPORTANT: 4-character access codes are convenient, not high-security identity.
  * Never store personal sensitive data. Change the default teacher password.
  */
-var APP_VERSION = 1;
+var APP_VERSION = 2;
 var SHEET_NAME = 'Nhom_STEM7';
 var AUDIT_NAME = 'Lich_su_chinh_sua';
+var FEEDBACK_NAME = 'Gop_y_cheo_STEM7';
+var FEEDBACK_COLS = ['id','klass','targetGroup','authorGroup','role','checks','comment','status','createdAt','moderatedAt'];
 var COLS = ['id','klass','group','accessHash','payload','createdAt','firstAt','lastAt','updatedAt','seconds','revision','teacherEditedAt','teacherNote','lastEditor','codeVersion','studentEditedAt'];
 var PIN_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 var MAX_JSON_LENGTH = 35000;
@@ -23,6 +25,7 @@ function setup(){
   if(!p.getProperty('STEM_TEACHER_EPOCH'))p.setProperty('STEM_TEACHER_EPOCH','1');
   ensureSheet_(ss,SHEET_NAME,COLS);
   ensureSheet_(ss,AUDIT_NAME,['time','klass','group','actor','action','revision','oldPayload','newPayload','note']);
+  ensureSheet_(ss,FEEDBACK_NAME,FEEDBACK_COLS);
   Logger.log('Bảng tính: '+ss.getUrl());
   Logger.log('Mật khẩu giáo viên ban đầu: 22112026. Đổi ngay sau khi đăng nhập.');
 }
@@ -97,6 +100,72 @@ function safeCell_(s){s=clean_(s,6000);return /^[=+@\-]/.test(s)?"'"+s:s}
 function writeAudit_(ss,klass,group,actor,action,rev,oldText,newText,note){
   var sh=ss.getSheetByName(AUDIT_NAME);sh.appendRow([new Date(),safeCell_(klass),safeCell_(group),actor,action,rev,oldText,newText,safeCell_(note||'')]);
 }
+
+/* Đọc chéo: chỉ các nhóm cùng lớp có phiên đăng nhập hợp lệ mới xem được
+   bản công khai đã lọc. Không bao giờ trả mã nhóm, phiên đăng nhập hay
+   nội dung kiểm thử nội bộ. Góp ý nằm trong một sheet riêng. */
+function feedbackSheet_(ss){return ensureSheet_(ss,FEEDBACK_NAME,FEEDBACK_COLS)}
+function feedbackRows_(sh){return sh.getLastRow()>1?sh.getRange(2,1,sh.getLastRow()-1,FEEDBACK_COLS.length).getValues():[]}
+function safePublicData_(v){
+  var payload={};try{payload=JSON.parse(String(v[4]||'{}'))}catch(e){}
+  var names={nga:'Ngã Ba Giồng',cu:'Địa đạo Củ Chi',giong:'Giồng Cá Vồ'},sites={};
+  ['nga','cu','giong'].forEach(function(id){
+    var item=payload.sites&&payload.sites[id]||{};
+    sites[id]={name:names[id],desc:clean_(item.desc,1200),source:clean_(item.source,400)};
+  });
+  var valid=['nga','cu','giong'],ord=clean_(payload.order,50).split(',');
+  if(ord.length!==3||ord.some(function(id){return valid.indexOf(id)<0})||new Set(ord).size!==3)ord=valid;
+  return {klass:clean_(v[1],30),group:clean_(v[2],50),sites:sites,order:ord,
+    reason:clean_(payload.reason,600),message:clean_(payload.message,400),
+    compareText:clean_(payload.compareText,450),updatedAt:v[8],revision:Number(v[10]||0)};
+}
+function validReviewer_(token,klass,sh){
+  var session=requireSession_(token,'student');
+  var rows=all_(sh),self=null;
+  for(var i=0;i<rows.length;i++)if(rows[i][0]===session.groupId){self=rows[i];break}
+  if(!self)throw Error('Không tìm thấy nhóm đang đăng nhập');
+  if(Number(session.codeVersion||1)!==Number(self[14]||1))throw Error('Phiên nhóm đã hết hạn, hãy đăng nhập lại');
+  if(key_(self[1],'')!==key_(klass,''))throw Error('Chỉ xem được nhóm cùng lớp');
+  return self;
+}
+function filterFeedbackText_(raw,max){
+  var x=clean_(raw,max+10).replace(/\s+/g,' ').trim();
+  if(x.length<12||x.length>max)throw Error('Góp ý cần từ 12 đến '+max+' ký tự');
+  if(/https?:\/\/|www\.|@|<[^>]*>|\b\d{9,}\b/i.test(x))throw Error('Không nhập liên kết hoặc thông tin liên lạc');
+  var simple=x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();
+  simple=simple.replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+  var abuse=/(?:^| )(?:dit|du ma|dm|dmm|vl|vcl|clm|lol|ngu|oc cho|cho de|con cho|khon nan|mat day|do dien|fuck|shit|bitch|stupid|idiot)(?: |$)/;
+  if(abuse.test(simple))throw Error('Góp ý chứa từ ngữ không phù hợp. Hãy viết nhận xét lịch sự, cụ thể.');
+  if(/(.)\1{7,}/i.test(x))throw Error('Góp ý có ký tự lặp quá nhiều');
+  return x;
+}
+function publicFeedback_(r,teacher){
+  return {id:String(r[0]),klass:String(r[1]),targetGroup:String(r[2]),
+    authorGroup:String(r[3]),role:String(r[4]),checks:String(r[5]).split(',').filter(Boolean),
+    comment:String(r[6]),createdAt:r[8] instanceof Date?r[8].toISOString():String(r[8]),
+    status:teacher?String(r[7]):undefined};
+}
+function feedbackFor_(sheet,klass,group,teacher){
+  return feedbackRows_(sheet).filter(function(r){return key_(r[1],r[2])===key_(klass,group)&&(teacher||String(r[7])==='visible')})
+    .slice(-80).reverse().map(function(r){return publicFeedback_(r,teacher)});
+}
+function sendFeedback_(sheet,klass,targetGroup,authorGroup,role,raw,checks){
+  var text=filterFeedbackText_(raw,role==='teacher'?500:300);
+  if(!Array.isArray(checks))checks=[];
+  var allowed=['info','card','route'],valid=[];
+  checks.forEach(function(x){if(allowed.indexOf(x)>=0&&valid.indexOf(x)<0)valid.push(x)});
+  var all=feedbackRows_(sheet),today=Date.now(),recent=all.filter(function(r){
+    return key_(r[1],r[2])===key_(klass,targetGroup)&&String(r[3])===authorGroup&&
+      String(r[4])===role&&(today-new Date(r[8]).getTime()<86400000);
+  });
+  if(role==='student'&&recent.length>=3)throw Error('Nhóm em đã gửi tối đa 3 góp ý cho nhóm này hôm nay.');
+  if(role==='student'&&recent.length&&today-new Date(recent[recent.length-1][8]).getTime()<45000)
+    throw Error('Hãy chờ một chút trước khi gửi góp ý tiếp theo.');
+  var row=[Utilities.getUuid(),klass,targetGroup,authorGroup,role,valid.join(','),safeCell_(text),'visible',new Date(),''];
+  sheet.appendRow(row);
+  return publicFeedback_(row,false);
+}
+
 function publicRecord_(v,includePayload){
   var out={id:v[0],klass:v[1],group:v[2],createdAt:v[5],firstAt:v[6],lastAt:v[7],updatedAt:v[8],seconds:Number(v[9]||0),revision:Number(v[10]||0),teacherEditedAt:v[11],teacherNote:v[12],lastEditor:v[13],studentEditedAt:v[15]||v[8]};
   if(includePayload)out.data=JSON.parse(String(v[4]||'{}'));
@@ -132,6 +201,46 @@ function handle_(q){
     var t=rowOf_(sh,klass,group);if(!t)throw Error('Không tìm thấy nhóm');
     return {record:publicRecord_(t.v,true)};
   }
+
+  if(action==='peerList'||action==='peerGet'||action==='peerSend'||action==='peerInbox'){
+    var own=validReviewer_(q.token,klass,sh),selfGroup=String(own[2]);
+    if(action==='peerList'){
+      return {groups:all_(sh).filter(function(r){return key_(r[1],'')===key_(klass,'')&&key_(r[1],r[2])!==key_(klass,selfGroup)})
+        .map(function(r){return {klass:String(r[1]),group:String(r[2]),updatedAt:r[8],revision:Number(r[10]||0)}})};
+    }
+    if(action==='peerInbox'){
+      return {feedback:feedbackFor_(feedbackSheet_(ss),klass,selfGroup,false)};
+    }
+    if(!group||key_(klass,group)===key_(klass,selfGroup))throw Error('Hãy chọn nhóm khác cùng lớp');
+    var target=rowOf_(sh,klass,group);if(!target)throw Error('Không tìm thấy bài của nhóm cần xem');
+    if(action==='peerGet')return {record:safePublicData_(target.v)};
+    var fs=feedbackSheet_(ss);
+    var lockPeer=LockService.getScriptLock();lockPeer.waitLock(20000);
+    try{return {feedback:sendFeedback_(fs,klass,group,selfGroup,'student',q.comment,q.checks)}}
+    finally{lockPeer.releaseLock()}
+  }
+  if(action==='teacherFeedbackList'||action==='teacherFeedbackSend'||action==='teacherFeedbackModerate'){
+    requireSession_(q.token,'teacher');
+    var feedbackSheet=feedbackSheet_(ss);
+    if(action==='teacherFeedbackList')return {feedback:feedbackFor_(feedbackSheet,klass,group,true)};
+    var lockFeedback=LockService.getScriptLock();lockFeedback.waitLock(20000);
+    try{
+      if(action==='teacherFeedbackSend'){
+        if(!rowOf_(sh,klass,group))throw Error('Nhóm cần nhận xét không tồn tại');
+        return {feedback:sendFeedback_(feedbackSheet,klass,group,'Giáo viên','teacher',q.comment,q.checks)};
+      }
+      var identifier=clean_(q.feedbackId,70),next=q.visible===true?'visible':'hidden',rows=feedbackRows_(feedbackSheet);
+      for(var z=0;z<rows.length;z++){
+        if(String(rows[z][0])===identifier&&key_(rows[z][1],rows[z][2])===key_(klass,group)){
+          feedbackSheet.getRange(z+2,8).setValue(next);
+          feedbackSheet.getRange(z+2,10).setValue(new Date());
+          return {changed:true,status:next};
+        }
+      }
+      throw Error('Không tìm thấy nhận xét cần duyệt');
+    }finally{lockFeedback.releaseLock()}
+  }
+
   var lock=LockService.getScriptLock();lock.waitLock(20000);
   try{
     var entry=rowOf_(sh,klass,group);
