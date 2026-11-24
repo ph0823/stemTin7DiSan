@@ -1374,7 +1374,12 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
       catch(e){syncIssue='Không lưu được mã xác nhận tạo bài. Hãy tải bài về máy trước.';syncStatusForLocal();return}
     }
     creationBusy=true;creationFor=owner;syncIssue='';
-    save(true);syncStatusForLocal();
+    if(!save(true)){
+      creationBusy=false;creationFor='';
+      syncIssue='Không lưu được bản trên máy. Hãy tải bài về máy trước khi tiếp tục.';
+      syncStatusForLocal();return;
+    }
+    syncStatusForLocal();
     var initial=JSON.parse(JSON.stringify(state));
     cloudCall({action:'createGroup',klass:klass,group:group,requestKey:requestKey,data:initial},function(err,res){
       creationBusy=false;creationFor='';
@@ -2031,6 +2036,16 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   }
   document.addEventListener('visibilitychange', function(){ if (document.hidden) saveIfNeeded(); });
   window.addEventListener('pagehide', saveIfNeeded);
+  window.addEventListener('online',function(){
+    if(!hasProfile())return;
+    syncIssue='';
+    if(cloudSession){
+      if(!cloudConflict&&!remoteBusy)setTimeout(verifyCloudOnResume,700);
+    }else if(!creationBusy){
+      if(checkedServerVersion<0)checkedServerVersion=0;
+      setTimeout(autoRegisterCloud,700);
+    }
+  });
 
   function bind(id, key){
     el(id).value = state[key] || '';
