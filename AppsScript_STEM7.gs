@@ -120,10 +120,14 @@ function safePublicData_(v){
     compareText:clean_(payload.compareText,450),updatedAt:v[8],revision:Number(v[10]||0)};
 }
 function validReviewer_(token,klass,sh){
-  var session=requireSession_(token,'student');
+  var cached=CacheService.getScriptCache().get('session:'+digest_(clean_(token,150)));
+  if(!cached)throw Error('Phiên nhóm hết hạn. Hãy đăng nhập lại.');
+  var session=JSON.parse(cached);
+  if(session.role!=='student')throw Error('Cần đăng nhập bằng tài khoản nhóm học sinh');
   var rows=all_(sh),self=null;
   for(var i=0;i<rows.length;i++)if(rows[i][0]===session.groupId){self=rows[i];break}
   if(!self)throw Error('Không tìm thấy nhóm đang đăng nhập');
+  requireSession_(token,'student',self[0]);
   if(Number(session.codeVersion||1)!==Number(self[14]||1))throw Error('Phiên nhóm đã hết hạn, hãy đăng nhập lại');
   if(key_(self[1],'')!==key_(klass,''))throw Error('Chỉ xem được nhóm cùng lớp');
   return self;
