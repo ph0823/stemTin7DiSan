@@ -1091,20 +1091,72 @@ footer{padding:4px 0;font-size:10px}
       if(!err&&res&&res.record){cloudSession.seconds=res.record.seconds;persistCloudSession()}
     });
   }
-  function teacherOpen(){el('teacherDialog').classList.remove('hidden');el('teacherWorkspace').classList.toggle('hidden',!teacherToken);el('teacherLoginPanel').classList.toggle('hidden',!!teacherToken);
-    if(teacherToken)teacherList();}
+  var teacherNeedsPasswordChange=false,teacherLoginBusy=false,teacherListBusy=false;
+  function focusTeacherInput(id){setTimeout(function(){var input=el(id);if(input&&!input.disabled&&!input.classList.contains('hidden'))input.focus()},50)}
+  function showTeacherPanels(){
+    var authenticated=!!teacherToken;
+    var mustChange=authenticated&&teacherNeedsPasswordChange;
+    el('teacherLoginPanel').classList.toggle('hidden',authenticated);
+    el('teacherPasswordSetupPanel').classList.toggle('hidden',!mustChange);
+    el('teacherWorkspace').classList.toggle('hidden',!authenticated||mustChange);
+  }
+  function teacherSignOut(){
+    teacherToken='';teacherRecord=null;teacherNeedsPasswordChange=false;teacherLoginBusy=false;teacherListBusy=false;
+    teacherGroupsData=[];
+    el('teacherPassword').value='';el('teacherSetupPassword').value='';el('teacherSetupConfirm').value='';
+    el('teacherGroups').innerHTML='';
+    el('teacherGroupTitle').textContent='Chọn nhóm để xem';
+    el('teacherMeta').textContent='';
+    el('teacherListHint').textContent='Nhấn “Tải danh sách nhóm” để kiểm tra các bài đã lưu trực tuyến.';
+    teacherStatus('');showTeacherPanels();focusTeacherInput('teacherPassword');
+  }
+  function teacherOpen(){
+    el('teacherDialog').classList.remove('hidden');
+    showTeacherPanels();
+    if(teacherNeedsPasswordChange){teacherStatus('Hãy đổi mật khẩu để tiếp tục.');focusTeacherInput('teacherSetupPassword')}
+    else if(teacherToken){teacherList()}
+    else {teacherStatus('');focusTeacherInput('teacherPassword')}
+  }
   function teacherList(){
-    teacherStatus('');
+    if(!teacherToken){teacherStatus('Hãy đăng nhập trước khi xem bài.');return}
+    if(teacherNeedsPasswordChange){teacherStatus('Hãy đổi mật khẩu trước khi xem bài nhóm.');return}
+    if(teacherListBusy)return;
+    teacherListBusy=true;teacherStatus('Đang tải danh sách nhóm…');
+    el('teacherRefresh').disabled=true;
+    el('teacherListHint').textContent='Đang kiểm tra bài lưu trực tuyến…';
     cloudCall({action:'teacherList',token:teacherToken},function(err,res){
-      if(err){teacherStatus(err);return}
-      teacherGroupsData=res.groups||[];var sel=el('teacherGroups');sel.innerHTML='';
-      teacherGroupsData.forEach(function(g,i){var option=document.createElement('option');option.value=String(i);
-        option.textContent=g.klass+' · '+g.group+' · '+Math.floor(g.seconds/60)+' phút';sel.appendChild(option)});
-      teacherStatus('Có '+teacherGroupsData.length+' nhóm. Chọn nhóm để xem bài.');
-      if(teacherGroupsData.length){sel.value='0';teacherLoadGroup()}
+      teacherListBusy=false;el('teacherRefresh').disabled=false;
+      if(err){
+        teacherStatus('Không tải được danh sách nhóm: '+err);
+        el('teacherListHint').textContent='Không tải được dữ liệu. Nhấn “Tải danh sách nhóm” để thử lại.';
+        return;
+      }
+      if(!res||!Array.isArray(res.groups)){
+        teacherStatus('Hệ thống trả về dữ liệu chưa đúng. Hãy nhờ giáo viên kiểm tra kết nối.');
+        el('teacherListHint').textContent='Dữ liệu danh sách nhóm chưa hợp lệ.';
+        return;
+      }
+      teacherGroupsData=res.groups;
+      teacherRecord=null;
+      var sel=el('teacherGroups');sel.innerHTML='';
+      teacherGroupsData.forEach(function(g,i){
+        var option=document.createElement('option');option.value=String(i);
+        option.textContent=g.klass+' · '+g.group+' · '+Math.floor(Number(g.seconds||0)/60)+' phút';
+        sel.appendChild(option);
+      });
+      el('teacherGroupTitle').textContent='Chọn nhóm để xem';
+      el('teacherMeta').textContent='';
+      if(!teacherGroupsData.length){
+        teacherStatus('Chưa có bài nhóm được lưu trực tuyến.');
+        el('teacherListHint').textContent='Chưa có nhóm trên hệ thống. Học sinh cần chọn lớp/nhóm → Bài của nhóm → Tạo bài mới, sau đó lưu bài.';
+        return;
+      }
+      teacherStatus('Tìm thấy '+teacherGroupsData.length+' nhóm.');
+      el('teacherListHint').textContent='Chọn một nhóm để xem hoặc chỉnh sửa bài.';
+      sel.value='0';teacherLoadGroup();
     });
   }
-  function teacherCapture(){
+    function teacherCapture(){
     if(!teacherRecord)return;
     var site=teacherRecord.data.sites[teacherCurrentSite];
     site.desc=el('teacherDesc').value;site.source=el('teacherSource').value;
@@ -1507,7 +1559,7 @@ footer{padding:4px 0;font-size:10px}
   el('promptSelect').addEventListener('click',openGroups);
 
   el('switchGroup').addEventListener('click',openGroups);
-  function closeTeacher(){closeBridgeDialog('teacherDialog')}
+  function closeTeacher(){closeBridgeDialog('teacherDialog');el('teacherBtn').focus()}
   el('cloudBtn').addEventListener('click',cloudOpen);
   el('cloudClose').addEventListener('click',function(){closeBridgeDialog('cloudDialog')});
   el('saveScriptUrl').addEventListener('click',function(){
@@ -1527,35 +1579,62 @@ footer{padding:4px 0;font-size:10px}
   el('cloudLogout').addEventListener('click',function(){cloudSession=null;cloudConflict=false;clearTimeout(remoteSaveTimer);persistCloudSession();cloudStatus('Đã ngắt phiên trực tuyến. Bài cục bộ vẫn được giữ nguyên.')});
   el('teacherBtn').addEventListener('click',teacherOpen);
   el('teacherClose').addEventListener('click',closeTeacher);
-  el('teacherLogin').addEventListener('click',function(){
+  function teacherLogin(){
+    if(teacherLoginBusy)return;
     var pass=el('teacherPassword').value;
-    if(pass.length!==8){teacherStatus('Nhập mật khẩu giáo viên đúng 8 ký tự.');return}
-    teacherStatus('Đang đăng nhập…');
+    if(pass.length!==8){teacherStatus('Mật khẩu giáo viên cần đúng 8 ký tự.');focusTeacherInput('teacherPassword');return}
+    teacherLoginBusy=true;
+    el('teacherLogin').disabled=true;
+    teacherStatus('Đang kiểm tra mật khẩu…');
     cloudCall({action:'teacherLogin',password:pass},function(err,res){
+      teacherLoginBusy=false;el('teacherLogin').disabled=false;
       el('teacherPassword').value='';
-      if(err){teacherStatus(err);return}
-      teacherToken=res.token;
-      el('teacherWorkspace').classList.remove('hidden');el('teacherLoginPanel').classList.add('hidden');
-      teacherStatus(res.mustChange?'Đang dùng mật khẩu ban đầu. Phải đổi mật khẩu 8 ký tự ở cuối bảng trước khi xem bài.':'Đăng nhập thành công.');
-      if(!res.mustChange)teacherList();
+      if(err){teacherStatus(err);focusTeacherInput('teacherPassword');return}
+      if(!res||!res.token){teacherStatus('Chưa nhận được xác nhận đăng nhập. Hãy thử lại.');focusTeacherInput('teacherPassword');return}
+      teacherToken=res.token;teacherNeedsPasswordChange=!!res.mustChange;
+      showTeacherPanels();
+      if(teacherNeedsPasswordChange){
+        teacherStatus('Vui lòng đặt mật khẩu mới trước khi xem bài của học sinh.');
+        focusTeacherInput('teacherSetupPassword');
+      }else{teacherStatus('Đăng nhập thành công.');teacherList()}
     });
-  });
-  el('teacherLogout').addEventListener('click',function(){teacherToken='';teacherRecord=null;el('teacherWorkspace').classList.add('hidden');el('teacherLoginPanel').classList.remove('hidden');teacherStatus('Đã đăng xuất chế độ giáo viên.')});
+  }
+  function teacherChangePassword(newPassword,setup){
+    if(!teacherToken){teacherStatus('Phiên đăng nhập hết hạn. Hãy đăng nhập lại.');teacherSignOut();return}
+    if(newPassword.length!==8){teacherStatus('Mật khẩu mới phải có đúng 8 ký tự.');focusTeacherInput(setup?'teacherSetupPassword':'teacherNewPassword');return}
+    if(setup&&newPassword!==el('teacherSetupConfirm').value){teacherStatus('Hai lần nhập mật khẩu mới chưa giống nhau.');focusTeacherInput('teacherSetupConfirm');return}
+    var button=el(setup?'teacherSetupSubmit':'teacherChangePassword');
+    if(button.disabled)return;
+    button.disabled=true;teacherStatus('Đang cập nhật mật khẩu…');
+    cloudCall({action:'teacherPassword',token:teacherToken,newPassword:newPassword},function(err,res){
+      button.disabled=false;
+      if(err){teacherStatus(err);focusTeacherInput(setup?'teacherSetupPassword':'teacherNewPassword');return}
+      el('teacherNewPassword').value='';el('teacherSetupPassword').value='';el('teacherSetupConfirm').value='';
+      teacherNeedsPasswordChange=false;showTeacherPanels();
+      teacherStatus('Đã đổi mật khẩu. Đang tải bài học sinh…');
+      teacherList();
+    });
+  }
+  function enterToSubmit(inputId,buttonId){
+    el(inputId).addEventListener('keydown',function(event){
+      if(event.key==='Enter'&&!event.isComposing){event.preventDefault();el(buttonId).click()}
+    });
+  }
+  el('teacherLogin').addEventListener('click',teacherLogin);
+  enterToSubmit('teacherPassword','teacherLogin');
+  el('teacherLogout').addEventListener('click',teacherSignOut);
+  el('teacherSetupCancel').addEventListener('click',teacherSignOut);
+  el('teacherSetupSubmit').addEventListener('click',function(){teacherChangePassword(el('teacherSetupPassword').value,true)});
+  enterToSubmit('teacherSetupPassword','teacherSetupSubmit');
+  enterToSubmit('teacherSetupConfirm','teacherSetupSubmit');
   el('teacherRefresh').addEventListener('click',teacherList);
   el('teacherGroups').addEventListener('change',function(){teacherLoadGroup()});
   el('teacherSite').addEventListener('change',function(){teacherCapture();teacherCurrentSite=this.value;teacherDisplaySite()});
   el('teacherSave').addEventListener('click',teacherSave);
   el('teacherRotate').addEventListener('click',teacherRotate);
-  el('teacherChangePassword').addEventListener('click',function(){
-    var newPass=el('teacherNewPassword').value;
-    if(newPass.length!==8){teacherStatus('Mật khẩu mới phải có đúng 8 ký tự.');return}
-    cloudCall({action:'teacherPassword',token:teacherToken,newPassword:newPass},function(err){
-      el('teacherNewPassword').value='';
-      if(err){teacherStatus(err);return}
-      teacherStatus('Đã đổi mật khẩu trên máy chủ. Hãy ghi nhớ mật khẩu mới.');teacherList();
-    });
-  });
-  window.setInterval(function(){if(cloudSession)cloudHeartbeat()},50000);
+  el('teacherChangePassword').addEventListener('click',function(){teacherChangePassword(el('teacherNewPassword').value,false)});
+  enterToSubmit('teacherNewPassword','teacherChangePassword');
+    window.setInterval(function(){if(cloudSession)cloudHeartbeat()},50000);
   window.addEventListener('focus',function(){cloudLastActive=Date.now()});
   document.addEventListener('visibilitychange',function(){cloudLastActive=Date.now()});
   scriptUrl=DEFAULT_SCRIPT_URL;if(!validScriptUrl(scriptUrl))scriptUrl='';
@@ -1581,7 +1660,10 @@ footer{padding:4px 0;font-size:10px}
     el('helpDialog').classList.add('hidden');
     if(helpFromTeacher){
       el('teacherDialog').classList.remove('hidden');
-      el('teacherHelpBtn').focus();
+      showTeacherPanels();
+      if(teacherNeedsPasswordChange)focusTeacherInput('teacherSetupPassword');
+      else if(!teacherToken)focusTeacherInput('teacherPassword');
+      else el('teacherHelpBtn').focus();
     }else{
       el('helpBtn').focus();
     }
