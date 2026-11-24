@@ -285,6 +285,22 @@ body.mode-basic .order-legacy{display:none}
 .feedback-work{border:1px solid #d6e5ef;border-radius:8px;padding:8px 10px;margin:7px 0}
 .feedback-work>summary{font-size:13px;font-weight:bold;color:#17649a;cursor:pointer}
 .feedback-work[open]>summary{margin-bottom:8px}
+
+.profile-prompt{width:max-content;min-width:290px;text-align:center}
+.profile-prompt strong{display:block;font-size:14px;margin-bottom:7px}
+.profile-prompt-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.profile-prompt-actions button{margin:2px;font-size:12px}
+.student-picker{max-width:480px}
+.student-picker h3{margin:0 0 5px}
+.student-picker>p{font-size:12px}
+.group-mode-switch{display:flex;gap:6px;margin:10px 0}
+.group-mode-switch button{flex:1;padding:8px;font-size:12px}
+.student-picker label{display:block;font-size:13px;font-weight:bold;margin-top:9px}
+.student-picker input,.student-picker select{width:100%;max-width:100%}
+.group-picker-status{font-size:12px;color:#a3451e;min-height:1px}
+.group-picker-status:empty{display:none}
+@media(max-width:550px){.profile-prompt{width:94%;min-width:0}.profile-prompt-actions{display:block}.profile-prompt-actions button{width:100%;margin:4px 0}}
+
 </style>
 </head>
 <body>
@@ -296,10 +312,10 @@ body.mode-basic .order-legacy{display:none}
 <div class="wrap">
   <div class="toolbar">
     <div class="student-fields">
-      <label for="group">Nhóm</label>
-      <input id="group" placeholder="Chưa chọn nhóm" readonly>
+      <label for="group">Học sinh / Nhóm</label>
+      <input id="group" placeholder="Chưa chọn tên" readonly>
       <label for="klass">Lớp</label>
-      <input id="klass" placeholder="Lớp" readonly><button type="button" id="switchGroup">Chọn nhóm</button>
+      <input id="klass" placeholder="Lớp" readonly><button type="button" id="switchGroup">Đổi tên bài</button>
     </div>
     <div class="toolbar-actions">
       <span id="autosaveHint" class="save-hint" role="status">Bài được tự lưu</span>
@@ -482,7 +498,13 @@ body.mode-basic .order-legacy{display:none}
     </section>
   </div>
 
-  <div id="profilePrompt" class="profile-prompt">Chọn <b>Lớp và Nhóm</b> để bắt đầu. <button type="button" id="promptSelect">Chọn nhóm</button></div>
+  <div id="profilePrompt" class="profile-prompt">
+    <strong>Bắt đầu làm bài</strong>
+    <div class="profile-prompt-actions">
+      <button type="button" id="promptCreate" class="primary">Nhập tên học sinh/nhóm (lần đầu)</button>
+      <button type="button" id="promptSelect">Chọn tên đã tạo</button>
+    </div>
+  </div>
   <div id="helpDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
     <div class="reset-box help-box">
       <div class="help-header"><h2 id="helpTitle">Hướng dẫn sử dụng – Hành trình di sản số</h2><button id="helpClose" type="button" aria-label="Đóng hướng dẫn">Đóng ×</button></div>
@@ -652,7 +674,30 @@ body.mode-basic .order-legacy{display:none}
       <div class="actions"><button id="teacherClose" type="button">Đóng</button></div>
     </div>
   </div>
-  <div id="groupDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="groupTitle"><div class="reset-box"><h3 id="groupTitle">Chọn bài làm của nhóm</h3><p class="muted">Các nhóm được lưu riêng trên máy này. Dữ liệu cũ không bị xóa.</p><label for="savedGroups">Nhóm đã lưu</label><select id="savedGroups"><option value="">Tạo nhóm mới / nhập tên dưới đây</option></select><label for="newClass">Lớp</label><input id="newClass" maxlength="30" placeholder="7A1"><label for="newGroup">Nhóm</label><input id="newGroup" maxlength="50" placeholder="Nhóm 1"><div class="actions"><button type="button" id="groupNo">Hủy</button><button type="button" class="primary" id="groupYes">Mở nhóm</button></div></div></div>
+  <div id="groupDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="groupTitle">
+    <div class="reset-box student-picker">
+      <h3 id="groupTitle">Bắt đầu bài làm</h3>
+      <p class="muted" id="groupIntro">Nếu làm một mình, nhập tên học sinh. Nếu làm cùng bạn, nhập tên nhóm.</p>
+      <div class="group-mode-switch" role="group" aria-label="Chọn cách mở bài">
+        <button type="button" id="groupNewMode" class="active">Tạo bài lần đầu</button>
+        <button type="button" id="groupExistingMode">Mở bài đã có</button>
+      </div>
+      <div id="groupNewPanel">
+        <label for="newClass">Lớp của em</label>
+        <input id="newClass" maxlength="30" placeholder="Ví dụ: 7A1">
+        <label for="newGroup">Tên học sinh hoặc nhóm</label>
+        <input id="newGroup" maxlength="50" placeholder="Ví dụ: Nguyễn An hoặc Nhóm 1">
+        <p class="muted">Mỗi học sinh hoặc nhóm sử dụng một tên riêng để lưu bài. Không nhập tên của bạn khác.</p>
+      </div>
+      <div id="groupExistingPanel" class="hidden">
+        <label for="savedGroups">Chọn tên đã tạo trên máy này</label>
+        <select id="savedGroups"><option value="">— Chọn tên học sinh hoặc nhóm —</option></select>
+        <p id="savedGroupsHint" class="muted">Nếu không thấy tên, hãy kiểm tra lại máy đã sử dụng hoặc mở bài trực tuyến bằng mã của mình.</p>
+      </div>
+      <p id="groupPickerStatus" role="status" class="group-picker-status"></p>
+      <div class="actions"><button type="button" id="groupNo">Hủy</button><button type="button" class="primary" id="groupYes">Bắt đầu làm bài</button></div>
+    </div>
+  </div>
   <div id="backupDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="backupTitle"><div class="reset-box"><h3 id="backupTitle">Khôi phục bản sao lưu</h3><p class="muted">Chọn bản sao của nhóm hiện tại. Ứng dụng sẽ sao lưu trạng thái trước khi khôi phục.</p><label for="backupList">Bản lưu gần đây</label><select id="backupList"></select><div class="actions"><button type="button" id="backupCancel">Hủy</button><button type="button" class="primary" id="backupApply">Khôi phục bản đã chọn</button></div></div></div>
   <div id="resetDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="resetTitle"><div class="reset-box"><h3 id="resetTitle">Khôi phục bài làm?</h3><p>Chỉ khôi phục bài làm đang mở. Hãy xuất JSON trước nếu muốn giữ bản sao.</p><div class="actions"><button type="button" id="resetNo">Hủy</button><button type="button" class="primary" id="resetYes">Khôi phục</button></div></div></div>
   <footer>STEM Tin học 7 · Bản đồ OpenStreetMap cần Internet · Tự lưu cục bộ trên trình duyệt</footer>
