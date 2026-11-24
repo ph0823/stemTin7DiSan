@@ -280,6 +280,11 @@ body.mode-basic .site-quick button span{margin-left:2px}
 @media(max-width:950px){body.mode-basic .map-shell .map{height:320px;min-height:270px}}
 @media(max-width:560px){body.mode-basic .map-shell .map{height:300px;min-height:250px}}
 
+
+body.mode-basic .order-legacy{display:none}
+.feedback-work{border:1px solid #d6e5ef;border-radius:8px;padding:8px 10px;margin:7px 0}
+.feedback-work>summary{font-size:13px;font-weight:bold;color:#17649a;cursor:pointer}
+.feedback-work[open]>summary{margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -415,23 +420,23 @@ body.mode-basic .site-quick button span{margin-left:2px}
               <option>Kết hợp trực tuyến và thực địa</option>
             </select>
           </div>
-          <div class="field">
+          <div class="field order-legacy">
             <label for="order">Thứ tự khám phá (tự động vẽ trên bản đồ)</label>
             <select id="order"></select>
           </div>
           <div id="orderHint" class="muted"></div><div class="route-comparison">
-            <div class="route-head"><strong>So sánh phương án A và B</strong><span class="muted">Chọn thứ tự cho từng phương án, không phải đường đi thực tế</span></div>
+            <div class="route-head"><strong>Chọn thứ tự khám phá</strong><span class="muted">Chọn thứ tự cho từng phương án, không phải đường đi thực tế</span></div>
             <div class="route-choice"><label for="routePlanA">Phương án A</label><select id="routePlanA"></select></div>
             <div class="route-choice"><label for="routePlanB">Phương án B</label><select id="routePlanB"></select></div>
             <div class="route-choice"><label for="preferredRoute">Nhóm lựa chọn</label><select id="preferredRoute"><option value="A">Phương án A</option><option value="B">Phương án B</option></select><button id="applyRoutePlan" type="button">Hiển thị hành trình chọn</button></div>
-          </div></div><div class="design-step hidden" data-step-panel="2"><div class="field"><label for="reason">Vì sao nhóm chọn phương án này?</label>
+          </div></div><div class="design-step hidden" data-step-panel="2"><div class="field"><label for="reason">Vì sao em chọn cách sắp xếp này?</label>
             <textarea id="reason" placeholder="Nêu tiêu chí lựa chọn: nội dung học tập, thời gian, điều kiện di chuyển..."></textarea>
           </div>
           <div class="field advanced-only">
             <label for="estimate">Dữ liệu quãng đường/thời gian đã kiểm chứng (nếu có)</label>
             <textarea id="estimate" placeholder="Ghi tuyến, nguồn tra cứu và thời điểm; không tự suy ra từ đường nối minh họa"></textarea>
           </div>
-          <div class="field advanced-only"><label for="compareOrder">Phương án khác (công cụ cũ)</label><select id="compareOrder"></select></div><div class="field"><label for="compareText">So sánh ngắn hai phương án (1 câu)</label><textarea id="compareText" placeholder="Phương án em chọn giúp người xem tìm hiểu nội dung theo thứ tự nào? Vì sao tốt hơn phương án còn lại?"></textarea></div><p id="modeQuestions" class="muted advanced-only"></p></div><div class="design-step hidden" data-step-panel="3"><div class="field"><label for="message">Thông điệp bảo tồn di sản</label>
+          <div class="field advanced-only"><label for="compareOrder">Phương án khác (công cụ cũ)</label><select id="compareOrder"></select></div><div class="field"><label for="compareText">Hai cách sắp xếp khác nhau ở điểm nào? (1 câu)</label><textarea id="compareText" placeholder="Phương án em chọn giúp người xem tìm hiểu nội dung theo thứ tự nào? Vì sao tốt hơn phương án còn lại?"></textarea></div><p id="modeQuestions" class="muted advanced-only"></p></div><div class="design-step hidden" data-step-panel="3"><div class="field"><label for="message">Em muốn nhắn gửi điều gì để bảo vệ di sản?</label>
             <textarea id="message" placeholder="Viết một thông điệp ngắn"></textarea>
           </div>
           <div class="field advanced-only">
@@ -445,9 +450,11 @@ body.mode-basic .site-quick button span{margin-left:2px}
           <div class="peer-actions"><button id="peerOpenBtn" type="button" class="primary">Xem và góp ý bài nhóm bạn</button><button id="peerInboxBtn" type="button">Xem góp ý dành cho nhóm em <span id="peerInboxCount"></span></button></div>
           <div id="peerNotice" class="peer-notice hidden" role="status"></div>
           <div id="peerInboxPanel" class="peer-inbox hidden"><strong>Nhận xét từ các nhóm khác và giáo viên</strong><div id="peerInboxEntries"></div><button id="peerInboxClose" type="button">Đóng</button></div>
-          <p class="muted">Mỗi nhóm ngồi tại máy của mình: chọn “Xem và góp ý bài nhóm bạn”, gửi nhận xét và nhận phản hồi trực tuyến. Không chia sẻ mã nhóm.</p>
-          <div class="panel-stem"><h4>Minh chứng thiết kế và cải tiến</h4><p class="muted">Lưu bản đầu trước khi kiểm thử và bản cải tiến sau khi sửa.</p><div class="actions"><button type="button" id="captureBefore">Lưu bài trước khi sửa</button><button type="button" id="captureAfter">Lưu bài sau khi sửa</button></div><div id="snapshotCompare"></div></div><details class="advanced-only"><summary>Bảng kiểm chi tiết</summary><div id="checks"></div></details>
-          <div class="field"><label for="tester">Nhóm kiểm thử</label><input id="tester"></div>
+          <p class="muted">Em ngồi tại máy của nhóm mình. Xem bài nhóm bạn và gửi một góp ý lịch sự.</p>
+          <div class="panel-stem"><h4>Lưu bài trước và sau khi sửa</h4><p class="muted">Bấm “Lưu bài trước khi sửa”, đọc góp ý, sửa bài rồi bấm “Lưu bài sau khi sửa”.</p><div class="actions"><button type="button" id="captureBefore">Lưu bài trước khi sửa</button><button type="button" id="captureAfter">Lưu bài sau khi sửa</button></div><div id="snapshotCompare"></div></div><details class="advanced-only"><summary>Bảng kiểm chi tiết</summary><div id="checks"></div></details>
+          <details class="feedback-work" id="feedbackWork"><summary>Ghi góp ý và phần đã sửa</summary>
+          <p class="muted">Sau khi đọc góp ý của nhóm bạn, em ghi điều cần sửa và việc nhóm đã sửa.</p>
+          <div class="field"><label for="tester">Nhóm đã góp ý</label><input id="tester" placeholder="Ví dụ: Nhóm 2"></div>
           <div class="guided-feedback"><strong>Nhóm bạn kiểm thử điều gì?</strong><div class="quick-test-checks">
             <label><input type="checkbox" id="quickCheckInfo"> Đủ 3 di tích, nội dung có nguồn</label>
             <label><input type="checkbox" id="quickCheckCard"> Thẻ dễ đọc, hình rõ</label>
@@ -455,6 +462,7 @@ body.mode-basic .site-quick button span{margin-left:2px}
           </div>
           <div class="field"><label for="issues">Bạn góp ý điều gì?</label><textarea id="issues" placeholder="Ví dụ: Lời giới thiệu Địa đạo Củ Chi còn dài, nên rút gọn."></textarea></div>
           <div class="field"><label for="fix">Nhóm em đã thay đổi như thế nào?</label><textarea id="fix" placeholder="Ví dụ: Đã rút ngắn lời giới thiệu, thêm nguồn và kiểm tra lại."></textarea></div></div>
+          </details>
           <div class="field advanced-only"><label for="recheck">Kết quả kiểm tra lại</label><textarea id="recheck"></textarea></div>
         </div>
 
