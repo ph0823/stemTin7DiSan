@@ -1267,6 +1267,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   var teacherCurrentSite='nga',remoteSaveTimer=null,remoteBusy=false,remotePending=false,cloudConflict=false,cloudLastActive=Date.now();
   var CREATE_PENDING_PREFIX='stem7_auto_create_v1_',CODE_SESSION_PREFIX='stem7_access_code_v1_';
   var creationBusy=false,creationFor='',syncIssue='',syncConfirmedJSON='',syncSafeCode='';
+  var checkedServerVersion=0,checkingServerVersion=false;
   function cloudOwnerKey(){return activeKey&&activeKey.indexOf(PROFILE_PREFIX)===0?activeKey:''}
   function cloudPendingStorageKey(){return CREATE_PENDING_PREFIX+cloudOwnerKey()}
   function cloudCodeStorageKey(){return CODE_SESSION_PREFIX+cloudOwnerKey()}
@@ -1324,6 +1325,28 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
       return !!(x.sites[id]&&(clean(x.sites[id].desc)||clean(x.sites[id].source)));
     })||!!(clean(x.reason)||clean(x.message)||clean(x.compareText)||clean(x.issues)||clean(x.fix));
   }
+  function checkAutoSaveServer(){
+    if(checkedServerVersion>=3)return true;
+    if(checkedServerVersion<0){
+      syncIssue='Hệ thống lưu trực tuyến cần được giáo viên cập nhật lên Apps Script V3. Bài vẫn được giữ trên máy.';
+      syncStatusForLocal();return false;
+    }
+    if(checkingServerVersion)return false;
+    checkingServerVersion=true;
+    syncDisplay('warning','Đang kiểm tra hệ thống lưu Google Sheets…',false);
+    cloudCall({action:'ping'},function(err,res){
+      checkingServerVersion=false;
+      if(err){syncIssue='Không kiểm tra được kết nối Google Sheets. Bài vẫn còn trên máy. '+err;syncStatusForLocal();return}
+      if(!res||Number(res.version)<3){
+        checkedServerVersion=-1;
+        syncIssue='Ứng dụng cần phiên bản Apps Script mới để lưu an toàn. Nhờ giáo viên cập nhật máy chủ; bài vẫn lưu trên máy.';
+        syncStatusForLocal();return;
+      }
+      checkedServerVersion=Number(res.version);syncIssue='';
+      if(hasProfile()&&!cloudSession)autoRegisterCloud();
+    });
+    return false;
+  }
   /* F5 có thể xảy ra giữa lúc server đã tạo bài và trình duyệt chưa nhận
      mã. requestKey được giữ lại để lần sau nhận lại CÙNG một bài, không thêm dòng. */
   function autoRegisterCloud(){
@@ -1334,6 +1357,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
       syncIssue='Chưa có địa chỉ Google Sheets. Bài vẫn được giữ trên máy; hãy nhờ giáo viên kiểm tra kết nối.';
       syncStatusForLocal();return;
     }
+    if(!checkAutoSaveServer())return;
     var klass=state.klass,group=state.group,owner=activeKey;
     var requestKey=pendingCreateKey();
     if(!requestKey){
@@ -1386,7 +1410,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     });
   }
   el('retrySync').addEventListener('click',function(){
-    syncIssue='';
+    syncIssue='';if(checkedServerVersion<0)checkedServerVersion=0;
     if(cloudSession){if(cloudConflict)cloudOpen();else cloudSave(true)}
     else autoRegisterCloud();
   });
