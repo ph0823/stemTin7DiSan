@@ -1268,6 +1268,7 @@ footer{padding:4px 0;font-size:10px}
     [['peerCheckInfo','info'],['peerCheckCard','card'],['peerCheckRoute','route']].forEach(function(pair){
       if(el(pair[0]).checked)checks.push(pair[1]);
     });
+    if(!checks.length){peerStatus('Hãy đánh dấu ít nhất một tiêu chí đã kiểm thử.');return}
     var button=el('peerSend');button.disabled=true;peerStatus('Đang gửi góp ý…');
     cloudCall({action:'peerSend',klass:cloudSession.klass,group:peerCurrentTarget,
       token:cloudSession.token,comment:comment,checks:checks},function(err,res){
