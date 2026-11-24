@@ -610,6 +610,29 @@ footer{padding:4px 0;font-size:10px}
 <script>
 (function(){
   'use strict';
+  /* Trong iframe Google Sites, một số cấu hình chặn localStorage.
+     Không chặn việc làm bài: lưu tạm trong phiên và cảnh báo xuất tệp.
+     Khi localStorage hoạt động bình thường, dữ liệu cũ được giữ nguyên. */
+  var storagePersistent=true;
+  var localStorage=(function(){
+    try{
+      var nativeStore=window.localStorage;
+      var probe='stem7_storage_probe';
+      nativeStore.setItem(probe,'1');
+      nativeStore.removeItem(probe);
+      return nativeStore;
+    }catch(e){
+      storagePersistent=false;
+      var data={};
+      return {
+        getItem:function(k){return Object.prototype.hasOwnProperty.call(data,k)?data[k]:null},
+        setItem:function(k,v){data[k]=String(v)},
+        removeItem:function(k){delete data[k]},
+        key:function(i){return Object.keys(data)[i]||null},
+        get length(){return Object.keys(data).length}
+      };
+    }
+  })();
   var KEY = 'stem_tin7_heritage_v1';
   var PROFILE_PREFIX=KEY+'_group_';
   var ACTIVE_KEY=KEY+'_selected';
@@ -669,7 +692,7 @@ footer{padding:4px 0;font-size:10px}
       refresh();updateProfileUI();el('groupDialog').classList.add('hidden');
       tab('explore');
       toggleEditor(true);
-      setStatus('Đã mở bài của '+group+'. Em có thể nhập lời giới thiệu ngay.');
+      setStatus(storagePersistent?'Đã mở bài của '+group+'. Em có thể nhập lời giới thiệu ngay.':'Đã mở nhóm. Bộ nhớ trình duyệt bị chặn: hãy tải bài về máy trước khi đóng trang.');
       /* Không tự mở kết nối trực tuyến khi chọn nhóm: học sinh có thể
          làm bài và lưu cục bộ ngay cả khi Apps Script chưa sẵn sàng. */
     }catch(e){
@@ -717,7 +740,7 @@ footer{padding:4px 0;font-size:10px}
   function hasProfile(){return activeKey!==KEY&&!!clean(state.klass)&&!!clean(state.group)}
   function updateProfileUI(){
     var ok=hasProfile();el('profilePrompt').classList.toggle('hidden',ok);el('workArea').classList.toggle('work-locked',!ok);
-    el('autosaveHint').textContent=ok?(dirty?'Đang lưu…':(cloudSession?'Đã mở bài trực tuyến':'Bài lưu trên máy')):'Chưa chọn nhóm';
+    el('autosaveHint').textContent=ok?(dirty?'Đang lưu…':(cloudSession?'Đã mở bài trực tuyến':(storagePersistent?'Bài lưu trên máy':'Chỉ lưu tạm · tải bài về máy'))):'Chưa chọn nhóm';
     el('save').disabled=!ok;el('export').disabled=!ok;
   }
   function setDesignStep(n){designStep=n;document.querySelectorAll('[data-step-panel]').forEach(function(x){x.classList.toggle('hidden',x.getAttribute('data-step-panel')!==String(n))});document.querySelectorAll('[data-step]').forEach(function(x){x.classList.toggle('active',x.getAttribute('data-step')===String(n))});}
@@ -1532,8 +1555,8 @@ footer{padding:4px 0;font-size:10px}
     try {
       localStorage.setItem(activeKey, JSON.stringify(state));
       dirty = false;
-      if (el('autosaveHint')) el('autosaveHint').textContent = cloudSession?'':'Chưa mở bài trực tuyến';
-      if (!silent) setStatus('Đã lưu bài trên máy.');
+      if (el('autosaveHint')) el('autosaveHint').textContent = cloudSession?'Đã lưu trên máy và đang đồng bộ':(storagePersistent?'Bài lưu trên máy':'Chỉ lưu tạm · tải bài về máy');
+      if (!silent) setStatus(storagePersistent?'Đã lưu bài trên máy.':'Bài mới lưu tạm trong phiên. Hãy tải bài về máy để tránh mất khi đóng trang.');
       return true;
     } catch (e) {
       if (el('autosaveHint')) el('autosaveHint').textContent = 'Không lưu được';
