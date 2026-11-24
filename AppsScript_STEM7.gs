@@ -158,6 +158,7 @@ function sendFeedback_(sheet,klass,targetGroup,authorGroup,role,raw,checks){
   if(!Array.isArray(checks))checks=[];
   var allowed=['info','card','route'],valid=[];
   checks.forEach(function(x){if(allowed.indexOf(x)>=0&&valid.indexOf(x)<0)valid.push(x)});
+  if(role==='student'&&!valid.length)throw Error('Hãy đánh dấu ít nhất một tiêu chí trước khi gửi góp ý.');
   var all=feedbackRows_(sheet),today=Date.now(),recent=all.filter(function(r){
     return key_(r[1],r[2])===key_(klass,targetGroup)&&String(r[3])===authorGroup&&
       String(r[4])===role&&(today-new Date(r[8]).getTime()<86400000);
