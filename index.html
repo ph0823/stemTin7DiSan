@@ -582,8 +582,8 @@ body.mode-basic .order-legacy{display:none}
   <div id="peerDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="peerTitle">
     <div class="reset-box peer-dialog-box">
       <div class="help-header"><h2 id="peerTitle">Xem và góp ý bài nhóm bạn</h2><button type="button" id="peerClose" aria-label="Đóng">Đóng ×</button></div>
-      <p class="muted">Chỉ xem bài của nhóm khác cùng lớp. Không cần mã nhóm bạn và không thể sửa bài của bạn.</p>
-      <div class="peer-choice"><label for="peerTarget">Nhóm muốn góp ý</label><select id="peerTarget"></select><button id="peerLoad" class="primary" type="button">Xem bài</button><button id="peerRefresh" type="button">Tải danh sách</button></div>
+      <p class="muted">Em có thể xem bài của bạn hoặc nhóm khác cùng lớp, không cần biết mã bài và không được sửa bài của bạn.</p>
+      <div class="peer-choice"><label for="peerTarget">Học sinh hoặc nhóm em muốn góp ý</label><select id="peerTarget"></select><button id="peerLoad" class="primary" type="button">Xem bài</button><button id="peerRefresh" type="button">Tải danh sách</button></div>
       <div id="peerStatus" class="peer-status" role="status"></div>
       <div id="peerMap" class="peer-mini-map hidden" aria-label="Bản đồ vị trí các điểm di tích của nhóm bạn"></div>
       <div id="peerReadOnly" class="peer-readonly"></div>
@@ -620,7 +620,7 @@ body.mode-basic .order-legacy{display:none}
       <div id="teacherWorkspace" class="hidden">
         <div class="actions"><button id="teacherRefresh" type="button">Tải danh sách nhóm</button><button id="teacherLogout" type="button">Đăng xuất</button></div>
         <div class="teacher-grid">
-          <div><label for="teacherGroups">Các nhóm đã lưu</label><select id="teacherGroups" size="9"></select><p id="teacherListHint" class="muted">Nhấn “Tải danh sách nhóm” để kiểm tra các bài đã lưu trực tuyến.</p></div>
+          <div><label for="teacherGroups">Bài học sinh / nhóm đã lưu</label><select id="teacherGroups" size="9"></select><p id="teacherListHint" class="muted">Nhấn “Tải danh sách nhóm” để kiểm tra các bài đã lưu trực tuyến.</p></div>
           <div>
             <h3 id="teacherGroupTitle">Chọn nhóm để xem</h3>
             <div id="teacherMeta" class="muted"></div>
@@ -689,7 +689,7 @@ body.mode-basic .order-legacy{display:none}
       <div class="actions"><button type="button" id="groupNo">Hủy</button><button type="button" class="primary" id="groupYes">Bắt đầu làm bài</button></div>
     </div>
   </div>
-  <div id="backupDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="backupTitle"><div class="reset-box"><h3 id="backupTitle">Khôi phục bản sao lưu</h3><p class="muted">Chọn bản sao của nhóm hiện tại. Ứng dụng sẽ sao lưu trạng thái trước khi khôi phục.</p><label for="backupList">Bản lưu gần đây</label><select id="backupList"></select><div class="actions"><button type="button" id="backupCancel">Hủy</button><button type="button" class="primary" id="backupApply">Khôi phục bản đã chọn</button></div></div></div>
+  <div id="backupDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="backupTitle"><div class="reset-box"><h3 id="backupTitle">Khôi phục bản sao lưu</h3><p class="muted">Chọn bản sao của bài đang mở. Ứng dụng sẽ sao lưu trạng thái trước khi khôi phục.</p><label for="backupList">Bản lưu gần đây</label><select id="backupList"></select><div class="actions"><button type="button" id="backupCancel">Hủy</button><button type="button" class="primary" id="backupApply">Khôi phục bản đã chọn</button></div></div></div>
   <div id="resetDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="resetTitle"><div class="reset-box"><h3 id="resetTitle">Khôi phục bài làm?</h3><p>Chỉ khôi phục bài làm đang mở. Hãy xuất JSON trước nếu muốn giữ bản sao.</p><div class="actions"><button type="button" id="resetNo">Hủy</button><button type="button" class="primary" id="resetYes">Khôi phục</button></div></div></div>
   <footer>STEM Tin học 7 · Bản đồ OpenStreetMap cần Internet · Tự lưu cục bộ trên trình duyệt</footer>
 </div>
@@ -844,7 +844,7 @@ body.mode-basic .order-legacy{display:none}
       nga: {
         name: 'Ngã Ba Giồng',
         location: 'Khu vực Hóc Môn, Thành phố Hồ Chí Minh',
-        desc: 'Ngã Ba Giồng ở Hóc Môn là di tích lịch sử gắn với phong trào đấu tranh cách mạng ở vùng ngoại thành Sài Gòn. Khu tưởng niệm là nơi tìm hiểu truyền thống yêu nước, tưởng nhớ những người đã hi sinh. Nhóm hãy xác minh sự kiện lịch sử cụ thể từ nguồn đáng tin cậy và bổ sung vào lời giới thiệu.',
+        desc: 'Ngã Ba Giồng ở Hóc Môn là di tích lịch sử gắn với phong trào đấu tranh cách mạng ở vùng ngoại thành Sài Gòn. Khu tưởng niệm là nơi tìm hiểu truyền thống yêu nước, tưởng nhớ những người đã hi sinh. Em hãy xác minh sự kiện lịch sử cụ thể từ nguồn đáng tin cậy và bổ sung vào lời giới thiệu.',
         image: '', source: ''
       },
       cu: {
@@ -856,7 +856,7 @@ body.mode-basic .order-legacy{display:none}
       giong: {
         name: 'Di tích khảo cổ Giồng Cá Vồ',
         location: 'Khu vực Cần Giờ, Thành phố Hồ Chí Minh',
-        desc: 'Giồng Cá Vồ là di tích khảo cổ tại Cần Giờ, được biết đến với các phát hiện mộ chum và nhiều hiện vật. Những dấu tích này giúp các nhà nghiên cứu tìm hiểu đời sống, phong tục mai táng và giao lưu văn hóa của cư dân cổ. Nhóm hãy chọn một phát hiện tiêu biểu, kiểm tra nguồn khảo cổ và viết lời giới thiệu dễ hiểu.',
+        desc: 'Giồng Cá Vồ là di tích khảo cổ tại Cần Giờ, được biết đến với các phát hiện mộ chum và nhiều hiện vật. Những dấu tích này giúp các nhà nghiên cứu tìm hiểu đời sống, phong tục mai táng và giao lưu văn hóa của cư dân cổ. Em hãy chọn một phát hiện tiêu biểu, kiểm tra nguồn khảo cổ và viết lời giới thiệu dễ hiểu.',
         image: '', source: ''
       }
     },
@@ -878,7 +878,7 @@ body.mode-basic .order-legacy{display:none}
   function hasProfile(){return activeKey!==KEY&&!!clean(state.klass)&&!!clean(state.group)}
   function updateProfileUI(){
     var ok=hasProfile();el('profilePrompt').classList.toggle('hidden',ok);el('workArea').classList.toggle('work-locked',!ok);
-    el('autosaveHint').textContent=ok?(dirty?'Đang lưu…':(cloudSession?'Đã mở bài trực tuyến':(storagePersistent?'Bài lưu trên máy':'Chỉ lưu tạm · tải bài về máy'))):'Chưa chọn nhóm';
+    el('autosaveHint').textContent=ok?(dirty?'Đang lưu…':(cloudSession?'Đã mở bài trực tuyến':(storagePersistent?'Bài lưu trên máy':'Chỉ lưu tạm · tải bài về máy'))):'Chưa chọn tên';
     el('save').disabled=!ok;el('export').disabled=!ok;
   }
   function setDesignStep(n){designStep=n;document.querySelectorAll('[data-step-panel]').forEach(function(x){x.classList.toggle('hidden',x.getAttribute('data-step-panel')!==String(n))});document.querySelectorAll('[data-step]').forEach(function(x){x.classList.toggle('active',x.getAttribute('data-step')===String(n))});}
