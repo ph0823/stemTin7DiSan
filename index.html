@@ -1164,6 +1164,184 @@ footer{padding:4px 0;font-size:10px}
       if(!err&&res&&res.record){cloudSession.seconds=res.record.seconds;persistCloudSession()}
     });
   }
+
+  /* Kiểm thử chéo: chỉ xem dữ liệu công khai của nhóm cùng lớp;
+     mọi nhận xét được lưu riêng trên Apps Script, không ghi lên bài bạn. */
+  var peerCurrentTarget='',peerInboxBusy=false,peerLatestFeedback=[];
+  function peerStatus(message){el('peerStatus').textContent=message||''}
+  function peerCard(title,body,wide){
+    var card=document.createElement('div');card.className='peer-card'+(wide?' peer-wide':'');
+    var header=document.createElement('strong');header.textContent=title;card.appendChild(header);
+    var p=document.createElement('div');p.textContent=body||'Chưa có nội dung';card.appendChild(p);
+    el('peerReadOnly').appendChild(card);
+  }
+  function peerRenderRecord(record){
+    var area=el('peerReadOnly');area.innerHTML='';
+    if(!record||!record.sites){peerStatus('Không có dữ liệu để xem.');return}
+    peerCard('Bản chỉ xem · '+record.klass+' / '+record.group,
+      'Chỉ hiện nội dung giới thiệu di tích, nguồn, hành trình và thông điệp. Không hiển thị mã nhóm hoặc dữ liệu riêng.',true);
+    ['nga','cu','giong'].forEach(function(id){
+      var entry=record.sites[id]||{},names={nga:'Ngã Ba Giồng',cu:'Địa đạo Củ Chi',giong:'Giồng Cá Vồ'};
+      peerCard(names[id],(entry.desc||'Nhóm chưa viết lời giới thiệu')+'\nNguồn: '+(entry.source||'Chưa ghi'));
+    });
+    var order=record.order||[],names={nga:'Ngã Ba Giồng',cu:'Địa đạo Củ Chi',giong:'Giồng Cá Vồ'};
+    peerCard('Hành trình khám phá',order.map(function(id){return names[id]||id}).join(' → ')+
+      '\nLí do: '+(record.reason||'Chưa ghi')+
+      '\nSo sánh: '+(record.compareText||'Chưa ghi'),true);
+    peerCard('Thông điệp bảo tồn',record.message||'Chưa ghi',true);
+    peerStatus('Đang xem bài nhóm '+record.group+'. Chỉ được gửi góp ý; không thể thay đổi bài này.');
+  }
+  function peerOpen(){
+    if(!cloudSession){setStatus('Hãy vào “Bài của nhóm” và mở bài trực tuyến trước khi góp ý chéo.');cloudOpen();return}
+    peerCurrentTarget='';
+    el('peerReadOnly').innerHTML='';el('peerComposer').classList.add('hidden');
+    el('peerDialog').classList.remove('hidden');
+    peerStatus('Đang tải danh sách nhóm cùng lớp…');
+    peerList();
+  }
+  function peerList(){
+    if(!cloudSession){peerStatus('Chưa đăng nhập bài nhóm trực tuyến.');return}
+    cloudCall({action:'peerList',klass:cloudSession.klass,token:cloudSession.token},function(err,res){
+      if(err){peerStatus('Không tải được nhóm: '+err);return}
+      var select=el('peerTarget');select.innerHTML='';
+      (res&&res.groups||[]).forEach(function(group){
+        var option=document.createElement('option');option.value=group.group;
+        option.textContent=group.group;select.appendChild(option);
+      });
+      peerStatus(select.options.length?'Chọn nhóm và nhấn “Xem bài”.':'Chưa có nhóm khác cùng lớp đã lưu bài trực tuyến.');
+    });
+  }
+  function peerLoad(){
+    if(!cloudSession)return;
+    var group=el('peerTarget').value;
+    if(!group){peerStatus('Hãy chọn nhóm cần xem.');return}
+    peerCurrentTarget='';
+    el('peerComposer').classList.add('hidden');peerStatus('Đang mở bài ở chế độ chỉ xem…');
+    cloudCall({action:'peerGet',klass:cloudSession.klass,group:group,token:cloudSession.token},function(err,res){
+      if(err){peerStatus('Không mở được bài: '+err);return}
+      if(!res||!res.record){peerStatus('Chưa có bài để xem.');return}
+      peerCurrentTarget=group;peerRenderRecord(res.record);
+      el('peerComposer').classList.remove('hidden');
+    });
+  }
+  function peerSend(){
+    if(!cloudSession||!peerCurrentTarget){peerStatus('Hãy chọn và xem bài nhóm bạn trước.');return}
+    var comment=clean(el('peerComment').value);
+    if(comment.length<12||comment.length>300){peerStatus('Góp ý cần từ 12 đến 300 ký tự.');return}
+    var checks=[];
+    [['peerCheckInfo','info'],['peerCheckCard','card'],['peerCheckRoute','route']].forEach(function(pair){
+      if(el(pair[0]).checked)checks.push(pair[1]);
+    });
+    var button=el('peerSend');button.disabled=true;peerStatus('Đang gửi góp ý…');
+    cloudCall({action:'peerSend',klass:cloudSession.klass,group:peerCurrentTarget,
+      token:cloudSession.token,comment:comment,checks:checks},function(err,res){
+      button.disabled=false;
+      if(err){peerStatus('Chưa gửi được: '+err);return}
+      el('peerComment').value='';
+      peerStatus('Đã gửi góp ý cho '+peerCurrentTarget+'. Nhóm bạn sẽ nhìn thấy khi mở hộp nhận xét.');
+    });
+  }
+  function peerReadOnlyClose(){el('peerDialog').classList.add('hidden');el('peerOpenBtn').focus()}
+  function peerSeenKey(){
+    return 'stem7_feedback_seen_'+encodeURIComponent(cloudSession?cloudSession.klass+'|'+cloudSession.group:'');
+  }
+  function peerInboxFetch(show){
+    if(!cloudSession){
+      if(show)setStatus('Hãy mở bài trực tuyến để xem góp ý dành cho nhóm em.');
+      return;
+    }
+    if(peerInboxBusy)return;
+    peerInboxBusy=true;
+    cloudCall({action:'peerInbox',klass:cloudSession.klass,token:cloudSession.token},function(err,res){
+      peerInboxBusy=false;
+      if(err){
+        if(show){el('peerInboxPanel').classList.remove('hidden');el('peerInboxEntries').textContent='Chưa tải được góp ý: '+err}
+        return;
+      }
+      peerLatestFeedback=(res&&res.feedback)||[];
+      var lastSeen=0;try{lastSeen=Number(localStorage.getItem(peerSeenKey())||0)}catch(e){}
+      var newCount=peerLatestFeedback.filter(function(x){return new Date(x.createdAt).getTime()>lastSeen}).length;
+      el('peerInboxCount').textContent=newCount?String(newCount):'';
+      el('peerNotice').textContent=newCount?'Nhóm em có '+newCount+' góp ý mới từ nhóm bạn hoặc giáo viên. Chọn “Xem góp ý dành cho nhóm em”.':'';
+      el('peerNotice').classList.toggle('hidden',!newCount);
+      if(show){
+        el('peerInboxPanel').classList.remove('hidden');
+        var box=el('peerInboxEntries');box.innerHTML='';
+        if(!peerLatestFeedback.length)box.textContent='Chưa có góp ý nào.';
+        peerLatestFeedback.forEach(function(item){
+          var div=document.createElement('div');div.className='peer-entry';
+          var title=document.createElement('strong');
+          title.textContent=(item.role==='teacher'?'Giáo viên':'Nhóm '+item.authorGroup)+' · '+new Date(item.createdAt).toLocaleString('vi-VN');
+          div.appendChild(title);
+          var txt=document.createElement('p');txt.textContent=item.comment;div.appendChild(txt);
+          var labels={info:'Nội dung và nguồn',card:'Thẻ dễ đọc',route:'Hành trình có lí do'};
+          if(item.checks&&item.checks.length){
+            var checks=document.createElement('p');checks.textContent='Đã kiểm tra: '+item.checks.map(function(x){return labels[x]||x}).join(', ');
+            div.appendChild(checks);
+          }
+          box.appendChild(div);
+        });
+        try{localStorage.setItem(peerSeenKey(),String(Date.now()))}catch(e){}
+        el('peerInboxCount').textContent='';
+        el('peerNotice').classList.add('hidden');
+      }
+    });
+  }
+  function teacherFeedbackStatus(msg){el('teacherFeedbackStatus').textContent=msg||''}
+  function teacherFeedbackLoad(){
+    if(!teacherToken||!teacherRecord)return;
+    var group=teacherRecord.group,klass=teacherRecord.klass;
+    teacherFeedbackStatus('Đang tải nhận xét…');
+    cloudCall({action:'teacherFeedbackList',token:teacherToken,klass:klass,group:group},function(err,res){
+      if(!teacherRecord||teacherRecord.group!==group||teacherRecord.klass!==klass)return;
+      if(err){teacherFeedbackStatus('Không tải được nhận xét: '+err);return}
+      teacherFeedbackStatus('');var root=el('teacherFeedbackList');root.innerHTML='';
+      var items=res&&res.feedback||[];
+      if(!items.length){root.textContent='Chưa có góp ý cho nhóm này.';return}
+      items.forEach(function(item){
+        var div=document.createElement('div');div.className='peer-entry';
+        var head=document.createElement('strong');head.textContent=
+          (item.role==='teacher'?'Giáo viên':'Nhóm '+item.authorGroup)+' · '+new Date(item.createdAt).toLocaleString('vi-VN')+
+          (item.status==='hidden'?' · Đã ẩn':'');
+        div.appendChild(head);
+        var message=document.createElement('p');message.textContent=item.comment;div.appendChild(message);
+        var toggle=document.createElement('button');toggle.type='button';
+        toggle.textContent=item.status==='hidden'?'Hiện lại góp ý':'Ẩn góp ý không phù hợp';
+        toggle.addEventListener('click',function(){
+          toggle.disabled=true;
+          cloudCall({action:'teacherFeedbackModerate',token:teacherToken,klass:klass,group:group,
+            feedbackId:item.id,visible:item.status==='hidden'},function(err){
+              if(err){toggle.disabled=false;teacherFeedbackStatus(err);return}
+              teacherFeedbackLoad();
+            });
+        });
+        div.appendChild(toggle);root.appendChild(div);
+      });
+    });
+  }
+  function teacherFeedbackSend(){
+    if(!teacherRecord){teacherFeedbackStatus('Chọn nhóm cần nhận xét.');return}
+    var comment=clean(el('teacherFeedbackText').value),record=teacherRecord;
+    if(comment.length<12||comment.length>500){teacherFeedbackStatus('Nhận xét cần từ 12 đến 500 ký tự.');return}
+    var button=el('teacherFeedbackSend');button.disabled=true;teacherFeedbackStatus('Đang gửi nhận xét…');
+    cloudCall({action:'teacherFeedbackSend',token:teacherToken,klass:record.klass,group:record.group,comment:comment},function(err){
+      button.disabled=false;
+      if(err){teacherFeedbackStatus('Không gửi được: '+err);return}
+      el('teacherFeedbackText').value='';teacherFeedbackStatus('Đã gửi nhận xét cho nhóm.');
+      teacherFeedbackLoad();
+    });
+  }
+  el('peerOpenBtn').addEventListener('click',peerOpen);
+  el('peerClose').addEventListener('click',peerReadOnlyClose);
+  el('peerRefresh').addEventListener('click',peerList);
+  el('peerLoad').addEventListener('click',peerLoad);
+  el('peerSend').addEventListener('click',peerSend);
+  el('peerInboxBtn').addEventListener('click',function(){peerInboxFetch(true)});
+  el('peerInboxClose').addEventListener('click',function(){el('peerInboxPanel').classList.add('hidden')});
+  el('teacherFeedbackRefresh').addEventListener('click',teacherFeedbackLoad);
+  el('teacherFeedbackSend').addEventListener('click',teacherFeedbackSend);
+  window.setInterval(function(){if(cloudSession&&!document.hidden)peerInboxFetch(false)},60000);
+
   var teacherNeedsPasswordChange=false,teacherLoginBusy=false,teacherListBusy=false;
   function focusTeacherInput(id){setTimeout(function(){var input=el(id);if(input&&!input.disabled&&!input.classList.contains('hidden'))input.focus()},50)}
   function showTeacherPanels(){
