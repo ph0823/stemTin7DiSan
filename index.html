@@ -1353,6 +1353,10 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     if(!hasProfile())return;
     if(cloudSession){if(!cloudConflict)cloudSave(true);return}
     if(creationBusy)return;
+    if(!storagePersistent){
+      syncIssue='Trình duyệt đang chặn bộ nhớ lưu. Không thể tạo bài trực tuyến an toàn vì có thể mất mã sau F5. Hãy tải bài về máy và báo giáo viên.';
+      syncStatusForLocal();return;
+    }
     if(!validScriptUrl(scriptUrl)){
       syncIssue='Chưa có địa chỉ Google Sheets. Bài vẫn được giữ trên máy; hãy nhờ giáo viên kiểm tra kết nối.';
       syncStatusForLocal();return;
