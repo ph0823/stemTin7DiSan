@@ -877,10 +877,13 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
       var candidate=normalizeData(next);
       localStorage.setItem(nextKey,JSON.stringify(candidate));
       localStorage.setItem(ACTIVE_KEY,nextKey);
+      var sameCloudSession=!!cloudSession&&
+        cloudSession.klass.toLowerCase()===klass.toLowerCase()&&
+        cloudSession.group.toLowerCase()===group.toLowerCase();
       state=candidate;activeKey=nextKey;dirty=false;clearTimeout(saveTimer);
-      syncIssue='';syncConfirmedJSON='';syncSafeCode='';cloudConflict=false;
-      if(cloudSession&&(cloudSession.klass.toLowerCase()!==klass.toLowerCase()||cloudSession.group.toLowerCase()!==group.toLowerCase())){
-        cloudSession=null;persistCloudSession();clearTimeout(remoteSaveTimer);
+      if(!sameCloudSession){
+        syncIssue='';syncConfirmedJSON='';syncSafeCode='';cloudConflict=false;
+        if(cloudSession){cloudSession=null;persistCloudSession();clearTimeout(remoteSaveTimer)}
       }
       refresh();updateProfileUI();el('groupDialog').classList.add('hidden');
       tab('explore');toggleEditor(true);
