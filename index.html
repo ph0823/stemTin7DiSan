@@ -434,14 +434,14 @@ footer{padding:4px 0;font-size:10px}
         <li>Đọc <strong>tư liệu tham khảo</strong>, đối chiếu vị trí và nguồn. Nhấn <strong>Chỉnh sửa thông tin</strong>, chọn <strong>kiểu thẻ riêng của từng di tích</strong> (ảnh trên, ảnh bên trái hoặc tóm tắt), viết lời giới thiệu 25–50 từ ở chế độ Cơ bản (50–80 từ ở chế độ Mở rộng) và ghi nguồn.</li>
         <li>Nhóm có thể dùng hình minh họa có sẵn. Việc thêm hình và giấy phép riêng nằm ở chế độ Mở rộng. Xem nhiệm vụ còn thiếu bên dưới bản đồ.</li></ol></div>
       <div class="help-section"><h3>Bước 2 – Thiết kế hành trình</h3>
-        <ol><li>Mở <strong>2. Thiết kế</strong>, chọn thứ tự khám phá ba di tích.</li>
-        <li>Nêu lí do chọn hành trình. Chế độ Mở rộng cho phép so sánh thêm các phương án và ghi số liệu có nguồn.</li>
+        <ol><li>Mở <strong>2. Thiết kế</strong>, chọn hai thứ tự khám phá khác nhau cho phương án A và B; chọn một phương án để hiển thị trên bản đồ.</li>
+        <li>Ghi lí do và một câu so sánh A/B. Chế độ Mở rộng có thêm dữ liệu quãng đường, thời gian nếu đã được kiểm chứng.</li>
         <li>Viết thông điệp bảo tồn di sản. Không cần nhập quá nhiều thông tin trong một tiết.</li></ol>
         <p class="muted"><strong>Lưu ý:</strong> Đường nét đứt nối các điểm chỉ thể hiện thứ tự khám phá, không phải tuyến đường giao thông thực tế. Dùng các nút <strong>Xem cả 3</strong>, <strong>Đến điểm chọn</strong>, <strong>Ẩn/hiện đường nối</strong> khi quan sát bản đồ.</p></div>
       <div class="help-section"><h3>Bước 3 và 4 – Kiểm thử, báo cáo</h3>
-        <ol><li>Mở <strong>3. Kiểm thử</strong>, nhờ nhóm khác nhận xét và ghi một điều cần cải thiện.</li>
+        <ol><li>Mở <strong>3. Kiểm thử</strong>, nhờ nhóm khác đánh dấu tiêu chí nội dung/nguồn, thẻ dễ đọc và hành trình có lí do. Ghi một góp ý cụ thể.</li>
         <li>Nhấn <strong>Lưu bài trước khi sửa</strong> trước khi kiểm thử. Chỉnh sửa nội dung, kiểu thẻ, hình ảnh hoặc tuyến theo góp ý, rồi nhấn <strong>Lưu bài sau khi sửa</strong>. Mục so sánh sẽ chỉ rõ trường nào đã thay đổi.</li>
-        <li>Mở <strong>4. Báo cáo</strong>, tự đánh giá, kiểm tra nội dung, sau đó dùng <strong>Tải bài về máy</strong> để nộp theo hướng dẫn của giáo viên. Có thể chọn <strong>Tùy chọn → In sản phẩm</strong> để in báo cáo.</li></ol></div>
+        <li>Mở <strong>4. Báo cáo</strong>, tự đánh giá và sử dụng báo cáo tự tổng hợp để trình bày trong một phút; sau đó dùng <strong>Tải bài về máy</strong> để nộp theo hướng dẫn của giáo viên. Có thể chọn <strong>Tùy chọn → In sản phẩm</strong> để in báo cáo.</li></ol></div>
       <div class="help-section"><h3>Đồng bộ bài trên các máy</h3>
         <p><strong>Bài của nhóm</strong>: chọn lớp và nhóm đã mở trên máy rồi nhấn <strong>Tạo bài mới</strong>. Ghi mã truy cập 4 ký tự được cấp, không công khai mã với nhóm khác.</p>
         <p>Khi chuyển máy: mở <strong>Bài của nhóm</strong>, nhập lớp, nhóm và mã 4 ký tự → <strong>Mở bài của nhóm</strong>. Khi làm bài, hệ thống tự gửi bản cập nhật sau một khoảng thời gian hoặc nhấn <strong>Lưu bài</strong>. Nếu có xung đột do giáo viên/máy khác sửa, sử dụng <strong>Tải bài mới nhất</strong> sau khi đã sao lưu bản đang làm.</p>
@@ -955,6 +955,7 @@ footer{padding:4px 0;font-size:10px}
     if(!hasProfile()){openGroups();return}
     if(!safeBackup('Trước lưu minh chứng'))return;
     var sites={};ids.forEach(function(id){var v=state.sites[id];sites[id]={desc:v.desc||'',source:v.source||'',image:v.image||'',imageSource:v.imageSource||'',license:v.license||'',cardStyle:v.cardStyle||'stack'}});
+    if(which==='before')state.snapshots.after=null;
     state.snapshots[which]={date:new Date().toLocaleString('vi-VN'),sites:sites,reason:state.reason||'',sketch:state.sketch||'',message:state.message||'',compareText:state.compareText||'',estimate:state.estimate||'',mode:state.mode,order:state.order};
     scheduleSave();renderSnapshots();setStatus('Đã lưu phiên bản '+(which==='before'?'1':'2')+'.');
   }
@@ -1210,7 +1211,8 @@ footer{padding:4px 0;font-size:10px}
       if(err){teacherStatus(err);return}
       teacherRecord=res.record;teacherRecord.data=normalizeData(res.record.data);
       teacherCurrentSite='nga';el('teacherGroupTitle').textContent=item.klass+' / '+item.group;
-      el('teacherMeta').textContent='Bắt đầu: '+item.firstAt+' · Hoạt động gần nhất: '+item.lastAt+' · HS chỉnh sửa cuối: '+(item.studentEditedAt||item.updatedAt)+' · GV chỉnh sửa: '+(item.teacherEditedAt||'chưa có')+' · Tổng hoạt động: '+Math.floor(item.seconds/60)+' phút · Bản '+item.revision;
+      var mapWork=teacherRecord.data.mapAnswers||{},mapEvidence='Đọc bản đồ: '+(mapWork.prediction==='giong'?'Đúng vị trí phía Nam':'Chưa hoàn thành')+'; '+(mapWork.line==='order'?'Đã hiểu đường nối':'Chưa hoàn thành');
+      el('teacherMeta').textContent='Bắt đầu: '+item.firstAt+' · Hoạt động gần nhất: '+item.lastAt+' · HS chỉnh sửa cuối: '+(item.studentEditedAt||item.updatedAt)+' · GV chỉnh sửa: '+(item.teacherEditedAt||'chưa có')+' · Tổng hoạt động: '+Math.floor(item.seconds/60)+' phút · Bản '+item.revision+' · '+mapEvidence;
       el('teacherNote').value=teacherRecord.teacherNote||'';
       teacherDisplaySite();teacherStatus('');
     });
