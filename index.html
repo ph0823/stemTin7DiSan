@@ -1253,6 +1253,128 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   var CLOUD_URL_KEY='stem7_apps_script_url',STUDENT_SESSION_KEY='stem7_cloud_student_session';
   var scriptUrl='',cloudRequests={},cloudCounter=0,cloudSession=null,teacherToken='',teacherGroupsData=[],teacherRecord=null;
   var teacherCurrentSite='nga',remoteSaveTimer=null,remoteBusy=false,remotePending=false,cloudConflict=false,cloudLastActive=Date.now();
+  var CREATE_PENDING_PREFIX='stem7_auto_create_v1_',CODE_SESSION_PREFIX='stem7_access_code_v1_';
+  var creationBusy=false,creationFor='',syncIssue='',syncConfirmedJSON='',syncSafeCode='';
+  function cloudOwnerKey(){return activeKey&&activeKey.indexOf(PROFILE_PREFIX)===0?activeKey:''}
+  function cloudPendingStorageKey(){return CREATE_PENDING_PREFIX+cloudOwnerKey()}
+  function cloudCodeStorageKey(){return CODE_SESSION_PREFIX+cloudOwnerKey()}
+  function pendingCreateKey(){try{return localStorage.getItem(cloudPendingStorageKey())||''}catch(e){return ''}}
+  function clearPendingCreate(){try{localStorage.removeItem(cloudPendingStorageKey())}catch(e){}}
+  function rememberAccessCode(code){
+    syncSafeCode=String(code||'');
+    try{if(syncSafeCode)sessionStorage.setItem(cloudCodeStorageKey(),syncSafeCode)}catch(e){}
+  }
+  function currentAccessCode(){
+    if(syncSafeCode)return syncSafeCode;
+    try{return sessionStorage.getItem(cloudCodeStorageKey())||''}catch(e){return ''}
+  }
+  function randomCreateKey(){
+    var cryptoObj=window.crypto;
+    if(!cryptoObj||typeof cryptoObj.getRandomValues!=='function')return '';
+    var bytes=new Uint8Array(24);cryptoObj.getRandomValues(bytes);
+    var out='';for(var i=0;i<bytes.length;i++)out+=('0'+bytes[i].toString(16)).slice(-2);
+    return out;
+  }
+  function syncDisplay(level,message,canRetry){
+    var box=el('syncPanel');
+    if(!hasProfile()){box.classList.add('hidden');return}
+    box.classList.remove('hidden');
+    box.classList.toggle('success',level==='success');
+    box.classList.toggle('warning',level==='warning');
+    el('syncMessage').textContent=message||'';
+    el('retrySync').classList.toggle('hidden',!canRetry);
+    el('showSyncCode').classList.toggle('hidden',!currentAccessCode());
+  }
+  function showSyncCode(){
+    var code=currentAccessCode();
+    if(code)syncDisplay('success','Mã bài của em/nhóm em: '+code+'. Hãy ghi lại để mở bài trên máy khác.',false);
+    else syncDisplay('warning','Chưa có mã bài trên máy này. Hãy mở bài trực tuyến bằng mã đã nhận trước đây.',true);
+  }
+  function syncStatusForLocal(){
+    if(!hasProfile())return;
+    if(creationBusy){syncDisplay('warning','Bài đã lưu trên máy. Đang tạo bài trên Google Sheets…',false);return}
+    if(cloudConflict){syncDisplay('warning','Bài trên máy và Google Sheets khác nhau. Không tự ghi đè. Mở “Bài của em/nhóm em” để kiểm tra.',false);return}
+    if(syncIssue){syncDisplay('warning',syncIssue,true);return}
+    if(cloudSession){
+      if(syncConfirmedJSON===JSON.stringify(state))syncDisplay('success','Đã lưu bài mới nhất lên Google Sheets.',false);
+      else syncDisplay('warning','Bài đã lưu trên máy. Đang chờ xác nhận lưu lên Google Sheets.',false);
+      return;
+    }
+    syncDisplay('warning',validScriptUrl(scriptUrl)?'Bài đã lưu trên máy. Chưa có bài trực tuyến.':'Bài lưu trên máy. Chưa có kết nối Google Sheets.',true);
+  }
+  function isCurrentCloudTarget(klass,group,key){
+    return hasProfile()&&activeKey===key&&clean(state.klass).toLowerCase()===String(klass).toLowerCase()&&
+      clean(state.group).toLowerCase()===String(group).toLowerCase();
+  }
+  function dataHasLearnerWork(x){
+    if(!x||!x.sites)return false;
+    return ['nga','cu','giong'].some(function(id){
+      return !!(x.sites[id]&&(clean(x.sites[id].desc)||clean(x.sites[id].source)));
+    })||!!(clean(x.reason)||clean(x.message)||clean(x.compareText)||clean(x.issues)||clean(x.fix));
+  }
+  /* F5 có thể xảy ra giữa lúc server đã tạo bài và trình duyệt chưa nhận
+     mã. requestKey được giữ lại để lần sau nhận lại CÙNG một bài, không thêm dòng. */
+  function autoRegisterCloud(){
+    if(!hasProfile())return;
+    if(cloudSession){if(!cloudConflict)cloudSave(true);return}
+    if(creationBusy)return;
+    if(!validScriptUrl(scriptUrl)){
+      syncIssue='Chưa có địa chỉ Google Sheets. Bài vẫn được giữ trên máy; hãy nhờ giáo viên kiểm tra kết nối.';
+      syncStatusForLocal();return;
+    }
+    var klass=state.klass,group=state.group,owner=activeKey;
+    var requestKey=pendingCreateKey();
+    if(!requestKey){
+      requestKey=randomCreateKey();
+      if(!requestKey){
+        syncIssue='Trình duyệt không tạo được mã yêu cầu an toàn. Bài vẫn lưu trên máy.';
+        syncStatusForLocal();return;
+      }
+      try{localStorage.setItem(cloudPendingStorageKey(),requestKey)}
+      catch(e){syncIssue='Không lưu được mã xác nhận tạo bài. Hãy tải bài về máy trước.';syncStatusForLocal();return}
+    }
+    creationBusy=true;creationFor=owner;syncIssue='';
+    save(true);syncStatusForLocal();
+    var initial=JSON.parse(JSON.stringify(state));
+    cloudCall({action:'createGroup',klass:klass,group:group,requestKey:requestKey,data:initial},function(err,res){
+      creationBusy=false;creationFor='';
+      if(!isCurrentCloudTarget(klass,group,owner))return;
+      if(err){
+        syncIssue=/đã tồn tại|đã có bài|không tạo trùng/i.test(err)?
+          'Tên này đã có bài trên Google Sheets. Không ghi đè. Hãy mở bài bằng mã 4 ký tự hoặc nhờ giáo viên.':
+          'Chưa xác nhận lưu lên Google Sheets. Bài vẫn còn trên máy. Nhấn “Thử lưu lên Google Sheets”. '+err;
+        syncStatusForLocal();return;
+      }
+      if(!res||!res.token||!res.record||!res.code){
+        syncIssue='Máy chủ chưa trả đủ thông tin xác nhận. Bài vẫn lưu trên máy. Hãy thử lại.';
+        syncStatusForLocal();return;
+      }
+      clearPendingCreate();
+      rememberAccessCode(res.code);
+      var serverRecord=res.record;
+      cloudSession={token:res.token,klass:klass,group:group,revision:serverRecord.revision,
+        firstAt:serverRecord.firstAt,updatedAt:serverRecord.updatedAt,seconds:serverRecord.seconds};
+      cloudConflict=false;
+      syncConfirmedJSON=JSON.stringify(initial);
+      persistCloudSession();
+      /* Nếu bài cũ trên Sheets đã thay đổi, chỉ giữ bài cục bộ để giáo viên
+         hoặc học sinh giải quyết; tuyệt đối không ghi đè bằng revision mới. */
+      if(res.reused&&Number(serverRecord.revision)>1&&JSON.stringify(normalizeData(serverRecord.data))!==JSON.stringify(normalizeData(initial))){
+        cloudConflict=true;
+        syncIssue='Bài trên Google Sheets đã thay đổi. Bài trên máy được giữ nguyên; em hãy kiểm tra trước khi tải bài mới nhất.';
+        syncStatusForLocal();return;
+      }
+      syncIssue='';
+      syncDisplay('success','Đã tạo bài trên Google Sheets. Mã bài: '+res.code+' — hãy ghi lại để mở bài trên máy khác.',false);
+      if(JSON.stringify(state)!==JSON.stringify(initial))scheduleCloudSave();
+    });
+  }
+  el('retrySync').addEventListener('click',function(){
+    syncIssue='';
+    if(cloudSession){if(cloudConflict)cloudOpen();else cloudSave(true)}
+    else autoRegisterCloud();
+  });
+  el('showSyncCode').addEventListener('click',showSyncCode);
   function validScriptUrl(url){return /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(String(url||'').trim())}
   function cloudId(){cloudCounter++;return 'stem7_'+Date.now().toString(36)+'_'+cloudCounter+'_'+Math.random().toString(36).slice(2)}
   function cloudStatus(msg){el('cloudStatus').textContent=msg||''}
