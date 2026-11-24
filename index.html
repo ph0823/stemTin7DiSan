@@ -763,38 +763,83 @@ body.mode-basic .order-legacy{display:none}
       return true;
     }catch(e){setStatus('Không thể sao lưu dữ liệu. Hãy xuất JSON trước khi tiếp tục.');return false}
   }
-  function openGroups(){
-    var sel=el('savedGroups');while(sel.options.length>1)sel.remove(1);
-    try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf(PROFILE_PREFIX)!==0)continue;var x=JSON.parse(localStorage.getItem(k));var o=document.createElement('option');o.value=k;o.textContent=(x.klass||'?')+' · '+(x.group||'?');sel.appendChild(o)}}catch(e){}
-    el('newClass').value=state.klass||'';el('newGroup').value=state.group||'';sel.value='';el('groupDialog').classList.remove('hidden');el('newClass').focus();
+  var pickerMode='new';
+  function pickerMessage(message){el('groupPickerStatus').textContent=message||''}
+  function choosePickerMode(mode){
+    pickerMode=mode==='existing'?'existing':'new';
+    el('groupNewPanel').classList.toggle('hidden',pickerMode!=='new');
+    el('groupExistingPanel').classList.toggle('hidden',pickerMode!=='existing');
+    el('groupNewMode').classList.toggle('active',pickerMode==='new');
+    el('groupExistingMode').classList.toggle('active',pickerMode==='existing');
+    el('groupNewMode').setAttribute('aria-pressed',String(pickerMode==='new'));
+    el('groupExistingMode').setAttribute('aria-pressed',String(pickerMode==='existing'));
+    el('groupTitle').textContent=pickerMode==='new'?'Tạo bài lần đầu':'Mở bài đã có';
+    el('groupIntro').textContent=pickerMode==='new'?'Em làm một mình thì ghi tên học sinh; làm cùng bạn thì ghi tên nhóm.':'Chọn tên học sinh hoặc nhóm đã làm bài trên máy này.';
+    el('groupYes').textContent=pickerMode==='new'?'Tạo và bắt đầu':'Mở bài đã lưu';
+    pickerMessage('');
+    if(pickerMode==='new')el('newClass').focus();else el('savedGroups').focus();
+  }
+  function openGroups(mode){
+    var sel=el('savedGroups');sel.innerHTML='';
+    var placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='— Chọn học sinh hoặc nhóm —';sel.appendChild(placeholder);
+    var count=0;
+    try{
+      var records=[];
+      for(var i=0;i<localStorage.length;i++){
+        var k=localStorage.key(i);
+        if(!k||k.indexOf(PROFILE_PREFIX)!==0)continue;
+        var raw=localStorage.getItem(k),x=JSON.parse(raw||'null');
+        if(x&&x.klass&&x.group)records.push({key:k,klass:x.klass,group:x.group});
+      }
+      records.sort(function(a,b){return (a.klass+' '+a.group).localeCompare(b.klass+' '+b.group,'vi')});
+      records.forEach(function(item){
+        var option=document.createElement('option');option.value=item.key;
+        option.textContent=item.klass+' · '+item.group;sel.appendChild(option);count++;
+      });
+    }catch(e){pickerMessage('Chưa đọc được danh sách đã lưu trên máy.')}
+    el('savedGroupsHint').textContent=count?'Chọn đúng tên của em hoặc nhóm em, sau đó nhấn “Mở bài đã lưu”.':'Chưa có bài trên máy này. Em có thể tạo bài lần đầu hoặc mở bài trực tuyến bằng mã riêng.';
+    el('newClass').value=state.klass||'';el('newGroup').value='';
+    sel.value='';el('groupDialog').classList.remove('hidden');
+    choosePickerMode(mode==='new'||mode==='existing'?mode:(count?'existing':'new'));
   }
   function changeGroup(){
-    var klass=String(el('newClass').value||'').trim(),group=String(el('newGroup').value||'').trim();
-    if(!klass||!group){setStatus('Nhập lớp và tên nhóm trước khi mở.');return}
-    if(klass.length>30||group.length>50){setStatus('Tên lớp hoặc nhóm quá dài.');return}
-    if(hasProfile()){clearTimeout(saveTimer);if(!safeBackup('Trước chuyển nhóm')||!save(true))return}
-    var nextKey=groupKey(klass,group),next=null;
-    try{
-      var json=localStorage.getItem(nextKey);
-      if(json){next=JSON.parse(json);validateData(next)}
-      else if(activeKey===KEY&&clean(state.klass).toLowerCase()===klass.toLowerCase()&&clean(state.group).toLowerCase()===group.toLowerCase()){next=JSON.parse(JSON.stringify(state))}
-      else next=JSON.parse(JSON.stringify(base));
+    var klass='',group='',nextKey='',next=null;
+    if(pickerMode==='existing'){
+      nextKey=el('savedGroups').value;
+      if(!nextKey){pickerMessage('Em hãy chọn tên đã tạo trong danh sách.');return}
+      try{
+        var existing=localStorage.getItem(nextKey);
+        if(!existing)throw Error('Không còn bài đã lưu');
+        next=JSON.parse(existing);validateData(next);
+        klass=clean(next.klass);group=clean(next.group);
+      }catch(e){pickerMessage('Không mở được bài đã chọn. Hãy kiểm tra lại bản lưu.');return}
+    }else{
+      klass=clean(el('newClass').value);group=clean(el('newGroup').value);
+      if(!klass||!group){pickerMessage('Em hãy nhập lớp và tên học sinh hoặc nhóm.');return}
+      if(klass.length>30||group.length>50){pickerMessage('Tên lớp hoặc tên học sinh/nhóm quá dài.');return}
+      nextKey=groupKey(klass,group);
+      if(localStorage.getItem(nextKey)){
+        pickerMessage('Tên này đã có bài. Em hãy chọn “Mở bài đã có”, tránh tạo trùng.');return;
+      }
+      next=JSON.parse(JSON.stringify(base));
       next.klass=klass;next.group=group;
-      var previous=state,previousKey=activeKey;
+    }
+    if(hasProfile()){
+      clearTimeout(saveTimer);
+      if(!safeBackup('Trước chuyển bài')||!save(true)){pickerMessage('Chưa lưu được bài đang mở. Hãy lưu bài trước khi chuyển.');return}
+    }
+    try{
       var candidate=normalizeData(next);
       localStorage.setItem(nextKey,JSON.stringify(candidate));
       localStorage.setItem(ACTIVE_KEY,nextKey);
       state=candidate;activeKey=nextKey;dirty=false;clearTimeout(saveTimer);
-      if(cloudSession&&(cloudSession.klass.toLowerCase()!==klass.toLowerCase()||cloudSession.group.toLowerCase()!==group.toLowerCase())){cloudSession=null;persistCloudSession();clearTimeout(remoteSaveTimer)}
+      if(cloudSession&&(cloudSession.klass.toLowerCase()!==klass.toLowerCase()||cloudSession.group.toLowerCase()!==group.toLowerCase())){
+        cloudSession=null;persistCloudSession();clearTimeout(remoteSaveTimer);
+      }
       refresh();updateProfileUI();el('groupDialog').classList.add('hidden');
-      tab('explore');
-      toggleEditor(true);
-      setStatus(storagePersistent?'Đã mở bài của '+group+'. Em có thể nhập lời giới thiệu ngay.':'Đã mở nhóm. Bộ nhớ trình duyệt bị chặn: hãy tải bài về máy trước khi đóng trang.');
-      /* Không tự mở kết nối trực tuyến khi chọn nhóm: học sinh có thể
-         làm bài và lưu cục bộ ngay cả khi Apps Script chưa sẵn sàng. */
-    }catch(e){
-      setStatus('Không mở được nhóm. Kiểm tra bộ nhớ trình duyệt hoặc nhờ giáo viên.');
-    }
+      tab('explore');toggleEditor(true);
+      setStatus(storagePersistent?'Đã mở bài của '+group+'. Em hãy bắt đầu viết lời giới thiệu.':'Bài chỉ được lưu tạm. Em nhớ tải bài về máy trước khi đóng trang.');
+    }catch(e){pickerMessage('Chưa mở được bài. Hãy thử lại hoặc báo giáo viên.')}
   }
   var ids = ['nga', 'cu', 'giong'];
   var base = {
@@ -2078,7 +2123,10 @@ body.mode-basic .order-legacy{display:none}
   ['order','compareOrder'].forEach(function(id){el(id).addEventListener('change',function(){state.preferredRoute='A';syncRouteSelectors()})});
   ['quickCheckInfo','quickCheckCard','quickCheckRoute'].forEach(function(id,i){el(id).addEventListener('change',function(){state.checks['peer'+i]=this.checked;scheduleSave()})});
   document.querySelectorAll('[data-step]').forEach(function(b){b.addEventListener('click',function(){setDesignStep(Number(b.getAttribute('data-step')))})});
-  el('promptSelect').addEventListener('click',openGroups);
+  el('promptCreate').addEventListener('click',function(){openGroups('new')});
+  el('promptSelect').addEventListener('click',function(){openGroups('existing')});
+  el('groupNewMode').addEventListener('click',function(){choosePickerMode('new')});
+  el('groupExistingMode').addEventListener('click',function(){choosePickerMode('existing')});
 
   el('switchGroup').addEventListener('click',openGroups);
   function closeTeacher(){closeBridgeDialog('teacherDialog');el('teacherBtn').focus()}
@@ -2196,7 +2244,7 @@ body.mode-basic .order-legacy{display:none}
   el('helpClose').addEventListener('click',closeHelp);
   el('helpDone').addEventListener('click',closeHelp);
   el('helpDialog').addEventListener('keydown',function(e){if(e.key==='Escape')closeHelp()});
-  el('savedGroups').addEventListener('change',function(){if(!this.value)return;try{var x=JSON.parse(localStorage.getItem(this.value));el('newClass').value=x.klass||'';el('newGroup').value=x.group||''}catch(e){}});
+  el('savedGroups').addEventListener('change',function(){pickerMessage('')});
   el('groupNo').addEventListener('click',function(){el('groupDialog').classList.add('hidden')});
   el('groupYes').addEventListener('click',changeGroup);
   el('groupDialog').addEventListener('keydown',function(e){if(e.key==='Escape')el('groupDialog').classList.add('hidden')});
