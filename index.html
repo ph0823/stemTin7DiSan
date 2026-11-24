@@ -878,12 +878,20 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
       localStorage.setItem(nextKey,JSON.stringify(candidate));
       localStorage.setItem(ACTIVE_KEY,nextKey);
       state=candidate;activeKey=nextKey;dirty=false;clearTimeout(saveTimer);
+      syncIssue='';syncConfirmedJSON='';syncSafeCode='';cloudConflict=false;
       if(cloudSession&&(cloudSession.klass.toLowerCase()!==klass.toLowerCase()||cloudSession.group.toLowerCase()!==group.toLowerCase())){
         cloudSession=null;persistCloudSession();clearTimeout(remoteSaveTimer);
       }
       refresh();updateProfileUI();el('groupDialog').classList.add('hidden');
       tab('explore');toggleEditor(true);
       setStatus(storagePersistent?'Đã mở bài của '+group+'. Em hãy bắt đầu viết lời giới thiệu.':'Bài chỉ được lưu tạm. Em nhớ tải bài về máy trước khi đóng trang.');
+      if(!cloudSession){
+        /* Tạo mới hoặc mở bài cũ chưa đồng bộ: thử tạo đúng một bài
+           trên server; tên trùng sẽ bị từ chối mà không làm mất bản máy. */
+        setTimeout(autoRegisterCloud,150);
+      }else{
+        syncStatusForLocal();
+      }
     }catch(e){pickerMessage('Chưa mở được bài. Hãy thử lại hoặc báo giáo viên.')}
   }
   var ids = ['nga', 'cu', 'giong'];
@@ -931,8 +939,9 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     el('profilePrompt').classList.toggle('hidden',ok);
     el('workArea').classList.toggle('work-locked',!ok);
     if(ok&&realMap)setTimeout(function(){realMap.invalidateSize({pan:false})},100);
-    el('autosaveHint').textContent=ok?(dirty?'Đang lưu…':(cloudSession?'Đã mở bài trực tuyến':(storagePersistent?'Bài lưu trên máy':'Chỉ lưu tạm · tải bài về máy'))):'Chưa chọn tên';
+    el('autosaveHint').textContent=ok?(dirty?'Đang lưu trên máy…':(cloudSession?'Đã có bài trực tuyến':(storagePersistent?'Bài lưu trên máy':'Chỉ lưu tạm · tải bài về máy'))):'Chưa chọn tên';
     el('save').disabled=!ok;el('export').disabled=!ok;
+    syncStatusForLocal();
   }
   function setDesignStep(n){designStep=n;document.querySelectorAll('[data-step-panel]').forEach(function(x){x.classList.toggle('hidden',x.getAttribute('data-step-panel')!==String(n))});document.querySelectorAll('[data-step]').forEach(function(x){x.classList.toggle('active',x.getAttribute('data-step')===String(n))});}
   function updateQuestions(){var mode=state.mode||'';el('modeQuestions').textContent=mode.indexOf('thực địa')!==-1?'Gợi ý: Nhóm đã kiểm chứng đường đi, thời gian, phương tiện và an toàn chưa?':mode.indexOf('Kết hợp')!==-1?'Gợi ý: Di tích nào nên tìm hiểu trực tuyến trước, nơi nào có thể đi thực địa?':'Gợi ý: Thứ tự này giúp người xem hiểu nội dung lịch sử và khảo cổ như thế nào? Không bắt buộc tính thời gian di chuyển.';}
@@ -1435,7 +1444,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     if(ok){el('cloudSessionName').textContent='Đang lưu trực tuyến: '+cloudSession.klass+' / '+cloudSession.group;
       el('cloudTimes').textContent='Lần đầu: '+(cloudSession.firstAt||'—')+' · Cập nhật: '+(cloudSession.updatedAt||'—')+' · Thời gian học: '+Math.floor((cloudSession.seconds||0)/60)+' phút';
     }
-    el('cloudBtn').textContent=ok?'Bài nhóm: '+cloudSession.group:'Bài của nhóm';
+    el('cloudBtn').textContent=ok?'Bài: '+cloudSession.group:'Bài của em/nhóm em';
   }
   function persistCloudSession(){
     try{if(cloudSession)sessionStorage.setItem(STUDENT_SESSION_KEY,JSON.stringify(cloudSession));
@@ -2449,8 +2458,10 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
 
   el('save').addEventListener('click', function(){
     clearTimeout(saveTimer);
+    if(!save(false))return;
     if(cloudSession)cloudSave(true);
-    else save(false);
+    else if(creationBusy)syncStatusForLocal();
+    else autoRegisterCloud();
   });
 
   el('export').addEventListener('click', function(){if(!hasProfile()){openGroups();return}
