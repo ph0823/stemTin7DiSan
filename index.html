@@ -227,7 +227,7 @@ footer{padding:4px 0;font-size:10px}
 @media print{.compact-card-head,.map-shell .compact-card-head,.learning-mode-bar{display:none!important}.preview.is-collapsed{display:block}}
 
 .map-challenge{border:1px solid #cfe0ee;background:#f7fbff;border-radius:9px;margin:0 0 7px;padding:7px 10px}.map-challenge>summary{cursor:pointer;color:#175d91;font-size:13px;font-weight:bold}.map-challenge-sub{font-size:11px;font-weight:normal;color:#596f7f;margin-left:8px}.map-challenge-body{padding-top:8px}.map-challenge-body label{display:block;font-size:12px;margin:6px 0 3px}.map-challenge-row{display:flex;gap:6px;align-items:center}.map-challenge-row select{min-width:0;flex:1;max-width:100%;height:32px}.map-challenge-row button{white-space:nowrap;padding:6px 10px}.map-feedback{font-size:12px;color:#175d91;min-height:1px;margin:3px 0 6px}.map-feedback:empty{display:none}
-.task-focus{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;padding:9px 10px;border-radius:9px;border:1px solid #cfe2ef;background:#f4faff;margin:0 0 9px}.task-focus strong{font-size:13px}.task-focus p{font-size:12px;margin:2px 0}.task-result{font-size:12px;color:#305b78}.task-completion{font-size:12px;font-weight:bold;background:#e2f2e9;border-radius:14px;padding:3px 8px}.route-comparison{border:1px solid #ccdfed;border-radius:9px;padding:10px;background:#f7fbff;margin:7px 0}.route-head{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-bottom:8px}.route-head .muted{font-size:11px}.route-choice{display:flex;align-items:center;gap:7px;margin:5px 0}.route-choice label{width:110px;font-weight:bold;font-size:12px;flex-shrink:0}.route-choice select{flex:1;min-width:0}.route-choice button{font-size:12px;padding:7px}.quick-test-checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0}.quick-test-checks label{padding:8px;border:1px solid #d3e2ed;border-radius:7px;font-size:12px;line-height:1.4}.quick-test-checks input{margin-right:3px}.guided-feedback>strong{font-size:13px}.one-minute-report{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.one-minute-report .report-card{border:1px solid #d7e3ed;border-radius:9px;padding:10px;background:#fff}.one-minute-report .report-card strong{font-size:13px}.one-minute-report .report-card p{font-size:12px;line-height:1.5;overflow-wrap:anywhere}.one-minute-report .report-full{grid-column:1/-1}.one-minute-report .report-card p{margin:5px 0}@media(max-width:950px){.one-minute-report{grid-template-columns:1fr 1fr}}@media(max-width:600px){.one-minute-report,.quick-test-checks{grid-template-columns:1fr}.route-choice{flex-wrap:wrap}.route-choice label{width:100%}}
+.task-focus{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;padding:9px 10px;border-radius:9px;border:1px solid #cfe2ef;background:#f4faff;margin:0 0 9px}.task-focus strong{font-size:13px}.task-focus p{font-size:12px;margin:2px 0}.task-result{font-size:12px;color:#305b78}.task-completion{font-size:12px;font-weight:bold;background:#e2f2e9;border-radius:14px;padding:3px 8px}.route-comparison{border:1px solid #ccdfed;border-radius:9px;padding:10px;background:#f7fbff;margin:7px 0}.route-head{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-bottom:8px}.route-head .muted{font-size:11px}.route-choice{display:flex;align-items:center;gap:7px;margin:5px 0}.route-choice label{width:110px;font-weight:bold;font-size:12px;flex-shrink:0}.route-choice select{flex:1;min-width:0}.route-choice button{font-size:12px;padding:7px}.quick-test-checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0}.quick-test-checks label{padding:8px;border:1px solid #d3e2ed;border-radius:7px;font-size:12px;line-height:1.4}.quick-test-checks input{margin-right:3px}.guided-feedback>strong{font-size:13px}.one-minute-report{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.one-minute-report .report-card{border:1px solid #d7e3ed;border-radius:9px;padding:10px;background:#fff}.one-minute-report .report-card strong{font-size:13px}.one-minute-report .report-card p{font-size:12px;line-height:1.5;overflow-wrap:anywhere}.one-minute-report .report-full{grid-column:1/-1}.one-minute-report .report-card p{margin:5px 0;white-space:pre-wrap}@media(max-width:950px){.one-minute-report{grid-template-columns:1fr 1fr}}@media(max-width:600px){.one-minute-report,.quick-test-checks{grid-template-columns:1fr}.route-choice{flex-wrap:wrap}.route-choice label{width:100%}}
 
 </style>
 </head>
@@ -1499,6 +1499,7 @@ footer{padding:4px 0;font-size:10px}
       'Hình thức: ' + state.mode,
       'Thứ tự: ' + getOrderList().map(function(id){ return state.sites[id] ? state.sites[id].name : id; }).join(' → '),
       'Lí do: ' + state.reason,
+      'Đọc bản đồ: phía Nam nhất = '+(state.mapAnswers.prediction==='giong'?'Giồng Cá Vồ':'Chưa đúng/chưa trả lời')+'; đường nối = '+(state.mapAnswers.line==='order'?'Thứ tự khám phá':'Chưa đúng/chưa trả lời'),
       'Phương án đối chiếu: ' + (state.compareOrder||''),
       'So sánh: ' + (state.compareText||''),
       'Dữ liệu kiểm chứng: ' + state.estimate,
@@ -1524,6 +1525,8 @@ footer{padding:4px 0;font-size:10px}
     ids.forEach(function(id,i){var card=add('div',pg,'');card.className='print-card';add('strong',card,(i+1)+'. '+referenceSites[id].name);add('p',card,'Vị trí: '+referenceSites[id].location);add('p',card,'Giới thiệu: '+(state.sites[id].desc||'Chưa viết'));add('p',card,'Nguồn: '+(state.sites[id].source||'Chưa ghi'));add('p',card,'Kiểu thẻ: '+(state.sites[id].cardStyle||'stack')+'; Nguồn ảnh: '+(state.sites[id].imageSource||'Chưa bổ sung'))});
     add('h3',pg,'2. Thiết kế hành trình');
     add('p',pg,'Hình thức: '+state.mode);add('p',pg,'Thứ tự: '+getOrderList().map(function(id){return referenceSites[id].name}).join(' → '));
+    add('p',pg,'Đọc bản đồ: '+(state.mapAnswers.prediction==='giong'?'Đã nhận biết Giồng Cá Vồ phía Nam':'Cần kiểm tra')+'; '+(state.mapAnswers.line==='order'?'Đã phân biệt đường nối':'Cần kiểm tra'));
+    add('p',pg,'Phương án khác: '+(state.compareOrder||'').split(',').map(function(id){return referenceSites[id]?referenceSites[id].name:id}).join(' → '));
     add('p',pg,'Lí do: '+state.reason);add('p',pg,'So sánh: '+state.compareText);
     var pg2=add('div',root,'');pg2.className='print-page';add('h3',pg2,'3. Thiết kế và cải tiến');
     add('p',pg2,'Phác thảo thẻ: '+state.sketch);add('p',pg2,'Thông điệp: '+state.message);
@@ -1545,19 +1548,29 @@ footer{padding:4px 0;font-size:10px}
     var box=el('summary');if(!box)return;box.innerHTML='';
     renderPrintSheet();
     if(isBasic()){
-      function line(parent,tag,body){var x=document.createElement(tag);x.textContent=body;parent.appendChild(x);return x}
-      line(box,'h4','Sản phẩm của '+(state.group||'nhóm')+' – '+(state.klass||'lớp'));
-      ids.forEach(function(id){var site=state.sites[id],p=line(box,'p',referenceSites[id].name+': '+(clean(site.desc)||'Chưa viết'));
-        p.className='basic-report-line'});
-      line(box,'p','Thứ tự khám phá: '+getOrderList().map(function(id){return referenceSites[id].name}).join(' → '));
-      line(box,'p','Lí do chọn: '+(clean(state.reason)||'Chưa ghi'));
-      line(box,'p','Thông điệp bảo tồn: '+(clean(state.message)||'Chưa ghi'));
-      var before=state.snapshots.before,after=state.snapshots.after;
-      var changes=before&&after?snapshotDiff(before,after):[];
-      line(box,'p','Cải tiến: '+(changes.length?changes.join(', '):'Chưa có minh chứng thay đổi'));
-      line(box,'p','Tự đánh giá: '+(clean(state.selfAssessment)||'Chưa thực hiện'));
-      var note=line(box,'p','Đây là bản tóm tắt. Giáo viên đánh giá chất lượng theo rubric.');
-      note.className='muted';
+      function card(title,detail,full){
+        var c=document.createElement('div');c.className='report-card'+(full?' report-full':'');
+        var h=document.createElement('strong');h.textContent=title;c.appendChild(h);
+        var p=document.createElement('p');p.textContent=detail||'Chưa hoàn thành';c.appendChild(p);box.appendChild(c);
+      }
+      card('Sản phẩm của '+(state.group||'nhóm')+' – '+(state.klass||'lớp'),
+        'Ba di tích và hành trình khám phá di sản Thành phố Hồ Chí Minh.',true);
+      ids.forEach(function(id){
+        var site=state.sites[id];
+        card(referenceSites[id].name,(clean(site.desc)||'Chưa viết lời giới thiệu')+
+          '\nNguồn: '+(clean(site.source)||'Chưa ghi'));
+      });
+      var chosen=getOrderList().map(function(id){return referenceSites[id].name}).join(' → ');
+      var other=(state.compareOrder||'').split(',').map(function(id){return referenceSites[id]?referenceSites[id].name:id}).join(' → ');
+      card('Hành trình nhóm chọn',chosen+'\nLí do: '+(clean(state.reason)||'Chưa ghi')+
+        '\nPhương án đối chiếu: '+other+'\nSo sánh: '+(clean(state.compareText)||'Chưa ghi'),true);
+      var before=state.snapshots.before,after=state.snapshots.after,changes=before&&after?snapshotDiff(before,after):[];
+      card('Góp ý và cải tiến','Nhóm kiểm thử: '+(clean(state.tester)||'Chưa ghi')+
+        '\nGóp ý: '+(clean(state.issues)||'Chưa ghi')+
+        '\nĐã sửa: '+(clean(state.fix)||'Chưa ghi')+
+        '\nThay đổi giữa hai bản: '+(changes.join(', ')||'Chưa có minh chứng'),true);
+      card('Thông điệp bảo tồn',clean(state.message)||'Chưa ghi',true);
+      card('Tự đánh giá',clean(state.selfAssessment)||'Chưa đánh giá',true);
     }else{
       var pre=document.createElement('div');pre.style.whiteSpace='pre-wrap';pre.style.fontSize='13px';
       text(pre,reportText());box.appendChild(pre);
@@ -1610,6 +1623,29 @@ footer{padding:4px 0;font-size:10px}
   });
 
   ['mode','order','reason','estimate','compareOrder','compareText','message','sketch','tester','issues','fix','recheck','selfAssessment'].forEach(function(k){bind(k,k)});
+  function syncRouteSelectors(){
+    el('routePlanA').value=state.preferredRoute==='B'?state.compareOrder:state.order;
+    el('routePlanB').value=state.preferredRoute==='B'?state.order:state.compareOrder;
+    el('preferredRoute').value=state.preferredRoute||'A';
+  }
+  function storeRouteSelectors(){
+    var a=el('routePlanA').value,b=el('routePlanB').value,p=el('preferredRoute').value;
+    if(!hasProfile()){openGroups();return}
+    if(a===b){setStatus('Hai phương án cần có thứ tự khác nhau.');return}
+    state.preferredRoute=p==='B'?'B':'A';
+    state.order=state.preferredRoute==='A'?a:b;
+    state.compareOrder=state.preferredRoute==='A'?b:a;
+    el('order').value=state.order;
+    el('compareOrder').value=state.compareOrder;
+    updateRoute();updateLesson();scheduleSave();
+    if(realMap&&mapBounds.length)realMap.fitBounds(mapBounds,{padding:[30,30]});
+  }
+  el('applyRoutePlan').addEventListener('click',storeRouteSelectors);
+  el('routePlanA').addEventListener('change',function(){if(this.value===el('routePlanB').value)setStatus('Hai phương án phải khác nhau.')});
+  el('routePlanB').addEventListener('change',function(){if(this.value===el('routePlanA').value)setStatus('Hai phương án phải khác nhau.')});
+  el('preferredRoute').addEventListener('change',storeRouteSelectors);
+  ['order','compareOrder'].forEach(function(id){el(id).addEventListener('change',function(){state.preferredRoute='A';syncRouteSelectors()})});
+  ['quickCheckInfo','quickCheckCard','quickCheckRoute'].forEach(function(id,i){el(id).addEventListener('change',function(){state.checks['peer'+i]=this.checked;scheduleSave()})});
   document.querySelectorAll('[data-step]').forEach(function(b){b.addEventListener('click',function(){setDesignStep(Number(b.getAttribute('data-step')))})});
   el('promptSelect').addEventListener('click',openGroups);
 
