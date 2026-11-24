@@ -1347,7 +1347,10 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     var initial=JSON.parse(JSON.stringify(state));
     cloudCall({action:'createGroup',klass:klass,group:group,requestKey:requestKey,data:initial},function(err,res){
       creationBusy=false;creationFor='';
-      if(!isCurrentCloudTarget(klass,group,owner))return;
+      if(!isCurrentCloudTarget(klass,group,owner)){
+        if(hasProfile()&&!cloudSession&&validScriptUrl(scriptUrl))setTimeout(autoRegisterCloud,120);
+        return;
+      }
       if(err){
         syncIssue=/đã tồn tại|đã có bài|không tạo trùng/i.test(err)?
           'Tên này đã có bài trên Google Sheets. Không ghi đè. Hãy mở bài bằng mã 4 ký tự hoặc nhờ giáo viên.':
@@ -1471,22 +1474,43 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   function cloudCreate(){
     var klass=clean(el('cloudClass').value),group=clean(el('cloudGroup').value);
     if(!hasProfile()||klass.toLowerCase()!==clean(state.klass).toLowerCase()||group.toLowerCase()!==clean(state.group).toLowerCase()){
-      cloudStatus('Trước khi tạo nhóm trực tuyến, hãy chọn đúng lớp và nhóm trên máy này.');return;
+      cloudStatus('Em hãy chọn đúng tên học sinh/nhóm trên máy trước.');return;
     }
-    if(!save(true)){cloudStatus('Không lưu được bài trên máy. Hãy thử lại.');return}
-    cloudStatus('');
-    cloudCall({action:'createGroup',klass:klass,group:group,data:state},function(err,res){
-      if(err){cloudStatus(err);return}
-      try{adoptCloudRecord(res,res.token);cloudStatus('Mã nhóm: '+res.code+'\nGhi lại mã để mở bài trên máy khác.')}catch(e){cloudStatus(friendlyError(e.message))}
-    });
+    if(!save(true)){cloudStatus('Chưa lưu được bài trên máy.');return}
+    autoRegisterCloud();
+    cloudStatus('Bài đã lưu trên máy. Đang kiểm tra hoặc tạo bài trực tuyến…');
   }
   function cloudLogin(){
     var klass=clean(el('cloudClass').value),group=clean(el('cloudGroup').value),code=clean(el('cloudCode').value).toUpperCase();
-    if(!klass||!group||code.length!==4){cloudStatus('Nhập lớp, nhóm và mã nhóm đúng 4 ký tự.');return}
+    if(!klass||!group||code.length!==4){cloudStatus('Nhập lớp, tên và mã bài đúng 4 ký tự.');return}
     cloudStatus('');
     cloudCall({action:'studentLogin',klass:klass,group:group,code:code},function(err,res){
-      if(err){cloudStatus(err);return}
-      try{adoptCloudRecord(res,res.token);el('cloudCode').value='';cloudStatus('')}catch(e){cloudStatus(e.message)}
+      if(err){cloudStatus(err);syncIssue='Chưa mở được bài trực tuyến: '+err;syncStatusForLocal();return}
+      if(!res||!res.record||!res.token){cloudStatus('Máy chủ chưa trả về thông tin bài.');return}
+      var record=res.record;
+      try{
+        var remote=normalizeData(record.data);
+        var targetKey=groupKey(klass,group);
+        var localRaw=localStorage.getItem(targetKey);
+        var localData=localRaw?normalizeData(JSON.parse(localRaw)):null;
+        /* Không bao giờ tự thay bản có nội dung trên máy bằng bản từ
+           máy khác, dù tên giống nhau. Học sinh có thể chọn Tải bài mới
+           nhất sau khi lưu bản sao cục bộ. */
+        if(localData&&dataHasLearnerWork(localData)&&JSON.stringify(localData)!==JSON.stringify(remote)){
+          if(hasProfile()&&activeKey!==targetKey)save(true);
+          localStorage.setItem(ACTIVE_KEY,targetKey);
+          activeKey=targetKey;state=localData;
+          cloudSession={token:res.token,klass:klass,group:group,revision:record.revision,
+            firstAt:record.firstAt,updatedAt:record.updatedAt,seconds:record.seconds};
+          cloudConflict=true;syncConfirmedJSON='';syncIssue='';
+          rememberAccessCode(code);persistCloudSession();refresh();updateProfileUI();
+          cloudStatus('Bài trên máy và trên Google Sheets khác nhau. Đã giữ bản trên máy. Hãy tải bài về máy để dự phòng, sau đó dùng “Tải bài mới nhất” nếu muốn xem bản trực tuyến.');
+          syncStatusForLocal();return;
+        }
+        adoptCloudRecord(res,res.token);
+        rememberAccessCode(code);syncConfirmedJSON=JSON.stringify(state);syncIssue='';syncStatusForLocal();
+        el('cloudCode').value='';cloudStatus('Đã mở bài trên Google Sheets.');
+      }catch(e){cloudStatus('Không mở được bài. Bản trên máy vẫn được giữ. '+friendlyError(e.message))}
     });
   }
   function cloudSave(manual){
