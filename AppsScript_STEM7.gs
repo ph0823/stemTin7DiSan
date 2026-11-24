@@ -7,12 +7,12 @@
  * IMPORTANT: 4-character access codes are convenient, not high-security identity.
  * Never store personal sensitive data. Change the default teacher password.
  */
-var APP_VERSION = 2;
+var APP_VERSION = 3;
 var SHEET_NAME = 'Nhom_STEM7';
 var AUDIT_NAME = 'Lich_su_chinh_sua';
 var FEEDBACK_NAME = 'Gop_y_cheo_STEM7';
 var FEEDBACK_COLS = ['id','klass','targetGroup','authorGroup','role','checks','comment','status','createdAt','moderatedAt'];
-var COLS = ['id','klass','group','accessHash','payload','createdAt','firstAt','lastAt','updatedAt','seconds','revision','teacherEditedAt','teacherNote','lastEditor','codeVersion','studentEditedAt'];
+var COLS = ['id','klass','group','accessHash','payload','createdAt','firstAt','lastAt','updatedAt','seconds','revision','teacherEditedAt','teacherNote','lastEditor','codeVersion','studentEditedAt','createRequestHash'];
 var PIN_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 var MAX_JSON_LENGTH = 35000;
 function setup(){
@@ -73,6 +73,19 @@ function requireSession_(token,role,groupId,allowDefault){
 }
 function assertName_(klass,group){
   if(!/^[\p{L}\p{N} ._-]{1,30}$/u.test(klass)||!/^[\p{L}\p{N} ._-]{1,50}$/u.test(group))throw Error('Tên lớp/nhóm không hợp lệ');
+}
+/* Khóa tạo bài idempotent: chỉ người giữ requestKey ngẫu nhiên mới
+   có thể nhận lại mã của lần tạo trước. Không dùng tên lớp/nhóm làm khóa.
+   Dữ liệu cũ thiếu cột createRequestHash vẫn đọc bình thường. */
+function createKey_(raw){
+  var k=clean_(raw,120);
+  if(!/^[a-f0-9]{32,80}$/i.test(k))throw Error('Mã yêu cầu tạo bài chưa hợp lệ. Hãy tải lại ứng dụng.');
+  return digest_('create-stem7:'+k);
+}
+function pinForRequest_(hash){
+  var alphabet=PIN_ALPHABET,out='';
+  for(var i=0;i<4;i++)out+=alphabet.charAt(parseInt(hash.substr(i*2,2),16)%alphabet.length);
+  return out;
 }
 function pin_(){
   // UUID-derived random bits spread over 32-character alphabet.
@@ -251,10 +264,23 @@ function handle_(q){
     var entry=rowOf_(sh,klass,group);
     if(action==='createGroup'){
       assertName_(klass,group);
-      if(entry)throw Error('Lớp/nhóm đã tồn tại. Nhập mã nhóm để mở bài.');
-      var pin=pin_(),now=new Date(),data=filteredPayload_(q.data);
-      var id=Utilities.getUuid(),v=[id,klass,group,digest_(pin),data,now,now,now,now,0,1,'','','Học sinh',1,now];
-      sh.appendRow(v);return {code:pin,token:authToken_('student',id,{codeVersion:1}),record:publicRecord_(v,true)};
+      /* Máy khách cũ vẫn được hỗ trợ, nhưng yêu cầu mới dùng requestKey
+         để thử lại sau khi mất kết nối mà không tạo thêm dòng. */
+      var reqHash=q.requestKey?createKey_(q.requestKey):'';
+      if(entry){
+        var prior=entry.v,priorHash=String(prior[16]||'');
+        if(reqHash&&priorHash===reqHash){
+          var samePin=pinForRequest_(reqHash);
+          if(digest_(samePin)!==String(prior[3]))
+            throw Error('Mã bài đã được thay đổi. Hãy liên hệ giáo viên để lấy mã mới.');
+          return {code:samePin,reused:true,token:authToken_('student',prior[0],{codeVersion:Number(prior[14]||1)}),record:publicRecord_(prior,true)};
+        }
+        throw Error('Lớp/nhóm đã tồn tại trên Google Sheets. Không tạo trùng hoặc ghi đè. Hãy mở bài bằng mã 4 ký tự.');
+      }
+      var pin=reqHash?pinForRequest_(reqHash):pin_(),now=new Date(),data=filteredPayload_(q.data);
+      var id=Utilities.getUuid(),v=[id,klass,group,digest_(pin),data,now,now,now,now,0,1,'','','Học sinh',1,now,reqHash];
+      sh.appendRow(v);
+      return {code:pin,reused:false,token:authToken_('student',id,{codeVersion:1}),record:publicRecord_(v,true)};
     }
     if(!entry)throw Error('Chưa có nhóm trên máy chủ');
     var row=entry.row,v=entry.v;
