@@ -1410,6 +1410,7 @@ body.mode-basic .order-legacy{display:none}
           var take=document.createElement('button');take.type='button';take.textContent='Đưa góp ý vào phiếu kiểm thử';
           take.addEventListener('click',function(){
             if(!hasProfile())return;
+            el('feedbackWork').open=true;
             var note=(item.role==='teacher'?'Giáo viên':'Nhóm '+item.authorGroup)+': '+item.comment;
             if(state.issues.indexOf(note)<0)state.issues=(state.issues?state.issues+'\n':'')+note;
             if(!clean(state.tester))state.tester=item.role==='teacher'?'Giáo viên':item.authorGroup;
@@ -2359,7 +2360,11 @@ body.mode-basic .order-legacy{display:none}
     ['map','lesson','mode','preview','photo'].forEach(function(k){
       var buttons={map:'mapCollapseBtn',lesson:'lessonCollapseBtn',mode:'modeCollapseBtn',preview:'previewCollapseBtn',photo:'photoCollapseBtn'};
       el(buttons[k]).addEventListener('click',function(){
-        applyCompactPanel(k,!compactPrefs[k],true);
+        var willCollapse=!compactPrefs[k];
+        applyCompactPanel(k,willCollapse,true);
+        if(k==='photo'&&!willCollapse&&compactPrefs.preview){
+          applyCompactPanel('preview',false,true);
+        }
       });
     });
   }
