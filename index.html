@@ -711,7 +711,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
               <label for="teacherRecheck">Kết quả kiểm thử lại</label><textarea id="teacherRecheck" rows="2"></textarea>
             </details>
             <label for="teacherNote">Ghi chú chỉnh sửa của giáo viên</label><textarea id="teacherNote" rows="2" placeholder="Lý do hoặc nội dung đã hỗ trợ"></textarea>
-            <div class="actions"><button id="teacherSave" class="primary" type="button">Lưu chỉnh sửa</button></div></section><section id="gvFeedback" class="teacher-peer-section hidden">
+            <div class="actions"><button id="teacherSave" class="primary" type="button">Lưu chỉnh sửa</button><button id="gvDiscard" type="button">Bỏ chỉnh sửa chưa lưu</button></div></section><section id="gvFeedback" class="teacher-peer-section hidden">
           <h3>Nhận xét và kiểm duyệt góp ý</h3>
           <p class="muted">Chọn nhóm trong danh sách trên để xem góp ý của các nhóm bạn, gửi nhận xét của giáo viên hoặc ẩn góp ý không phù hợp.</p>
           <button id="teacherFeedbackRefresh" type="button">Tải góp ý của nhóm đang chọn</button>
@@ -2021,10 +2021,10 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   }
   function teacherLoadGroup(){
     var index=Number(el('teacherGroups').value),item=teacherGroupsData[index];if(!item||gvDirty||gvSaving)return;
-    var seq=++gvLoadSeq,token=teacherToken;gvLoading=true;teacherStatus('Đang tải bài…');
+    var seq=++gvLoadSeq,token=teacherToken;gvLoading=true;el('gvDetailBody').classList.add('hidden');teacherStatus('Đang tải bài…');
     cloudCall({action:'teacherGet',token:teacherToken,klass:item.klass,group:item.group},function(err,res){
       if(seq!==gvLoadSeq||token!==teacherToken)return;gvLoading=false;
-      if(err||!res||!res.record){teacherStatus(err||'Không tải được bài.');return}
+      if(err||!res||!res.record){if(teacherRecord)el('gvDetailBody').classList.remove('hidden');gvMarkSelected();teacherStatus(err||'Không tải được bài.');return}
       teacherRecord=res.record;teacherRecord.data=normalizeData(res.record.data);gvDirty=false;
       teacherCurrentSite='nga';el('teacherGroupTitle').textContent=item.klass+' / '+item.group;
       el('teacherNote').value=teacherRecord.teacherNote||'';
@@ -2037,7 +2037,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     cloudCall({action:'teacherSave',token:teacherToken,klass:teacherRecord.klass,group:teacherRecord.group,revision:teacherRecord.revision,data:teacherRecord.data,note:el('teacherNote').value},function(err,res){
       gvSaving=false;el('teacherSave').disabled=false;if(saveToken!==teacherToken||!teacherRecord||teacherRecord.id!==saveId)return;
       if(err||!res){teacherStatus(err||'Không lưu được.');return}
-      if(res.conflict){teacherStatus('Bài vừa được sửa trên máy khác. Hãy chọn lại nhóm để tải phiên bản mới trước khi chỉnh.');return}
+      if(res.conflict){gvDirty=true;teacherStatus('Bài vừa được sửa trên máy khác. Sao chép nội dung cần giữ, rồi chọn Bỏ chỉnh sửa chưa lưu để tải bản mới.');return}
       teacherRecord=res.record;teacherRecord.data=normalizeData(res.record.data);
       gvDirty=false;teacherStatus('Đã lưu chỉnh sửa.');
       teacherDisplaySite();gvRenderDetail();
@@ -2598,6 +2598,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   el('gvClass').addEventListener('change',gvRenderList);el('gvSearch').addEventListener('input',gvRenderList);
   document.querySelectorAll('[data-gv-tab]').forEach(function(b){b.addEventListener('click',function(){gvTab(b.getAttribute('data-gv-tab'))})});
   el('gvEditOpen').addEventListener('click',function(){gvTab('edit')});el('gvReload').addEventListener('click',function(){if(gvDirty||gvSaving){teacherStatus('Hãy lưu chỉnh sửa trước.');return}var i=teacherGroupsData.findIndex(function(g){return teacherRecord&&g.id===teacherRecord.id});if(i>=0){var sel=el('teacherGroups');if(!Array.prototype.some.call(sel.options,function(o){return o.value===String(i)})){var o=document.createElement('option');o.value=String(i);sel.appendChild(o)}sel.value=String(i);teacherLoadGroup()}});
+  el('gvDiscard').addEventListener('click',function(){if(gvSaving||gvLoading||!teacherRecord)return;if(!gvDirty){gvTab('overview');return}gvDirty=false;el('gvReload').click()});
   el('gvEdit').addEventListener('input',function(){gvDirty=true});el('gvEdit').addEventListener('change',function(e){if(e.target.id!=='teacherSite')gvDirty=true});
   el('teacherGroups').addEventListener('change',function(){teacherLoadGroup()});
   el('teacherSite').addEventListener('change',function(){teacherCapture();teacherCurrentSite=this.value;teacherDisplaySite()});
