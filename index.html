@@ -227,6 +227,8 @@ footer{padding:4px 0;font-size:10px}
 @media print{.compact-card-head,.map-shell .compact-card-head,.learning-mode-bar{display:none!important}.preview.is-collapsed{display:block}}
 
 .map-challenge{border:1px solid #cfe0ee;background:#f7fbff;border-radius:9px;margin:0 0 7px;padding:7px 10px}.map-challenge>summary{cursor:pointer;color:#175d91;font-size:13px;font-weight:bold}.map-challenge-sub{font-size:11px;font-weight:normal;color:#596f7f;margin-left:8px}.map-challenge-body{padding-top:8px}.map-challenge-body label{display:block;font-size:12px;margin:6px 0 3px}.map-challenge-row{display:flex;gap:6px;align-items:center}.map-challenge-row select{min-width:0;flex:1;max-width:100%;height:32px}.map-challenge-row button{white-space:nowrap;padding:6px 10px}.map-feedback{font-size:12px;color:#175d91;min-height:1px;margin:3px 0 6px}.map-feedback:empty{display:none}
+.task-focus{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;padding:9px 10px;border-radius:9px;border:1px solid #cfe2ef;background:#f4faff;margin:0 0 9px}.task-focus strong{font-size:13px}.task-focus p{font-size:12px;margin:2px 0}.task-result{font-size:12px;color:#305b78}.task-completion{font-size:12px;font-weight:bold;background:#e2f2e9;border-radius:14px;padding:3px 8px}.route-comparison{border:1px solid #ccdfed;border-radius:9px;padding:10px;background:#f7fbff;margin:7px 0}.route-head{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-bottom:8px}.route-head .muted{font-size:11px}.route-choice{display:flex;align-items:center;gap:7px;margin:5px 0}.route-choice label{width:110px;font-weight:bold;font-size:12px;flex-shrink:0}.route-choice select{flex:1;min-width:0}.route-choice button{font-size:12px;padding:7px}.quick-test-checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0}.quick-test-checks label{padding:8px;border:1px solid #d3e2ed;border-radius:7px;font-size:12px;line-height:1.4}.quick-test-checks input{margin-right:3px}.guided-feedback>strong{font-size:13px}.one-minute-report{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.one-minute-report .report-card{border:1px solid #d7e3ed;border-radius:9px;padding:10px;background:#fff}.one-minute-report .report-card strong{font-size:13px}.one-minute-report .report-card p{font-size:12px;line-height:1.5;overflow-wrap:anywhere}.one-minute-report .report-full{grid-column:1/-1}.one-minute-report .report-card p{margin:5px 0}@media(max-width:950px){.one-minute-report{grid-template-columns:1fr 1fr}}@media(max-width:600px){.one-minute-report,.quick-test-checks{grid-template-columns:1fr}.route-choice{flex-wrap:wrap}.route-choice label{width:100%}}
+
 </style>
 </head>
 <body>
@@ -280,7 +282,7 @@ footer{padding:4px 0;font-size:10px}
       </div>
       <details class="map-challenge" id="mapChallenge">
         <summary>Thử thách đọc bản đồ <span class="map-challenge-sub">2 câu · Quan sát và kiểm chứng</span></summary>
-        <div class="map-challenge-body">
+        <div class="map-challenge-body"><p class="muted">Nhóm trả lời bằng cách quan sát. Câu trả lời được lưu cùng bài làm, không tính điểm tự động.</p>
           <label for="mapPrediction"><strong>1. Dự đoán:</strong> Di tích nào nằm xa nhất về phía Nam trong ba di tích?</label>
           <div class="map-challenge-row"><select id="mapPrediction"><option value="">Chọn đáp án</option><option value="nga">Ngã Ba Giồng</option><option value="cu">Địa đạo Củ Chi</option><option value="giong">Giồng Cá Vồ</option></select><button id="mapCheckPrediction" type="button">Kiểm tra</button></div>
           <p id="mapPredictionFeedback" class="map-feedback" role="status"></p>
@@ -308,7 +310,8 @@ footer{padding:4px 0;font-size:10px}
           <button data-tab="test" type="button"><span class="step-number">3</span><span><strong>Kiểm thử</strong><small>Góp ý, sửa bài</small></span><span class="step-check"></span></button>
           <button data-tab="report" type="button"><span class="step-number">4</span><span><strong>Báo cáo</strong><small>Giới thiệu kết quả</small></span><span class="step-check"></span></button>
         </nav>
-        <div class="step-instruction"><span class="step-time" id="stepTime">5 phút</span><span id="stepInstruction">Xem ba di tích và ghi thông tin chính.</span></div>
+        <div class="step-instruction"><span class="step-time" id="stepTime">Hoạt động 2–3</span><span id="stepInstruction">Quan sát, đọc tư liệu và viết ba lời giới thiệu.</span></div>
+        <div class="task-focus"><div><strong id="taskFocusTitle">Nhiệm vụ cần làm</strong><p id="taskFocusText">Đọc bản đồ và giới thiệu ba di tích.</p></div><div class="task-result">Sản phẩm: <span id="taskResultText">3 thẻ có nguồn</span></div><span id="taskCompletion" class="task-completion">0/3</span></div>
 
         <div id="explore" class="tab">
           <div class="site-quick" id="siteQuickNav" aria-label="Chọn một trong ba di tích">
@@ -366,14 +369,19 @@ footer{padding:4px 0;font-size:10px}
             <label for="order">Thứ tự khám phá (tự động vẽ trên bản đồ)</label>
             <select id="order"></select>
           </div>
-          <div id="orderHint" class="muted"></div></div><div class="design-step hidden" data-step-panel="2"><div class="field"><label for="reason">Vì sao nhóm chọn phương án này?</label>
+          <div id="orderHint" class="muted"></div><div class="route-comparison">
+            <div class="route-head"><strong>So sánh phương án A và B</strong><span class="muted">Chọn thứ tự cho từng phương án, không phải đường đi thực tế</span></div>
+            <div class="route-choice"><label for="routePlanA">Phương án A</label><select id="routePlanA"></select></div>
+            <div class="route-choice"><label for="routePlanB">Phương án B</label><select id="routePlanB"></select></div>
+            <div class="route-choice"><label for="preferredRoute">Nhóm lựa chọn</label><select id="preferredRoute"><option value="A">Phương án A</option><option value="B">Phương án B</option></select><button id="applyRoutePlan" type="button">Hiển thị hành trình chọn</button></div>
+          </div></div><div class="design-step hidden" data-step-panel="2"><div class="field"><label for="reason">Vì sao nhóm chọn phương án này?</label>
             <textarea id="reason" placeholder="Nêu tiêu chí lựa chọn: nội dung học tập, thời gian, điều kiện di chuyển..."></textarea>
           </div>
           <div class="field advanced-only">
             <label for="estimate">Dữ liệu quãng đường/thời gian đã kiểm chứng (nếu có)</label>
             <textarea id="estimate" placeholder="Ghi tuyến, nguồn tra cứu và thời điểm; không tự suy ra từ đường nối minh họa"></textarea>
           </div>
-          <div class="field advanced-only"><label for="compareOrder">Phương án khác để so sánh</label><select id="compareOrder"></select></div><div class="field advanced-only"><label for="compareText">So sánh hai phương án</label><textarea id="compareText" placeholder="Phương án nào phù hợp mục tiêu học tập hơn? Vì sao?"></textarea></div><p id="modeQuestions" class="muted advanced-only"></p></div><div class="design-step hidden" data-step-panel="3"><div class="field"><label for="message">Thông điệp bảo tồn di sản</label>
+          <div class="field advanced-only"><label for="compareOrder">Phương án khác (công cụ cũ)</label><select id="compareOrder"></select></div><div class="field"><label for="compareText">So sánh ngắn hai phương án (1 câu)</label><textarea id="compareText" placeholder="Phương án em chọn giúp người xem tìm hiểu nội dung theo thứ tự nào? Vì sao tốt hơn phương án còn lại?"></textarea></div><p id="modeQuestions" class="muted advanced-only"></p></div><div class="design-step hidden" data-step-panel="3"><div class="field"><label for="message">Thông điệp bảo tồn di sản</label>
             <textarea id="message" placeholder="Viết một thông điệp ngắn"></textarea>
           </div>
           <div class="field advanced-only">
@@ -387,14 +395,19 @@ footer{padding:4px 0;font-size:10px}
           <p class="muted">Nhờ nhóm khác xem thử và góp ý để nhóm em cải thiện sản phẩm.</p>
           <div class="panel-stem"><h4>Minh chứng thiết kế và cải tiến</h4><p class="muted">Lưu bản đầu trước khi kiểm thử và bản cải tiến sau khi sửa.</p><div class="actions"><button type="button" id="captureBefore">Lưu bài trước khi sửa</button><button type="button" id="captureAfter">Lưu bài sau khi sửa</button></div><div id="snapshotCompare"></div></div><details class="advanced-only"><summary>Bảng kiểm chi tiết</summary><div id="checks"></div></details>
           <div class="field"><label for="tester">Nhóm kiểm thử</label><input id="tester"></div>
-          <div class="field"><label for="issues">Lỗi / điểm cần cải thiện</label><textarea id="issues"></textarea></div>
-          <div class="field"><label for="fix">Cách nhóm em đã cải tiến</label><textarea id="fix"></textarea></div>
+          <div class="guided-feedback"><strong>Nhóm bạn kiểm thử điều gì?</strong><div class="quick-test-checks">
+            <label><input type="checkbox" id="quickCheckInfo"> Đủ 3 di tích, nội dung có nguồn</label>
+            <label><input type="checkbox" id="quickCheckCard"> Thẻ dễ đọc, hình rõ</label>
+            <label><input type="checkbox" id="quickCheckRoute"> Hiểu thứ tự khám phá và lí do</label>
+          </div>
+          <div class="field"><label for="issues">Bạn góp ý điều gì?</label><textarea id="issues" placeholder="Ví dụ: Lời giới thiệu Địa đạo Củ Chi còn dài, nên rút gọn."></textarea></div>
+          <div class="field"><label for="fix">Nhóm em đã thay đổi như thế nào?</label><textarea id="fix" placeholder="Ví dụ: Đã rút ngắn lời giới thiệu, thêm nguồn và kiểm tra lại."></textarea></div></div>
           <div class="field advanced-only"><label for="recheck">Kết quả kiểm tra lại</label><textarea id="recheck"></textarea></div>
         </div>
 
         <div id="report" class="tab hidden">
           <h3>Báo cáo sản phẩm</h3><div class="field"><label for="selfAssessment">Tự đánh giá của nhóm</label><select id="selfAssessment"><option value="">Chưa tự đánh giá</option><option value="Cần hoàn thiện">Cần hoàn thiện</option><option value="Đã hoàn thành nhiệm vụ">Đã hoàn thành nhiệm vụ</option><option value="Sẵn sàng nhận đánh giá của giáo viên">Sẵn sàng nhận đánh giá của giáo viên</option></select></div><p class="muted">Giáo viên đánh giá chất lượng theo rubric KHBD; tiến độ chỉ thể hiện thông tin đã hoàn thành.</p>
-          <div class="basic-report-intro"><strong>Nhóm em đã hoàn thành những gì?</strong><p>Giới thiệu 3 di tích, giải thích hành trình và nêu điểm cải tiến.</p></div><div id="summary"></div><div id="printSheet" class="print-sheet"></div>
+          <div class="basic-report-intro"><strong>Báo cáo 1 phút</strong><p>Giới thiệu ba di tích, hành trình nhóm chọn và một điều đã cải tiến. Có thể trình chiếu trực tiếp các thẻ dưới đây.</p></div><div id="summary" class="one-minute-report"></div><div id="printSheet" class="print-sheet"></div>
           <div class="actions">
             <button id="copy" type="button">Sao chép báo cáo</button>
             <button id="reportPrint" type="button">In báo cáo</button>
