@@ -1351,6 +1351,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
         if(hasProfile()&&!cloudSession&&validScriptUrl(scriptUrl))setTimeout(autoRegisterCloud,120);
         return;
       }
+      if(cloudSession){clearPendingCreate();return}
       if(err){
         syncIssue=/đã tồn tại|đã có bài|không tạo trùng/i.test(err)?
           'Tên này đã có bài trên Google Sheets. Không ghi đè. Hãy mở bài bằng mã 4 ký tự hoặc nhờ giáo viên.':
@@ -1463,8 +1464,10 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     localStorage.setItem(k,JSON.stringify(candidate));localStorage.setItem(ACTIVE_KEY,k);
     activeKey=k;state=candidate;dirty=false;clearTimeout(saveTimer);
     cloudSession={token:token,klass:klass,group:group,revision:record.revision,firstAt:record.firstAt,updatedAt:record.updatedAt,seconds:record.seconds};
-    cloudConflict=false;cloudLastActive=Date.now();persistCloudSession();refresh();updateProfileUI();
+    cloudConflict=false;syncIssue='';syncConfirmedJSON=JSON.stringify(candidate);
+    cloudLastActive=Date.now();persistCloudSession();refresh();updateProfileUI();
     if(activeTab==='explore')toggleEditor(true);
+    syncStatusForLocal();
     el('peerInboxCount').textContent='';el('peerTabNew').textContent='';el('peerNotice').classList.add('hidden');peerInboxRequestedOpen=false;
     setTimeout(function(){peerInboxFetch(false)},450);
     closeBridgeDialog('groupDialog');
@@ -1566,6 +1569,40 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     cloudCall({action:'studentGet',klass:cloudSession.klass,group:cloudSession.group,token:existingToken},function(err,res){
       if(err){cloudStatus(err);return}
       try{adoptCloudRecord(res,existingToken);cloudStatus('')}catch(e){cloudStatus(e.message)}
+    });
+  }
+  function verifyCloudOnResume(){
+    if(!cloudSession||!hasProfile())return;
+    var targetKey=activeKey,token=cloudSession.token,klass=cloudSession.klass,group=cloudSession.group;
+    syncDisplay('warning','Đang kiểm tra bản bài trên Google Sheets sau khi mở lại trang…',false);
+    cloudCall({action:'studentGet',klass:klass,group:group,token:token},function(err,res){
+      if(!cloudSession||cloudSession.token!==token||activeKey!==targetKey)return;
+      if(err){
+        syncIssue='Chưa kiểm tra được Google Sheets. Bài vẫn còn trên máy. '+err;
+        syncStatusForLocal();return;
+      }
+      if(!res||!res.record||!res.record.data){
+        syncIssue='Máy chủ chưa trả về dữ liệu đối chiếu. Bài vẫn còn trên máy.';
+        syncStatusForLocal();return;
+      }
+      var rec=res.record,serverData,localData;
+      try{
+        serverData=normalizeData(rec.data);
+        localData=normalizeData(state);
+      }catch(e){syncIssue='Không đối chiếu được dữ liệu. Bài vẫn lưu trên máy.';syncStatusForLocal();return}
+      if(JSON.stringify(serverData)===JSON.stringify(localData)){
+        cloudSession.revision=rec.revision;cloudSession.updatedAt=rec.updatedAt;
+        cloudSession.seconds=rec.seconds;cloudConflict=false;
+        syncConfirmedJSON=JSON.stringify(state);syncIssue='';
+        persistCloudSession();syncStatusForLocal();return;
+      }
+      if(Number(rec.revision)!==Number(cloudSession.revision)){
+        cloudConflict=true;syncIssue='';
+        syncStatusForLocal();return;
+      }
+      /* Cùng phiên bản trên Sheets nhưng bài trên máy có thay đổi chưa
+         đồng bộ (ví dụ mất mạng trước F5): giữ bài và gửi theo revision. */
+      syncIssue='';cloudSave(false);
     });
   }
   function cloudHeartbeat(){
@@ -2719,6 +2756,16 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   bindCompactPanels();
   restoreCompactPanels();
   updateLesson();
+  if(hasProfile()){
+    if(cloudSession){
+      syncSafeCode=currentAccessCode();
+      setTimeout(verifyCloudOnResume,650);
+    }else if(pendingCreateKey()){
+      setTimeout(autoRegisterCloud,650);
+    }else{
+      syncStatusForLocal();
+    }
+  }
 })();
 </script>
 </body>
