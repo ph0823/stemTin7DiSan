@@ -1559,7 +1559,15 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     cloudCall({action:'studentSave',klass:cloudSession.klass,group:cloudSession.group,token:sessionToken,
       revision:revision,data:JSON.parse(sent),activeSeconds:active},function(err,res){
       remoteBusy=false;
-      if(!cloudSession||cloudSession.token!==sessionToken||activeKey!==targetKey)return;
+      if(!cloudSession||cloudSession.token!==sessionToken||activeKey!==targetKey){
+        /* Nhóm được đổi khi yêu cầu cũ còn đang gửi: không sử dụng
+           phản hồi cũ để cập nhật bài mới. Nếu có thay đổi chờ, gửi
+           bài của nhóm đang mở theo phiên và revision riêng của nó. */
+        if(remotePending&&cloudSession&&!cloudConflict){
+          remotePending=false;scheduleCloudSave();
+        }
+        return;
+      }
       if(err){
         syncIssue='Chưa lưu được lên Google Sheets. Bài còn trên máy. '+err;
         cloudStatus(syncIssue);syncStatusForLocal();return;
