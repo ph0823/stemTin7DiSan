@@ -1111,7 +1111,7 @@ footer{padding:4px 0;font-size:10px}
     activeKey=k;state=candidate;dirty=false;clearTimeout(saveTimer);
     cloudSession={token:token,klass:klass,group:group,revision:record.revision,firstAt:record.firstAt,updatedAt:record.updatedAt,seconds:record.seconds};
     cloudConflict=false;cloudLastActive=Date.now();persistCloudSession();refresh();updateProfileUI();
-    el('peerInboxCount').textContent='';el('peerTabNew').textContent='';el('peerNotice').classList.add('hidden');
+    el('peerInboxCount').textContent='';el('peerTabNew').textContent='';el('peerNotice').classList.add('hidden');peerInboxRequestedOpen=false;
     setTimeout(function(){peerInboxFetch(false)},450);
     closeBridgeDialog('groupDialog');
   }
@@ -1176,7 +1176,7 @@ footer{padding:4px 0;font-size:10px}
 
   /* Kiểm thử chéo: chỉ xem dữ liệu công khai của nhóm cùng lớp;
      mọi nhận xét được lưu riêng trên Apps Script, không ghi lên bài bạn. */
-  var peerCurrentTarget='',peerInboxBusy=false,peerLatestFeedback=[],peerMiniMap=null;
+  var peerCurrentTarget='',peerInboxBusy=false,peerInboxRequestedOpen=false,peerLatestFeedback=[],peerMiniMap=null;
   function peerStatus(message){el('peerStatus').textContent=message||''}
   function peerCard(title,body,wide){
     var card=document.createElement('div');card.className='peer-card'+(wide?' peer-wide':'');
@@ -1291,14 +1291,16 @@ footer{padding:4px 0;font-size:10px}
       if(show)setStatus('Hãy mở bài trực tuyến để xem góp ý dành cho nhóm em.');
       return;
     }
+    if(show)peerInboxRequestedOpen=true;
     if(peerInboxBusy)return;
     peerInboxBusy=true;
     var requestedKlass=cloudSession.klass,requestedGroup=cloudSession.group,requestedToken=cloudSession.token;
     cloudCall({action:'peerInbox',klass:requestedKlass,token:requestedToken},function(err,res){
       peerInboxBusy=false;
       if(!cloudSession||cloudSession.token!==requestedToken||cloudSession.group!==requestedGroup||cloudSession.klass!==requestedKlass)return;
+      var openNow=peerInboxRequestedOpen;peerInboxRequestedOpen=false;
       if(err){
-        if(show){el('peerInboxPanel').classList.remove('hidden');el('peerInboxEntries').textContent='Chưa tải được góp ý: '+err}
+        if(openNow){el('peerInboxPanel').classList.remove('hidden');el('peerInboxEntries').textContent='Chưa tải được góp ý: '+err}
         return;
       }
       peerLatestFeedback=(res&&res.feedback)||[];
@@ -1309,7 +1311,7 @@ footer{padding:4px 0;font-size:10px}
       el('peerTabNew').setAttribute('aria-label',newCount?'Có '+newCount+' góp ý mới':'');
       el('peerNotice').textContent=newCount?'Nhóm em có '+newCount+' góp ý mới từ nhóm bạn hoặc giáo viên. Chọn “Xem góp ý dành cho nhóm em”.':'';
       el('peerNotice').classList.toggle('hidden',!newCount);
-      if(show){
+      if(openNow){
         el('peerInboxPanel').classList.remove('hidden');
         var box=el('peerInboxEntries');box.innerHTML='';
         if(!peerLatestFeedback.length)box.textContent='Chưa có góp ý nào.';
