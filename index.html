@@ -578,7 +578,8 @@ footer{padding:4px 0;font-size:10px}
       ['desc','image','source','license','imageSource'].forEach(function(field){if(site[field]!==undefined&&typeof site[field]!=='string')throw Error('Sai kiểu '+field)});
       if(site.cardStyle!==undefined&&allowed.indexOf(site.cardStyle)<0)throw Error('Kiểu thẻ không hợp lệ');
     });
-    ['group','klass','mode','order','reason','estimate','compareOrder','compareText','message','sketch','tester','issues','fix','recheck'].forEach(function(k){if(x[k]!==undefined&&typeof x[k]!=='string')throw Error('Sai kiểu '+k)});
+    ['group','klass','mode','order','reason','estimate','compareOrder','compareText','message','sketch','tester','issues','fix','recheck','preferredRoute'].forEach(function(k){if(x[k]!==undefined&&typeof x[k]!=='string')throw Error('Sai kiểu '+k)});
+    if(x.mapAnswers!==undefined&&(!x.mapAnswers||typeof x.mapAnswers!=='object'||Array.isArray(x.mapAnswers)))throw Error('Câu trả lời bản đồ không hợp lệ');
     if(x.snapshots!==undefined&&(typeof x.snapshots!=='object'||!x.snapshots||Array.isArray(x.snapshots)))throw Error('Minh chứng không hợp lệ');
     if(x.visited!==undefined&&(typeof x.visited!=='object'||!x.visited||Array.isArray(x.visited)))throw Error('Tiến độ không hợp lệ');
     if(x.checks!==undefined&&(typeof x.checks!=='object'||!x.checks||Array.isArray(x.checks)))throw Error('Bảng kiểm không hợp lệ');
@@ -648,7 +649,7 @@ footer{padding:4px 0;font-size:10px}
     },
     mode: 'Tham quan trực tuyến',
     order: 'nga,cu,giong',
-    reason: '', estimate: '', compareOrder:'cu,nga,giong',compareText:'', message: '', sketch: '',
+    reason: '', estimate: '', compareOrder:'cu,nga,giong',compareText:'', preferredRoute:'A', mapAnswers:{prediction:'',line:''}, message: '', sketch: '',
     checks: {}, tester: '', issues: '', fix: '', recheck: ''
   };
 
@@ -659,7 +660,7 @@ footer{padding:4px 0;font-size:10px}
   var current='nga', designStep=1, started=false;
   var allOrders=['nga,cu,giong','nga,giong,cu','cu,nga,giong','cu,giong,nga','giong,nga,cu','giong,cu,nga'];
   function populateOrders(){
-    ['order','compareOrder'].forEach(function(field){var sel=el(field);sel.innerHTML='';allOrders.forEach(function(order){var o=document.createElement('option');o.value=order;o.textContent=order.split(',').map(function(id){return referenceSites[id].name}).join(' → ');sel.appendChild(o)})});
+    ['order','compareOrder','routePlanA','routePlanB'].forEach(function(field){var sel=el(field);sel.innerHTML='';allOrders.forEach(function(order){var o=document.createElement('option');o.value=order;o.textContent=order.split(',').map(function(id){return referenceSites[id].name}).join(' → ');sel.appendChild(o)})});
   }
   function hasProfile(){return activeKey!==KEY&&!!clean(state.klass)&&!!clean(state.group)}
   function updateProfileUI(){
@@ -925,6 +926,11 @@ footer{padding:4px 0;font-size:10px}
       ['desc','image','source','license','imageSource'].forEach(function(k){if(typeof old[k]==='string')item[k]=old[k].slice(0,6000)});
       item.cardStyle=['stack','side','compact'].indexOf(old.cardStyle)>=0?old.cardStyle:(['stack','side','compact'].indexOf(x.cardStyle)>=0?x.cardStyle:'stack');
     });
+    data.preferredRoute=x.preferredRoute==='B'?'B':'A';
+    data.mapAnswers={prediction:'',line:''};
+    if(x.mapAnswers&&typeof x.mapAnswers==='object'&&!Array.isArray(x.mapAnswers)){
+      ['prediction','line'].forEach(function(k){if(typeof x.mapAnswers[k]==='string')data.mapAnswers[k]=x.mapAnswers[k].slice(0,20)});
+    }
     data.checks={};if(x.checks){Object.keys(x.checks).slice(0,30).forEach(function(k){data.checks[k]=x.checks[k]===true})}
     data.visited={};if(x.visited){ids.forEach(function(id){data.visited[id]=x.visited[id]===true})}
     data.selfAssessment=typeof x.selfAssessment==='string'?x.selfAssessment.slice(0,100):'';
@@ -1289,10 +1295,10 @@ footer{padding:4px 0;font-size:10px}
   var uiMode='basic';
   var stageNames=['explore','design','test','report'];
   var stageInstructions={
-    explore:['13 phút','Quan sát bản đồ, thử dự đoán, đọc tư liệu và viết lời giới thiệu ba di tích.'],
-    design:['22 phút','Chọn thứ tự khám phá, giải thích lựa chọn và viết thông điệp bảo tồn.'],
-    test:['7 phút','Lưu bài trước khi sửa, nhận góp ý rồi cải tiến và lưu lại.'],
-    report:['3 phút','Tự đánh giá và giới thiệu điều nhóm em đã cải tiến.']
+    explore:['HĐ 2–3','Quan sát bản đồ và biên soạn ba thẻ thông tin có nguồn.'],
+    design:['HĐ 3','So sánh phương án A/B, chọn thứ tự khám phá và nêu lí do.'],
+    test:['HĐ 4','Nhờ nhóm khác góp ý, chỉnh sửa và lưu hai phiên bản.'],
+    report:['HĐ 4','Trình bày sản phẩm và điểm cải tiến trong một phút.']
   };
   function isBasic(){return uiMode==='basic'}
   function countWords(value){var t=clean(value);return t?t.split(/\s+/).length:0}
@@ -1300,6 +1306,7 @@ footer{padding:4px 0;font-size:10px}
     var list=[];
     function task(ok,label){list.push({ok:!!ok,label:label})}
     if(step==='explore'){
+      task(!!state.mapAnswers&&state.mapAnswers.prediction==='giong'&&state.mapAnswers.line==='order','Đọc bản đồ và giải thích đường nét đứt');
       ids.forEach(function(id){
         var site=state.sites[id],words=countWords(site.desc),target=isBasic()?25:50;
         var photoOK=isBasic()||!site.image||(safeURL(site.image)&&safeURL(site.imageSource)&&clean(site.license));
@@ -1307,12 +1314,13 @@ footer{padding:4px 0;font-size:10px}
           referenceSites[id].name+': '+(isBasic()?'viết ít nhất 25 từ và ghi nguồn':'viết 50–80 từ, ghi nguồn và kiểm tra ảnh'));
       });
     }else if(step==='design'){
+      task(state.compareOrder!==state.order&&clean(state.compareText).length>=(isBasic()?8:20),'So sánh hai phương án A/B');
       task(clean(state.reason).length>=(isBasic()?12:20),'Giải thích vì sao chọn hành trình');
-      if(!isBasic())task(clean(state.compareText).length>=20,'So sánh với phương án khác');
       task(clean(state.message).length>=(isBasic()?12:20),'Viết thông điệp bảo tồn');
     }else if(step==='test'){
       task(!!state.snapshots.before,'Đã lưu bài trước khi sửa');
       task(clean(state.issues).length>=(isBasic()?5:12)&&clean(state.fix).length>=(isBasic()?5:12),'Ghi góp ý và cách cải tiến');
+      task(['peer0','peer1','peer2'].some(function(k){return state.checks[k]===true}),'Đánh dấu ít nhất một tiêu chí kiểm thử');
       var before=state.snapshots.before,after=state.snapshots.after;
       task(!!before&&!!after&&snapshotDiff(before,after).length>0&&
         (isBasic()||clean(state.recheck).length>=12),
@@ -1332,7 +1340,12 @@ footer{padding:4px 0;font-size:10px}
       b.setAttribute('aria-current',selected?'step':'false');
       var mark=b.querySelector('.step-check');if(mark)mark.textContent=metric.done===metric.total?'✓':'';
     });
+    var focus={explore:['Quan sát và viết thông tin','2 câu đọc bản đồ, 3 thẻ có nguồn'],design:['Chọn hành trình có lí do','2 phương án, 1 lí do, 1 thông điệp'],test:['Kiểm thử rồi cải tiến','1 góp ý, 1 chỉnh sửa, 2 phiên bản'],report:['Báo cáo sản phẩm','Báo cáo một phút, tự đánh giá']};
     el('stepTime').textContent=stageInstructions[activeTab][0];
+    el('taskFocusTitle').textContent=focus[activeTab][0];
+    el('taskFocusText').textContent=stageInstructions[activeTab][1];
+    el('taskResultText').textContent=focus[activeTab][1];
+    var stage=stageMetrics(activeTab);el('taskCompletion').textContent=stage.done+'/'+stage.total+' việc đã xong';
     el('stepInstruction').textContent=stageInstructions[activeTab][1];
     el('stepPosition').textContent='Bước '+(idx+1)+'/4';
     el('stepBack').disabled=idx===0;
@@ -1416,14 +1429,17 @@ footer{padding:4px 0;font-size:10px}
   }
 
   /* Hoạt động đọc bản đồ, không chấm điểm hay thay đổi dữ liệu nhóm. */
+  function renderMapFeedback(){
+    var a=(state.mapAnswers||{}).prediction,b=(state.mapAnswers||{}).line;
+    el('mapPredictionFeedback').textContent=!a?'':a==='giong'?'Đúng: Giồng Cá Vồ nằm về phía Nam trong ba điểm.':'Hãy quan sát vị trí ba điểm và thử lại.';
+    el('mapLineFeedback').textContent=!b?'':b==='order'?'Đúng: đường nét đứt biểu diễn thứ tự khám phá.':'Đường nối không cho biết tuyến đường hay quãng đường thực tế.';
+  }
   function checkMapObservation(which){
-    if(which==='prediction'){
-      var choice=el('mapPrediction').value;
-      el('mapPredictionFeedback').textContent=!choice?'Hãy chọn một di tích.':choice==='giong'?'Đúng! Giồng Cá Vồ nằm về phía Nam so với hai di tích còn lại.':'Chưa chính xác. Hãy xem ba điểm trên bản đồ và thử lại.';
-      return;
-    }
-    var answer=el('mapLineAnswer').value;
-    el('mapLineFeedback').textContent=!answer?'Hãy chọn một đáp án.':answer==='order'?'Đúng! Đường nét đứt minh họa thứ tự khám phá, không phải đường giao thông hay quãng đường.':'Hãy quan sát: đường nét đứt chỉ nối các điểm theo thứ tự nhóm chọn, không phải tuyến đường thực địa.';
+    if(!hasProfile()){openGroups();return}
+    if(!state.mapAnswers)state.mapAnswers={prediction:'',line:''};
+    var k=which==='prediction'?'prediction':'line';
+    state.mapAnswers[k]=el(which==='prediction'?'mapPrediction':'mapLineAnswer').value;
+    renderMapFeedback();updateLesson();scheduleSave();
   }
   el('mapCheckPrediction').addEventListener('click',function(){checkMapObservation('prediction')});
   el('mapCheckLine').addEventListener('click',function(){checkMapObservation('line')});
@@ -1857,6 +1873,13 @@ footer{padding:4px 0;font-size:10px}
     ['group','klass','mode','order','reason','estimate','compareOrder','compareText','message','sketch','tester','issues','fix','recheck','selfAssessment'].forEach(function(k){
       el(k).value = state[k] || '';
     });
+    el('routePlanA').value=state.preferredRoute==='B'?state.compareOrder:state.order;
+    el('routePlanB').value=state.preferredRoute==='B'?state.order:state.compareOrder;
+    el('preferredRoute').value=state.preferredRoute||'A';
+    el('mapPrediction').value=(state.mapAnswers&&state.mapAnswers.prediction)||'';
+    el('mapLineAnswer').value=(state.mapAnswers&&state.mapAnswers.line)||'';
+    renderMapFeedback();
+    ['quickCheckInfo','quickCheckCard','quickCheckRoute'].forEach(function(id,i){el(id).checked=!!state.checks['peer'+i]});
     renderChecks();renderSnapshots();
     showSite(false);
     updateRoute();
