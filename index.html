@@ -351,6 +351,8 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
 @media print{.v4-journey,.v4-word-track,.v4-sync-detail{display:none!important}}
 /* V4.1 – reduce repeated information */
 #syncPanel{min-height:28px;padding:4px 9px;justify-content:flex-start}#syncPanel #syncMessage{flex:1;min-width:0}#syncPanel.success{background:#f1f9f4}#taskCompletion:empty{display:none}.v4-journey .step-journey button .v4-stage-count{font-size:11px;font-weight:bold;margin-left:auto;white-space:nowrap}.v4-journey .step-journey button small:not(.v4-stage-count){display:none}.v4-badges{margin-top:4px}.v4-badge:not(.earned){display:none}.v4-badges:empty{display:none}#teacherConnection p:empty,#cloudStatus:empty,#status:empty{display:none}#cloudErrorBanner{display:none!important}
+/* V4.2 teacher dashboard */
+#teacherDialog .teacher-box{width:96%;max-width:1160px;max-height:92vh;padding:16px;overflow:auto;box-sizing:border-box}#teacherDialog .teacher-dialog-heading{margin:0 0 12px;padding-bottom:9px;border-bottom:1px solid #dce7ee;position:sticky;top:-16px;background:white;z-index:5;padding-top:8px}#teacherDialog h2{font-size:20px}.gv-head-actions,.gv-toolbar,.gv-filter{display:flex;align-items:center;flex-wrap:wrap}.gv-head-actions button,.gv-filter>*{margin:2px 5px 2px 0}.gv-toolbar{justify-content:space-between;margin-bottom:8px}.gv-filter label{font-size:12px;font-weight:bold}.gv-filter input,.gv-filter select{width:auto;max-width:180px;min-height:34px}.gv-filter input{width:170px}.gv-list,.gv-detail{min-width:0;border:1px solid #dbe6ed;border-radius:10px;padding:12px;background:#fff}#teacherDialog .teacher-grid{display:grid;grid-template-columns:minmax(220px,30%) minmax(0,1fr);grid-gap:12px;align-items:start}.gv-list h3,.gv-detail h3{margin:0 0 10px;font-size:16px}.gv-native-select{position:absolute!important;width:1px!important;height:1px!important;opacity:0;pointer-events:none}.gv-cards{max-height:51vh;overflow:auto}.gv-card{display:block;width:100%;text-align:left;margin:0 0 6px;padding:9px;background:#f7fafc;border:1px solid #dbe6ed;border-radius:8px;white-space:normal}.gv-card.active{background:#e6f3fc;border-color:#17649a}.gv-card strong{display:block;font-size:14px;overflow-wrap:anywhere}.gv-card small{display:block;color:#516b7d;margin-top:4px;font-size:11px}.gv-track{height:5px;background:#dce8ef;border-radius:5px;overflow:hidden;margin-top:6px}.gv-fill{height:100%;background:#258c70;border-radius:5px}.gv-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-gap:6px;margin:8px 0 12px}.gv-meta div{background:#f4f8fb;padding:7px 9px;border-radius:6px;font-size:12px}.gv-meta small{display:block;color:#567184;font-size:11px;margin-bottom:3px}.gv-tabs{display:flex;border-bottom:1px solid #dbe6ed;margin-bottom:12px}.gv-tabs button{flex:1;border:0;border-bottom:3px solid transparent;border-radius:0;background:white;padding:10px 4px;font-weight:bold}.gv-tabs button.active{color:#145578;border-bottom-color:#17649a;background:#edf6fc}.gv-stages{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-gap:6px;margin-bottom:12px}.gv-stage{background:#f2f7fa;padding:9px;border-radius:8px;font-size:12px}.gv-stage b{display:block;margin-top:5px;font-size:16px}.gv-site{border-bottom:1px solid #e3ebf0;padding:8px 0}.gv-site summary{cursor:pointer;font-weight:bold;font-size:13px}.gv-site p{white-space:pre-wrap;overflow-wrap:anywhere;margin:6px 0;font-size:13px}.gv-extra{margin-top:12px;border-top:1px solid #e3ebf0;padding-top:8px;font-size:12px}.gv-extra summary{cursor:pointer}.gv-status:not(:empty){position:sticky;bottom:0;background:#edf5fa;padding:9px!important;border-radius:7px;z-index:3}.gv-status:empty{display:none}.v4-teacher-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-gap:6px;margin:8px 0 12px}.v4-teacher-summary span{margin:0;padding:10px;background:#f0f6fa;font-size:12px}.v4-teacher-summary strong{display:block;font-size:23px;margin-top:4px}.teacher-peer-section{margin-top:0;padding-top:0;border:0}.gv-list #teacherListHint{font-size:11px}.gv-detail textarea{min-height:56px}#teacherConnection{margin:6px 0 10px}#teacherConnection:not([open]){padding:4px 8px}@media(max-width:700px){#teacherDialog .teacher-grid{grid-template-columns:1fr}.gv-cards{max-height:220px}.gv-meta{grid-template-columns:1fr 1fr}.v4-teacher-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.gv-stages{grid-template-columns:repeat(2,minmax(0,1fr))}} 
 </style>
 </head>
 <body class="needs-profile">
@@ -669,7 +671,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   </div>
   <div id="teacherDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="teacherTitle">
     <div class="reset-box teacher-box">
-      <div class="teacher-dialog-heading"><h2 id="teacherTitle">Quản lý sản phẩm STEM – Giáo viên</h2><button id="teacherHelpBtn" type="button">Hướng dẫn giáo viên</button></div>
+      <div class="teacher-dialog-heading"><h2 id="teacherTitle">Quản lý bài làm STEM</h2><div class="gv-head-actions"><button id="teacherHelpBtn" type="button">Hướng dẫn</button><button id="teacherClose" type="button" aria-label="Đóng quản lý">Đóng ×</button></div></div>
       <details class="server-config" id="teacherConnection"><summary>Kiểm tra kết nối</summary><p id="v4SyncDetail" class="muted"></p><p id="teacherConnectionResult" role="status"></p><label for="scriptUrl">Địa chỉ hệ thống lưu bài</label>
       <input id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
       <div class="actions"><button id="saveScriptUrl" type="button">Lưu địa chỉ</button><button id="pingServer" type="button">Kiểm tra kết nối</button></div></details><div id="teacherLoginPanel">
@@ -686,12 +688,10 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
         <div class="actions"><button id="teacherSetupSubmit" class="primary" type="button">Lưu mật khẩu và xem bài</button><button id="teacherSetupCancel" type="button">Đăng xuất</button></div>
       </div>
       <div id="teacherWorkspace" class="hidden">
-        <div class="actions"><button id="teacherRefresh" type="button">Tải danh sách nhóm</button><button id="teacherLogout" type="button">Đăng xuất</button></div>
+        <div class="gv-toolbar"><div class="gv-filter"><label for="gvClass">Lớp</label><select id="gvClass"><option value="">Tất cả</option></select><label for="gvSearch">Tìm tên</label><input id="gvSearch" placeholder="Học sinh / nhóm"></div><div class="gv-head-actions"><button id="teacherRefresh" type="button">Làm mới</button><button id="teacherLogout" type="button">Đăng xuất</button></div></div>
         <div id="v4TeacherSummary" class="v4-teacher-summary" aria-live="polite"></div><div class="teacher-grid">
-          <div><label for="teacherGroups">Bài học sinh / nhóm đã lưu</label><select id="teacherGroups" size="9"></select><p id="teacherListHint" class="muted">Nhấn “Tải danh sách nhóm” để kiểm tra các bài đã lưu trực tuyến.</p></div>
-          <div>
-            <h3 id="teacherGroupTitle">Chọn nhóm để xem</h3>
-            <div id="teacherMeta" class="muted"></div>
+          <aside class="gv-list"><h3>Danh sách bài làm</h3><select id="teacherGroups" size="9" class="gv-native-select" aria-label="Danh sách bài làm"></select><div id="gvCards" class="gv-cards"></div><p id="teacherListHint" class="muted"></p></aside>
+          <div class="gv-detail"><h3 id="teacherGroupTitle">Chọn bài để xem</h3><div id="gvDetailBody" class="hidden"><div id="teacherMeta" class="gv-meta"></div><div class="gv-tabs" role="group" aria-label="Nội dung quản lý"><button type="button" data-gv-tab="overview" class="active">Tổng quan</button><button type="button" data-gv-tab="edit">Chỉnh sửa</button><button type="button" data-gv-tab="feedback">Nhận xét</button></div><section id="gvOverview"><div id="gvStages" class="gv-stages"></div><div id="gvSiteOverview"></div><div class="actions"><button id="gvReload" type="button">Tải bài mới nhất</button><button id="gvEditOpen" class="primary" type="button">Chỉnh sửa bài</button></div></section><section id="gvEdit" class="hidden">
             <label for="teacherSite">Di tích cần chỉnh sửa</label><select id="teacherSite"><option value="nga">Ngã Ba Giồng</option><option value="cu">Địa đạo Củ Chi</option><option value="giong">Giồng Cá Vồ</option></select>
             <label for="teacherDesc">Lời giới thiệu của nhóm</label><textarea id="teacherDesc" rows="5"></textarea>
             <label for="teacherSource">Nguồn thông tin</label><input id="teacherSource">
@@ -711,10 +711,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
               <label for="teacherRecheck">Kết quả kiểm thử lại</label><textarea id="teacherRecheck" rows="2"></textarea>
             </details>
             <label for="teacherNote">Ghi chú chỉnh sửa của giáo viên</label><textarea id="teacherNote" rows="2" placeholder="Lý do hoặc nội dung đã hỗ trợ"></textarea>
-            <div class="actions"><button id="teacherSave" class="primary" type="button">Lưu chỉnh sửa</button><button id="teacherRotate" type="button">Cấp mã nhóm mới</button></div>
-          </div>
-        </div>
-        <section class="teacher-peer-section">
+            <div class="actions"><button id="teacherSave" class="primary" type="button">Lưu chỉnh sửa</button></div></section><section id="gvFeedback" class="teacher-peer-section hidden">
           <h3>Nhận xét và kiểm duyệt góp ý</h3>
           <p class="muted">Chọn nhóm trong danh sách trên để xem góp ý của các nhóm bạn, gửi nhận xét của giáo viên hoặc ẩn góp ý không phù hợp.</p>
           <button id="teacherFeedbackRefresh" type="button">Tải góp ý của nhóm đang chọn</button>
@@ -723,14 +720,14 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
           <textarea id="teacherFeedbackText" maxlength="500" rows="2" placeholder="Nêu một điểm nhóm làm tốt và một điểm cần cải thiện."></textarea>
           <button id="teacherFeedbackSend" type="button" class="primary">Gửi nhận xét cho nhóm</button>
           <p id="teacherFeedbackStatus" class="muted" role="status"></p>
-        </section>
+        </section><details class="gv-extra"><summary>Quản lý mã bài</summary><p class="muted">Chỉ cấp mã mới khi học sinh mất mã. Mã cũ sẽ không còn hiệu lực.</p><button id="teacherRotate" type="button">Cấp mã nhóm mới</button></details></div></div></div>
         <details class="teacher-password-change"><summary>Đổi mật khẩu giáo viên</summary>
           <label for="teacherNewPassword">Đổi mật khẩu giáo viên (đúng 8 ký tự)</label><input id="teacherNewPassword" type="password" maxlength="8" autocomplete="new-password">
           <button id="teacherChangePassword" type="button">Đổi mật khẩu</button>
         </details>
       </div>
-      <p id="teacherStatus" class="muted" role="status"></p>
-      <div class="actions"><button id="teacherClose" type="button">Đóng</button></div>
+      <p id="teacherStatus" class="muted gv-status" role="status"></p>
+      
     </div>
   </div>
   <div id="groupDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="groupTitle">
@@ -1943,7 +1940,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     el('teacherWorkspace').classList.toggle('hidden',!authenticated||mustChange);
   }
   function teacherSignOut(){
-    teacherToken='';teacherRecord=null;teacherNeedsPasswordChange=false;teacherLoginBusy=false;teacherListBusy=false;
+    if(gvDirty||gvSaving){teacherStatus('Hãy lưu chỉnh sửa trước khi đăng xuất.');return}gvLoadSeq++;gvLoading=false;el('gvDetailBody').classList.add('hidden');el('gvCards').textContent='';teacherToken='';teacherRecord=null;teacherNeedsPasswordChange=false;teacherLoginBusy=false;teacherListBusy=false;
     teacherGroupsData=[];el('v4TeacherSummary').textContent='';
     el('teacherFeedbackList').innerHTML='';el('teacherFeedbackText').value='';teacherFeedbackStatus('');
     el('teacherPassword').value='';el('teacherSetupPassword').value='';el('teacherSetupConfirm').value='';
@@ -1965,9 +1962,9 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     if(!teacherToken){teacherStatus('Hãy đăng nhập trước khi xem bài.');return}
     if(teacherNeedsPasswordChange){teacherStatus('Hãy đổi mật khẩu trước khi xem bài nhóm.');return}
     if(teacherListBusy)return;
-    teacherListBusy=true;teacherStatus('Đang tải danh sách nhóm…');
+    teacherListBusy=true;if(!background)teacherStatus('Đang tải danh sách…');
     el('teacherRefresh').disabled=true;
-    el('teacherListHint').textContent='Đang kiểm tra bài lưu trực tuyến…';
+    if(!background)el('teacherListHint').textContent='Đang tải…';
     cloudCall({action:'teacherList',token:teacherToken},function(err,res){
       teacherListBusy=false;el('teacherRefresh').disabled=false;
       if(teacherToken!==previousToken)return;
@@ -1981,29 +1978,12 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
         el('teacherListHint').textContent='Dữ liệu danh sách nhóm chưa hợp lệ.';
         return;
       }
-      var keep=background===true?teacherRecord:null;
-      teacherGroupsData=res.groups;
-      var known=teacherGroupsData.filter(function(g){return g.progress&&typeof g.progress.percent==='number'}),complete=known.filter(function(g){return g.progress.percent===100}).length,started=known.filter(function(g){return g.progress.percent>0&&g.progress.percent<100}).length;
-      var summary=el('v4TeacherSummary');summary.textContent='';['Đã tạo: '+teacherGroupsData.length,'Đang làm: '+started,'Hoàn thành: '+complete,'Mới tạo: '+(known.length-started-complete),'Chưa có tiến độ: '+(teacherGroupsData.length-known.length)].forEach(function(t){var sp=document.createElement('span');sp.textContent=t;summary.appendChild(sp)});
-      if(!keep)teacherRecord=null;
-      var sel=el('teacherGroups');sel.innerHTML='';
-      teacherGroupsData.forEach(function(g,i){
-        var option=document.createElement('option');option.value=String(i);
-        option.textContent=g.klass+' · '+g.group+' · '+(g.progress?g.progress.percent+'% (cơ bản)':'Chưa có tiến độ')+' · '+Math.floor(Number(g.seconds||0)/60)+' phút';
-        sel.appendChild(option);
-      });
-      if(keep){var keepIndex=teacherGroupsData.findIndex(function(g){return g.id===keep.id});if(keepIndex>=0){sel.value=String(keepIndex);teacherStatus('Tìm thấy '+teacherGroupsData.length+' nhóm.');el('teacherListHint').textContent='Danh sách tự cập nhật; bài đang xem được giữ nguyên.';return}}
-      teacherRecord=null;
-      el('teacherGroupTitle').textContent='Chọn nhóm để xem';
-      el('teacherMeta').textContent='';
-      if(!teacherGroupsData.length){
-        teacherStatus('Chưa có bài nhóm được lưu trực tuyến.');
-        el('teacherListHint').textContent='Chưa có nhóm trên hệ thống. Học sinh cần chọn lớp/nhóm → Bài của nhóm → Tạo bài mới, sau đó lưu bài.';
-        return;
-      }
-      teacherStatus('Tìm thấy '+teacherGroupsData.length+' nhóm.');
-      el('teacherListHint').textContent='Chọn một nhóm để xem hoặc chỉnh sửa bài.';
-      sel.value='0';teacherLoadGroup();
+      teacherGroupsData=res.groups.slice().sort(function(a,b){return String(a.klass).localeCompare(String(b.klass),'vi',{numeric:true})||String(a.group).localeCompare(String(b.group),'vi',{numeric:true})});
+      gvRenderList();
+      if(teacherRecord){var currentIndex=teacherGroupsData.findIndex(function(g){return g.id===teacherRecord.id});if(currentIndex>=0){el('teacherGroups').value=String(currentIndex);gvMarkSelected();if(!background)teacherStatus('');return}}
+      if(!teacherGroupsData.length){teacherRecord=null;el('gvDetailBody').classList.add('hidden');el('teacherGroupTitle').textContent='Chưa có bài làm';teacherStatus('');return}
+      if(!teacherRecord&&!background){var first=el('gvCards').querySelector('button');if(first)first.click()}
+      if(!background)teacherStatus('');
     });
   }
     function teacherCapture(){
@@ -2022,28 +2002,45 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     el('teacherLicense').value=site.license||'';el('teacherCardStyle').value=site.cardStyle||'stack';
     ['message','reason','compareText','sketch','issues','fix','recheck'].forEach(function(k){var m={message:'teacherMessage',reason:'teacherReason',compareText:'teacherCompare',sketch:'teacherSketch',issues:'teacherIssues',fix:'teacherFix',recheck:'teacherRecheck'};el(m[k]).value=teacherRecord.data[k]||''});
   }
+  var gvTabName='overview',gvDirty=false,gvLoading=false,gvSaving=false,gvLoadSeq=0;
+  function gvDate(x){if(!x)return '—';var d=new Date(x);if(isNaN(d.getTime()))return '—';return d.toLocaleString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false})}
+  function gvTab(name){gvTabName=name;['overview','edit','feedback'].forEach(function(k){el('gv'+k.charAt(0).toUpperCase()+k.slice(1)).classList.toggle('hidden',k!==name)});document.querySelectorAll('[data-gv-tab]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-gv-tab')===name)});if(name==='feedback'&&teacherRecord)teacherFeedbackLoad()}
+  function gvProgress(g){return g&&g.progress&&typeof g.progress.percent==='number'?Math.max(0,Math.min(100,g.progress.percent)):null}
+  function gvMarkSelected(){document.querySelectorAll('.gv-card').forEach(function(b){b.classList.toggle('active',!!teacherRecord&&b.getAttribute('data-id')===String(teacherRecord.id))})}
+  function gvRenderList(){
+    var cls=el('gvClass'),prior=cls.value,classes=[];teacherGroupsData.forEach(function(g){var k=String(g.klass||'').toUpperCase();if(classes.indexOf(k)<0)classes.push(k)});cls.textContent='';var all=document.createElement('option');all.value='';all.textContent='Tất cả';cls.appendChild(all);classes.forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=k;cls.appendChild(o)});cls.value=classes.indexOf(prior)>=0?prior:'';
+    var search=clean(el('gvSearch').value).toLowerCase(),visible=teacherGroupsData.filter(function(g){return (!cls.value||String(g.klass).toUpperCase()===cls.value)&&(!search||String(g.group).toLowerCase().indexOf(search)>=0)});
+    var known=visible.filter(function(g){return gvProgress(g)!==null}),completed=known.filter(function(g){return gvProgress(g)===100}).length,started=known.filter(function(g){return gvProgress(g)>0&&gvProgress(g)<100}).length;
+    var summary=el('v4TeacherSummary');summary.textContent='';[['Đã tạo',visible.length],['Mới tạo',known.length-started-completed],['Đang làm',started],['Hoàn thành',completed],['Chưa có số liệu',visible.length-known.length]].forEach(function(x){var a=document.createElement('span'),b=document.createElement('strong');a.textContent=x[0];b.textContent=x[1];a.appendChild(b);summary.appendChild(a)});
+    var root=el('gvCards'),sel=el('teacherGroups');root.textContent='';sel.textContent='';visible.forEach(function(g){var i=teacherGroupsData.indexOf(g),o=document.createElement('option');o.value=String(i);o.textContent=g.klass+' · '+g.group;sel.appendChild(o);var b=document.createElement('button');b.type='button';b.className='gv-card';b.setAttribute('data-id',String(g.id));var title=document.createElement('strong');title.textContent=g.group;b.appendChild(title);var p=gvProgress(g),sub=document.createElement('small');sub.textContent=String(g.klass).toUpperCase()+' · '+(p===null?'Chưa có số liệu':p+'%')+' · '+Math.floor(Number(g.seconds||0)/60)+' phút';b.appendChild(sub);if(p!==null){var track=document.createElement('div'),fill=document.createElement('div');track.className='gv-track';fill.className='gv-fill';fill.style.width=p+'%';track.appendChild(fill);b.appendChild(track)}b.addEventListener('click',function(){if(gvSaving||gvDirty){teacherStatus('Hãy lưu chỉnh sửa trước khi chuyển bài.');return}sel.value=String(i);teacherLoadGroup()});root.appendChild(b)});el('teacherListHint').textContent=visible.length+' bài · Tự cập nhật mỗi 30 giây';if(!visible.length)root.textContent='Không có bài phù hợp.';gvMarkSelected()
+  }
+  function gvRenderDetail(){
+    if(!teacherRecord)return;var rec=teacherRecord,d=rec.data,meta=el('teacherMeta');meta.textContent='';[['Bắt đầu',gvDate(rec.firstAt)],['Hoạt động gần nhất',gvDate(rec.lastAt)],['Học sinh sửa cuối',gvDate(rec.studentEditedAt||rec.updatedAt)],['Thời gian hoạt động',Math.floor(Number(rec.seconds||0)/60)+' phút']].forEach(function(x){var box=document.createElement('div'),label=document.createElement('small'),value=document.createElement('b');label.textContent=x[0];value.textContent=x[1];box.appendChild(label);box.appendChild(value);meta.appendChild(box)});
+    var stages=el('gvStages');stages.textContent='';var original=state,oldMode=uiMode;try{state=d;uiMode='basic';stageNames.forEach(function(k,i){var m=stageMetrics(k),box=document.createElement('div'),b=document.createElement('b');box.className='gv-stage';box.textContent=['Khám phá','Thiết kế','Kiểm thử','Báo cáo'][i];b.textContent=m.done+'/'+m.total;box.appendChild(b);stages.appendChild(box)})}finally{state=original;uiMode=oldMode}
+    var root=el('gvSiteOverview');root.textContent='';ids.forEach(function(id){var v=d.sites[id],box=document.createElement('details'),head=document.createElement('summary'),p=document.createElement('p'),source=document.createElement('p');box.className='gv-site';head.textContent=referenceSites[id].name+' · '+countWords(v.desc)+' từ';p.textContent=v.desc||'Chưa viết lời giới thiệu.';source.textContent='Nguồn: '+(v.source||'Chưa ghi');box.appendChild(head);box.appendChild(p);box.appendChild(source);root.appendChild(box)});el('gvDetailBody').classList.remove('hidden');gvMarkSelected()
+  }
   function teacherLoadGroup(){
-    var index=Number(el('teacherGroups').value),item=teacherGroupsData[index];if(!item)return;
-    teacherStatus('');
+    var index=Number(el('teacherGroups').value),item=teacherGroupsData[index];if(!item||gvDirty||gvSaving)return;
+    var seq=++gvLoadSeq,token=teacherToken;gvLoading=true;teacherStatus('Đang tải bài…');
     cloudCall({action:'teacherGet',token:teacherToken,klass:item.klass,group:item.group},function(err,res){
-      if(err){teacherStatus(err);return}
-      teacherRecord=res.record;teacherRecord.data=normalizeData(res.record.data);
+      if(seq!==gvLoadSeq||token!==teacherToken)return;gvLoading=false;
+      if(err||!res||!res.record){teacherStatus(err||'Không tải được bài.');return}
+      teacherRecord=res.record;teacherRecord.data=normalizeData(res.record.data);gvDirty=false;
       teacherCurrentSite='nga';el('teacherGroupTitle').textContent=item.klass+' / '+item.group;
-      var mapWork=teacherRecord.data.mapAnswers||{},mapEvidence='Đọc bản đồ: '+(mapWork.prediction==='giong'?'Đúng vị trí phía Nam':'Chưa hoàn thành')+'; '+(mapWork.line==='order'?'Đã hiểu đường nối':'Chưa hoàn thành');
-      el('teacherMeta').textContent='Bắt đầu: '+item.firstAt+' · Hoạt động gần nhất: '+item.lastAt+' · HS chỉnh sửa cuối: '+(item.studentEditedAt||item.updatedAt)+' · GV chỉnh sửa: '+(item.teacherEditedAt||'chưa có')+' · Tổng hoạt động: '+Math.floor(item.seconds/60)+' phút · Bản '+item.revision+' · '+mapEvidence;
       el('teacherNote').value=teacherRecord.teacherNote||'';
-      teacherDisplaySite();teacherStatus('');teacherFeedbackLoad();
+      teacherDisplaySite();gvRenderDetail();gvTab('overview');teacherStatus('');
     });
   }
   function teacherSave(){
-    if(!teacherRecord)return;
-    teacherCapture();teacherStatus('');
+    if(!teacherRecord||gvSaving||gvLoading)return;
+    teacherCapture();gvSaving=true;el('teacherSave').disabled=true;var saveToken=teacherToken,saveId=teacherRecord.id;teacherStatus('Đang lưu chỉnh sửa…');
     cloudCall({action:'teacherSave',token:teacherToken,klass:teacherRecord.klass,group:teacherRecord.group,revision:teacherRecord.revision,data:teacherRecord.data,note:el('teacherNote').value},function(err,res){
-      if(err){teacherStatus(err);return}
+      gvSaving=false;el('teacherSave').disabled=false;if(saveToken!==teacherToken||!teacherRecord||teacherRecord.id!==saveId)return;
+      if(err||!res){teacherStatus(err||'Không lưu được.');return}
       if(res.conflict){teacherStatus('Bài vừa được sửa trên máy khác. Hãy chọn lại nhóm để tải phiên bản mới trước khi chỉnh.');return}
       teacherRecord=res.record;teacherRecord.data=normalizeData(res.record.data);
-      teacherStatus('Đã lưu chỉnh sửa.');
-      teacherDisplaySite();
+      gvDirty=false;teacherStatus('Đã lưu chỉnh sửa.');
+      teacherDisplaySite();gvRenderDetail();
     });
   }
   function teacherRotate(){
@@ -2526,7 +2523,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   el('groupExistingMode').addEventListener('click',function(){choosePickerMode('existing')});
 
   el('switchGroup').addEventListener('click',openGroups);
-  function closeTeacher(){closeBridgeDialog('teacherDialog');el('teacherBtn').focus()}
+  function closeTeacher(){if(gvDirty||gvSaving){teacherStatus('Hãy lưu chỉnh sửa trước khi đóng.');return}closeBridgeDialog('teacherDialog');el('teacherBtn').focus()}
   el('cloudBtn').addEventListener('click',cloudOpen);
   el('cloudClose').addEventListener('click',function(){closeBridgeDialog('cloudDialog')});
   el('saveScriptUrl').addEventListener('click',function(){
@@ -2597,7 +2594,11 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   el('teacherSetupSubmit').addEventListener('click',function(){teacherChangePassword(el('teacherSetupPassword').value,true)});
   enterToSubmit('teacherSetupPassword','teacherSetupSubmit');
   enterToSubmit('teacherSetupConfirm','teacherSetupSubmit');
-  el('teacherRefresh').addEventListener('click',teacherList);
+  el('teacherRefresh').addEventListener('click',function(){teacherList(false)});
+  el('gvClass').addEventListener('change',gvRenderList);el('gvSearch').addEventListener('input',gvRenderList);
+  document.querySelectorAll('[data-gv-tab]').forEach(function(b){b.addEventListener('click',function(){gvTab(b.getAttribute('data-gv-tab'))})});
+  el('gvEditOpen').addEventListener('click',function(){gvTab('edit')});el('gvReload').addEventListener('click',function(){if(gvDirty||gvSaving){teacherStatus('Hãy lưu chỉnh sửa trước.');return}var i=teacherGroupsData.findIndex(function(g){return teacherRecord&&g.id===teacherRecord.id});if(i>=0){var sel=el('teacherGroups');if(!Array.prototype.some.call(sel.options,function(o){return o.value===String(i)})){var o=document.createElement('option');o.value=String(i);sel.appendChild(o)}sel.value=String(i);teacherLoadGroup()}});
+  el('gvEdit').addEventListener('input',function(){gvDirty=true});el('gvEdit').addEventListener('change',function(e){if(e.target.id!=='teacherSite')gvDirty=true});
   el('teacherGroups').addEventListener('change',function(){teacherLoadGroup()});
   el('teacherSite').addEventListener('change',function(){teacherCapture();teacherCurrentSite=this.value;teacherDisplaySite()});
   el('teacherSave').addEventListener('click',teacherSave);
