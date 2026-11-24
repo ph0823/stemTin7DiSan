@@ -305,6 +305,7 @@ body.mode-basic .order-legacy{display:none}
 /* Màn hình khởi động: chỉ một quyết định trước khi làm bài. */
 body.needs-profile .learning-mode-bar,
 body.needs-profile #cloudErrorBanner,
+body.needs-profile #syncPanel,
 body.needs-profile #workArea,
 body.needs-profile footer{display:none!important}
 body.needs-profile .toolbar .student-fields,
@@ -330,6 +331,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
 .profile-prompt .welcome-hint{font-size:12px;line-height:1.5;color:#60788a;max-width:480px;margin:13px auto 0}
 @media(max-width:620px){.profile-prompt{padding:20px 14px;margin:16px auto}.profile-prompt h2{font-size:19px}.profile-prompt .welcome-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.profile-prompt .profile-prompt-actions{flex-direction:column}.profile-prompt .profile-prompt-actions button{width:100%;min-width:0}}
 
+.sync-panel{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin:5px 0 7px;padding:7px 10px;border:1px solid #cddfea;background:#f4f9fd;border-radius:8px;font-size:12px;color:#234b65}.sync-panel.warning{background:#fff8ed;border-color:#f0d8ab;color:#795220}.sync-panel.success{background:#f2faf4;border-color:#bcd9c4;color:#286139}.sync-panel button{padding:5px 9px;font-size:12px}.sync-panel #syncMessage{flex:1;min-width:200px}
 </style>
 </head>
 <body class="needs-profile">
@@ -363,6 +365,12 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
       </details>
       <input type="file" id="importFile" accept=".json,application/json" class="hidden">
     </div>
+  </div>
+
+  <div id="syncPanel" class="sync-panel hidden" role="status" aria-live="polite">
+    <span id="syncMessage">Bài được giữ trên máy.</span>
+    <button id="retrySync" type="button" class="hidden">Thử lưu lên Google Sheets</button>
+    <button id="showSyncCode" type="button" class="hidden">Xem mã bài</button>
   </div>
 
   <section id="profilePrompt" class="profile-prompt" aria-labelledby="welcomeTitle">
