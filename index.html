@@ -575,6 +575,16 @@ footer{padding:4px 0;font-size:10px}
             <div class="actions"><button id="teacherSave" class="primary" type="button">Lưu chỉnh sửa</button><button id="teacherRotate" type="button">Cấp mã nhóm mới</button></div>
           </div>
         </div>
+        <section class="teacher-peer-section">
+          <h3>Nhận xét và kiểm duyệt góp ý</h3>
+          <p class="muted">Chọn nhóm trong danh sách trên để xem góp ý của các nhóm bạn, gửi nhận xét của giáo viên hoặc ẩn góp ý không phù hợp.</p>
+          <button id="teacherFeedbackRefresh" type="button">Tải góp ý của nhóm đang chọn</button>
+          <div id="teacherFeedbackList" role="status"></div>
+          <label for="teacherFeedbackText">Nhận xét của giáo viên gửi cho nhóm</label>
+          <textarea id="teacherFeedbackText" maxlength="500" rows="2" placeholder="Nêu một điểm nhóm làm tốt và một điểm cần cải thiện."></textarea>
+          <button id="teacherFeedbackSend" type="button" class="primary">Gửi nhận xét cho nhóm</button>
+          <p id="teacherFeedbackStatus" class="muted" role="status"></p>
+        </section>
         <details class="teacher-password-change"><summary>Đổi mật khẩu giáo viên</summary>
           <label for="teacherNewPassword">Đổi mật khẩu giáo viên (đúng 8 ký tự)</label><input id="teacherNewPassword" type="password" maxlength="8" autocomplete="new-password">
           <button id="teacherChangePassword" type="button">Đổi mật khẩu</button>
