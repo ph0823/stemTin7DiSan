@@ -401,7 +401,7 @@ footer{padding:4px 0;font-size:10px}
           <div class="peer-actions"><button id="peerOpenBtn" type="button" class="primary">Xem và góp ý bài nhóm bạn</button><button id="peerInboxBtn" type="button">Xem góp ý dành cho nhóm em <span id="peerInboxCount"></span></button></div>
           <div id="peerNotice" class="peer-notice hidden" role="status"></div>
           <div id="peerInboxPanel" class="peer-inbox hidden"><strong>Nhận xét từ các nhóm khác và giáo viên</strong><div id="peerInboxEntries"></div><button id="peerInboxClose" type="button">Đóng</button></div>
-          <p class="muted">Nhờ nhóm khác xem thử và góp ý để nhóm em cải thiện sản phẩm.</p>
+          <p class="muted">Mỗi nhóm ngồi tại máy của mình: chọn “Xem và góp ý bài nhóm bạn”, gửi nhận xét và nhận phản hồi trực tuyến. Không chia sẻ mã nhóm.</p>
           <div class="panel-stem"><h4>Minh chứng thiết kế và cải tiến</h4><p class="muted">Lưu bản đầu trước khi kiểm thử và bản cải tiến sau khi sửa.</p><div class="actions"><button type="button" id="captureBefore">Lưu bài trước khi sửa</button><button type="button" id="captureAfter">Lưu bài sau khi sửa</button></div><div id="snapshotCompare"></div></div><details class="advanced-only"><summary>Bảng kiểm chi tiết</summary><div id="checks"></div></details>
           <div class="field"><label for="tester">Nhóm kiểm thử</label><input id="tester"></div>
           <div class="guided-feedback"><strong>Nhóm bạn kiểm thử điều gì?</strong><div class="quick-test-checks">
@@ -1104,6 +1104,8 @@ footer{padding:4px 0;font-size:10px}
     activeKey=k;state=candidate;dirty=false;clearTimeout(saveTimer);
     cloudSession={token:token,klass:klass,group:group,revision:record.revision,firstAt:record.firstAt,updatedAt:record.updatedAt,seconds:record.seconds};
     cloudConflict=false;cloudLastActive=Date.now();persistCloudSession();refresh();updateProfileUI();
+    el('peerInboxCount').textContent='';el('peerNotice').classList.add('hidden');
+    setTimeout(function(){peerInboxFetch(false)},450);
     closeBridgeDialog('groupDialog');
   }
   function cloudOpen(){el('cloudDialog').classList.remove('hidden');el('scriptUrl').value=scriptUrl;
@@ -1279,6 +1281,17 @@ footer{padding:4px 0;font-size:10px}
             var checks=document.createElement('p');checks.textContent='Đã kiểm tra: '+item.checks.map(function(x){return labels[x]||x}).join(', ');
             div.appendChild(checks);
           }
+          var take=document.createElement('button');take.type='button';take.textContent='Đưa góp ý vào phiếu kiểm thử';
+          take.addEventListener('click',function(){
+            if(!hasProfile())return;
+            var note=(item.role==='teacher'?'Giáo viên':'Nhóm '+item.authorGroup)+': '+item.comment;
+            if(state.issues.indexOf(note)<0)state.issues=(state.issues?state.issues+'\n':'')+note;
+            if(!clean(state.tester))state.tester=item.role==='teacher'?'Giáo viên':item.authorGroup;
+            el('issues').value=state.issues;el('tester').value=state.tester;
+            scheduleSave();
+            setStatus('Đã đưa góp ý vào phiếu kiểm thử. Nhóm em hãy tự sửa sản phẩm rồi lưu bản sau.');
+          });
+          div.appendChild(take);
           box.appendChild(div);
         });
         try{localStorage.setItem(peerSeenKey(),String(Date.now()))}catch(e){}
@@ -1354,6 +1367,7 @@ footer{padding:4px 0;font-size:10px}
   function teacherSignOut(){
     teacherToken='';teacherRecord=null;teacherNeedsPasswordChange=false;teacherLoginBusy=false;teacherListBusy=false;
     teacherGroupsData=[];
+    el('teacherFeedbackList').innerHTML='';el('teacherFeedbackText').value='';teacherFeedbackStatus('');
     el('teacherPassword').value='';el('teacherSetupPassword').value='';el('teacherSetupConfirm').value='';
     el('teacherGroups').innerHTML='';
     el('teacherGroupTitle').textContent='Chọn nhóm để xem';
@@ -1433,7 +1447,7 @@ footer{padding:4px 0;font-size:10px}
       var mapWork=teacherRecord.data.mapAnswers||{},mapEvidence='Đọc bản đồ: '+(mapWork.prediction==='giong'?'Đúng vị trí phía Nam':'Chưa hoàn thành')+'; '+(mapWork.line==='order'?'Đã hiểu đường nối':'Chưa hoàn thành');
       el('teacherMeta').textContent='Bắt đầu: '+item.firstAt+' · Hoạt động gần nhất: '+item.lastAt+' · HS chỉnh sửa cuối: '+(item.studentEditedAt||item.updatedAt)+' · GV chỉnh sửa: '+(item.teacherEditedAt||'chưa có')+' · Tổng hoạt động: '+Math.floor(item.seconds/60)+' phút · Bản '+item.revision+' · '+mapEvidence;
       el('teacherNote').value=teacherRecord.teacherNote||'';
-      teacherDisplaySite();teacherStatus('');
+      teacherDisplaySite();teacherStatus('');teacherFeedbackLoad();
     });
   }
   function teacherSave(){
@@ -1808,6 +1822,7 @@ footer{padding:4px 0;font-size:10px}
       b.classList.toggle('active', b.getAttribute('data-tab') === t);
     });
     if (t === 'report') updateSummary();
+    if (t === 'test'&&cloudSession)peerInboxFetch(false);
     if(t==='explore'&&isBasic()&&hasProfile())toggleEditor(true);
     updateLesson();
     if (realMap) setTimeout(function(){ realMap.invalidateSize({ pan: false }); }, 100);
@@ -1889,7 +1904,7 @@ footer{padding:4px 0;font-size:10px}
   el('openCloud').addEventListener('click',cloudLogin);
   el('cloudSaveNow').addEventListener('click',function(){cloudSave(true)});
   el('cloudReload').addEventListener('click',cloudReload);
-  el('cloudLogout').addEventListener('click',function(){cloudSession=null;cloudConflict=false;clearTimeout(remoteSaveTimer);persistCloudSession();cloudStatus('Đã ngắt phiên trực tuyến. Bài cục bộ vẫn được giữ nguyên.')});
+  el('cloudLogout').addEventListener('click',function(){cloudSession=null;cloudConflict=false;clearTimeout(remoteSaveTimer);persistCloudSession();el('peerInboxCount').textContent='';el('peerNotice').classList.add('hidden');el('peerInboxPanel').classList.add('hidden');cloudStatus('Đã ngắt phiên trực tuyến. Bài cục bộ vẫn được giữ nguyên.')});
   el('teacherBtn').addEventListener('click',teacherOpen);
   el('teacherClose').addEventListener('click',closeTeacher);
   function teacherLogin(){
