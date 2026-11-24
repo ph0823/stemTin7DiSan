@@ -1321,9 +1321,22 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   }
   function dataHasLearnerWork(x){
     if(!x||!x.sites)return false;
-    return ['nga','cu','giong'].some(function(id){
-      return !!(x.sites[id]&&(clean(x.sites[id].desc)||clean(x.sites[id].source)));
-    })||!!(clean(x.reason)||clean(x.message)||clean(x.compareText)||clean(x.issues)||clean(x.fix));
+    var hasSiteWork=['nga','cu','giong'].some(function(id){
+      var site=x.sites[id]||{};
+      return !!(clean(site.desc)||clean(site.source)||clean(site.image)||
+        clean(site.imageSource)||clean(site.license));
+    });
+    var filled=['reason','message','compareText','issues','fix','tester','recheck','sketch','selfAssessment'];
+    var hasText=filled.some(function(k){return !!clean(x[k])});
+    var hasChoices=(x.order&&x.order!==base.order)||
+      (x.compareOrder&&x.compareOrder!==base.compareOrder)||
+      (x.preferredRoute&&x.preferredRoute!=='A')||
+      (x.mode&&x.mode!==base.mode);
+    var hasMap=x.mapAnswers&&!!(x.mapAnswers.prediction||x.mapAnswers.line);
+    var hasVisited=x.visited&&Object.keys(x.visited).some(function(k){return x.visited[k]===true});
+    var hasChecks=x.checks&&Object.keys(x.checks).some(function(k){return x.checks[k]===true});
+    var hasSnapshots=x.snapshots&&!!(x.snapshots.before||x.snapshots.after);
+    return !!(hasSiteWork||hasText||hasChoices||hasMap||hasVisited||hasChecks||hasSnapshots);
   }
   function checkAutoSaveServer(){
     if(checkedServerVersion>=3)return true;
