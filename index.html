@@ -1515,19 +1515,46 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   }
   function cloudSave(manual){
     if(!cloudSession||!hasProfile())return;
-    if(cloudConflict){if(manual)cloudStatus('Bài đã được sửa trên máy khác. Chọn “Tải bài mới nhất”.');return}
+    if(cloudConflict){
+      if(manual)cloudStatus('Bài trên Google Sheets đã khác. Không ghi đè. Hãy xem lại trong “Bài của em/nhóm em”.');
+      syncStatusForLocal();return;
+    }
     if(remoteBusy){remotePending=true;return}
-    if(!save(true)){connectionError('Không lưu được bản trên máy, chưa gửi lên máy chủ.');return}
+    if(!save(true)){syncIssue='Không lưu được bài trên máy, chưa gửi Google Sheets.';syncStatusForLocal();return}
+    var targetKey=activeKey,sessionToken=cloudSession.token;
     remoteBusy=true;
     var sent=JSON.stringify(state),revision=cloudSession.revision,active=activeSeconds();
-    if(manual)cloudStatus('');
-    cloudCall({action:'studentSave',klass:cloudSession.klass,group:cloudSession.group,token:cloudSession.token,revision:revision,data:JSON.parse(sent),activeSeconds:active},function(err,res){
+    syncDisplay('warning','Đã lưu trên máy, đang gửi bài lên Google Sheets…',false);
+    if(manual)cloudStatus('Đang lưu bài lên Google Sheets…');
+    cloudCall({action:'studentSave',klass:cloudSession.klass,group:cloudSession.group,token:sessionToken,
+      revision:revision,data:JSON.parse(sent),activeSeconds:active},function(err,res){
       remoteBusy=false;
-      if(err){cloudStatus('Chưa lưu được lên mạng. Bài vẫn còn trên máy. '+err);return}
-      if(res.conflict){cloudConflict=true;cloudStatus('Bài đã có thay đổi trên máy khác. Chọn “Tải bài mới nhất”.');return}
-      cloudSession.revision=res.record.revision;cloudSession.updatedAt=res.record.updatedAt;cloudSession.seconds=res.record.seconds;
-      persistCloudSession();cloudStatus('');
-      if(remotePending||JSON.stringify(state)!==sent){remotePending=false;scheduleCloudSave()}
+      if(!cloudSession||cloudSession.token!==sessionToken||activeKey!==targetKey)return;
+      if(err){
+        syncIssue='Chưa lưu được lên Google Sheets. Bài còn trên máy. '+err;
+        cloudStatus(syncIssue);syncStatusForLocal();return;
+      }
+      if(!res||!res.record){
+        syncIssue='Google Sheets chưa xác nhận lưu bài. Bài vẫn được giữ trên máy.';
+        syncStatusForLocal();return;
+      }
+      if(res.conflict){
+        cloudConflict=true;syncIssue='';
+        cloudStatus('Bài đã được sửa trên máy khác. Không ghi đè; chọn “Tải bài mới nhất” sau khi sao lưu bài trên máy.');
+        syncStatusForLocal();return;
+      }
+      cloudSession.revision=res.record.revision;cloudSession.updatedAt=res.record.updatedAt;
+      cloudSession.seconds=res.record.seconds;
+      syncConfirmedJSON=sent;syncIssue='';
+      persistCloudSession();
+      cloudStatus('Đã lưu thành công lên Google Sheets.');
+      if(remotePending||JSON.stringify(state)!==sent){
+        remotePending=false;scheduleCloudSave();
+        syncDisplay('warning','Google Sheets đã lưu bản trước; đang chờ đồng bộ thay đổi mới.',false);
+      }else{
+        remotePending=false;syncDisplay('success','Đã lưu bài mới nhất lên Google Sheets.',false);
+        el('autosaveHint').textContent='Đã lưu Google Sheets';
+      }
     });
   }
   function scheduleCloudSave(){if(!cloudSession||cloudConflict)return;clearTimeout(remoteSaveTimer);remoteSaveTimer=setTimeout(function(){cloudSave(false)},12000)}
@@ -1902,8 +1929,11 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     try {
       localStorage.setItem(activeKey, JSON.stringify(state));
       dirty = false;
-      if (el('autosaveHint')) el('autosaveHint').textContent = cloudSession?'Đã lưu trên máy và đang đồng bộ':(storagePersistent?'Bài lưu trên máy':'Chỉ lưu tạm · tải bài về máy');
-      if (!silent) setStatus(storagePersistent?'Đã lưu bài trên máy.':'Bài mới lưu tạm trong phiên. Hãy tải bài về máy để tránh mất khi đóng trang.');
+      if(el('autosaveHint'))el('autosaveHint').textContent=
+        storagePersistent?'Bài lưu trên máy':'Chỉ lưu tạm · tải bài về máy';
+      if(!silent)setStatus(storagePersistent?'Đã lưu trên máy; đang kiểm tra Google Sheets.':
+        'Bài chỉ lưu tạm trong phiên. Hãy tải bài về máy trước khi đóng trang.');
+      if(!silent)syncStatusForLocal();
       return true;
     } catch (e) {
       if (el('autosaveHint')) el('autosaveHint').textContent = 'Không lưu được';
@@ -1918,6 +1948,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     clearTimeout(saveTimer);
     saveTimer = setTimeout(function(){ save(true); }, 650);
     updateLesson();scheduleCloudSave();
+    syncStatusForLocal();
   }
   function saveIfNeeded(){
     if (dirty) { clearTimeout(saveTimer); save(true); }
