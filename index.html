@@ -231,7 +231,7 @@ footer{padding:4px 0;font-size:10px}
 
 .lesson-clock{border:1px solid #deebf4;border-radius:8px;padding:5px 9px;margin:0 0 7px;background:#fbfdff}.lesson-clock summary{cursor:pointer;font-size:12px;color:#306080}.lesson-clock p{font-size:12px;margin:5px 0;line-height:1.5}
 
-.peer-actions{display:flex;gap:7px;flex-wrap:wrap;margin:7px 0 10px}.peer-actions button{font-size:12px}.peer-notice{padding:8px 10px;background:#edf8ef;border:1px solid #a6d1b1;border-radius:8px;margin:7px 0;font-size:12px}.peer-inbox{padding:10px;border:1px solid #cadfec;border-radius:9px;margin:8px 0;background:#f8fcff}.peer-entry{padding:9px;border-bottom:1px solid #dce7ed;margin:4px 0;font-size:12px;line-height:1.5;overflow-wrap:anywhere}.peer-entry strong{display:block}.peer-entry p{margin:4px 0}.peer-dialog-box{width:min(960px,96vw);max-width:960px;max-height:88vh;overflow-y:auto}.peer-choice{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:8px 0}.peer-choice label{font-size:12px;font-weight:bold}.peer-choice select{flex:1;min-width:170px}.peer-readonly{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.peer-readonly .peer-card{background:#fff;border:1px solid #d8e5ec;padding:11px;border-radius:8px;font-size:12px;line-height:1.55;overflow-wrap:anywhere;white-space:pre-wrap}.peer-readonly .peer-wide{grid-column:1/-1}.peer-readonly .peer-card strong{display:block;margin-bottom:6px}.peer-checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0}.peer-checks label{padding:8px;border:1px solid #d7e4ef;border-radius:6px;font-size:12px}.peer-status{font-size:12px;color:#17649a}.peer-status:empty{display:none}#peerInboxCount:not(:empty){display:inline-block;border-radius:10px;background:#d5edf7;padding:1px 6px;font-weight:bold}.teacher-peer-section{border-top:1px solid #d7e4ed;margin-top:12px;padding:12px 0}.teacher-peer-section textarea{min-height:60px}
+.peer-actions{display:flex;gap:7px;flex-wrap:wrap;margin:7px 0 10px}.peer-actions button{font-size:12px}.peer-notice{padding:8px 10px;background:#edf8ef;border:1px solid #a6d1b1;border-radius:8px;margin:7px 0;font-size:12px}.peer-inbox{padding:10px;border:1px solid #cadfec;border-radius:9px;margin:8px 0;background:#f8fcff}.peer-entry{padding:9px;border-bottom:1px solid #dce7ed;margin:4px 0;font-size:12px;line-height:1.5;overflow-wrap:anywhere}.peer-entry strong{display:block}.peer-entry p{margin:4px 0}.peer-mini-map{height:210px;border:1px solid #cedfeb;border-radius:8px;margin:8px 0}.peer-tab-new{color:#bd3b30;font-size:16px;margin-left:4px;line-height:1}.peer-dialog-box{width:min(960px,96vw);max-width:960px;max-height:88vh;overflow-y:auto}.peer-choice{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:8px 0}.peer-choice label{font-size:12px;font-weight:bold}.peer-choice select{flex:1;min-width:170px}.peer-readonly{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.peer-readonly .peer-card{background:#fff;border:1px solid #d8e5ec;padding:11px;border-radius:8px;font-size:12px;line-height:1.55;overflow-wrap:anywhere;white-space:pre-wrap}.peer-readonly .peer-wide{grid-column:1/-1}.peer-readonly .peer-card strong{display:block;margin-bottom:6px}.peer-checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0}.peer-checks label{padding:8px;border:1px solid #d7e4ef;border-radius:6px;font-size:12px}.peer-status{font-size:12px;color:#17649a}.peer-status:empty{display:none}#peerInboxCount:not(:empty){display:inline-block;border-radius:10px;background:#d5edf7;padding:1px 6px;font-weight:bold}.teacher-peer-section{border-top:1px solid #d7e4ed;margin-top:12px;padding:12px 0}.teacher-peer-section textarea{min-height:60px}
 @media(max-width:700px){.peer-readonly,.peer-checks{grid-template-columns:1fr}.peer-choice select{width:100%}}
 
 </style>
@@ -312,7 +312,7 @@ footer{padding:4px 0;font-size:10px}
         <nav class="tabbar step-journey" aria-label="Hành trình STEM bốn bước">
           <button data-tab="explore" class="active" type="button" aria-current="step"><span class="step-number">1</span><span><strong>Khám phá</strong><small>3 di tích</small></span><span class="step-check"></span></button>
           <button data-tab="design" type="button"><span class="step-number">2</span><span><strong>Thiết kế</strong><small>Chọn hành trình</small></span><span class="step-check"></span></button>
-          <button data-tab="test" type="button"><span class="step-number">3</span><span><strong>Kiểm thử</strong><small>Góp ý, sửa bài</small></span><span class="step-check"></span></button>
+          <button data-tab="test" type="button"><span class="step-number">3</span><span><strong>Kiểm thử</strong><small>Góp ý, sửa bài</small></span><span class="peer-tab-new" id="peerTabNew" aria-label="Góp ý mới"></span><span class="step-check"></span></button>
           <button data-tab="report" type="button"><span class="step-number">4</span><span><strong>Báo cáo</strong><small>Giới thiệu kết quả</small></span><span class="step-check"></span></button>
         </nav>
         <div class="step-instruction"><span class="step-time" id="stepTime">Hoạt động 2–3</span><span id="stepInstruction">Quan sát, đọc tư liệu và viết ba lời giới thiệu.</span></div>
@@ -448,6 +448,8 @@ footer{padding:4px 0;font-size:10px}
         <li>Viết thông điệp bảo tồn di sản. Không cần nhập quá nhiều thông tin trong một tiết.</li></ol>
         <p class="muted"><strong>Lưu ý:</strong> Đường nét đứt nối các điểm chỉ thể hiện thứ tự khám phá, không phải tuyến đường giao thông thực tế. Dùng các nút <strong>Xem cả 3</strong>, <strong>Đến điểm chọn</strong>, <strong>Ẩn/hiện đường nối</strong> khi quan sát bản đồ.</p></div>
       <div class="help-section"><h3>Bước 3 và 4 – Kiểm thử, báo cáo</h3>
+        <p><strong>Kiểm thử không cần đổi máy:</strong> mỗi nhóm mở bài trực tuyến bằng mã của <em>chính nhóm mình</em>. Ở bước 3, chọn <strong>Xem và góp ý bài nhóm bạn</strong>, chọn nhóm cùng lớp, đọc bản chỉ xem rồi gửi góp ý. Không nhập mã nhóm bạn.</p>
+        <p>Nhóm sở hữu nhấn <strong>Xem góp ý dành cho nhóm em</strong> để đọc; có thể chọn <strong>Đưa góp ý vào phiếu kiểm thử</strong>, tự sửa nội dung rồi lưu phiên bản sau. Nhận xét được kiểm tra nội dung và giáo viên có thể ẩn nhận xét không phù hợp.</p>
         <ol><li>Mở <strong>3. Kiểm thử</strong>, nhờ nhóm khác đánh dấu tiêu chí nội dung/nguồn, thẻ dễ đọc và hành trình có lí do. Ghi một góp ý cụ thể.</li>
         <li>Nhấn <strong>Lưu bài trước khi sửa</strong> trước khi kiểm thử. Chỉnh sửa nội dung, kiểu thẻ, hình ảnh hoặc tuyến theo góp ý, rồi nhấn <strong>Lưu bài sau khi sửa</strong>. Mục so sánh sẽ chỉ rõ trường nào đã thay đổi.</li>
         <li>Mở <strong>4. Báo cáo</strong>, tự đánh giá và sử dụng báo cáo tự tổng hợp để trình bày trong một phút; sau đó dùng <strong>Tải bài về máy</strong> để nộp theo hướng dẫn của giáo viên. Có thể chọn <strong>Tùy chọn → In sản phẩm</strong> để in báo cáo.</li></ol></div>
@@ -478,7 +480,10 @@ footer{padding:4px 0;font-size:10px}
         <div class="help-section"><h3>4. Cấp lại mã nhóm</h3>
           <p>Chọn đúng nhóm và nhấn <strong>Cấp mã nhóm mới</strong> khi nhóm quên mã hoặc cần đổi quyền truy cập. Ghi lại mã 4 ký tự mới và thông báo riêng cho thành viên nhóm. Mã cũ và phiên học sinh cũ không còn dùng được để chỉnh sửa trực tuyến.</p>
         </div>
-        <div class="help-section"><h3>5. Xử lý sự cố và đánh giá</h3>
+        <div class="help-section"><h3>5. Nhận xét và kiểm duyệt góp ý</h3>
+          <p>Chọn một nhóm trong danh sách quản lý, xem mục <strong>Nhận xét và kiểm duyệt góp ý</strong>. Giáo viên có thể gửi lời nhận xét trực tiếp cho nhóm, xem góp ý giữa các nhóm và ẩn hoặc hiện lại các nhận xét chưa phù hợp. Học sinh chỉ được xem và góp ý bài nhóm bạn cùng lớp, không có quyền sửa bài.</p>
+        </div>
+        <div class="help-section"><h3>6. Xử lý sự cố và đánh giá</h3>
           <p>Nếu báo bài đã thay đổi từ máy khác, tải lại dữ liệu nhóm trước khi tiếp tục chỉnh sửa, tránh ghi đè bài mới. Nếu hệ thống chưa kết nối, kiểm tra địa chỉ và quyền truy cập trong <strong>Bài của nhóm → Cài đặt kết nối</strong>.</p>
           <p>Đánh giá sản phẩm theo rubric KHBD, kết hợp quá trình hợp tác, nguồn tư liệu, hành trình, minh chứng kiểm thử và cải tiến. Tỉ lệ hoàn thành trên ứng dụng chỉ phản ánh thao tác, không phải điểm số tự động.</p>
         </div>
@@ -515,6 +520,7 @@ footer{padding:4px 0;font-size:10px}
       <p class="muted">Chỉ xem bài của nhóm khác cùng lớp. Không cần mã nhóm bạn và không thể sửa bài của bạn.</p>
       <div class="peer-choice"><label for="peerTarget">Nhóm muốn góp ý</label><select id="peerTarget"></select><button id="peerLoad" class="primary" type="button">Xem bài</button><button id="peerRefresh" type="button">Tải danh sách</button></div>
       <div id="peerStatus" class="peer-status" role="status"></div>
+      <div id="peerMap" class="peer-mini-map hidden" aria-label="Bản đồ vị trí các điểm di tích của nhóm bạn"></div>
       <div id="peerReadOnly" class="peer-readonly"></div>
       <div id="peerComposer" class="hidden">
         <h3>Gửi một góp ý cụ thể</h3>
@@ -1104,7 +1110,7 @@ footer{padding:4px 0;font-size:10px}
     activeKey=k;state=candidate;dirty=false;clearTimeout(saveTimer);
     cloudSession={token:token,klass:klass,group:group,revision:record.revision,firstAt:record.firstAt,updatedAt:record.updatedAt,seconds:record.seconds};
     cloudConflict=false;cloudLastActive=Date.now();persistCloudSession();refresh();updateProfileUI();
-    el('peerInboxCount').textContent='';el('peerNotice').classList.add('hidden');
+    el('peerInboxCount').textContent='';el('peerTabNew').textContent='';el('peerNotice').classList.add('hidden');
     setTimeout(function(){peerInboxFetch(false)},450);
     closeBridgeDialog('groupDialog');
   }
@@ -1169,7 +1175,7 @@ footer{padding:4px 0;font-size:10px}
 
   /* Kiểm thử chéo: chỉ xem dữ liệu công khai của nhóm cùng lớp;
      mọi nhận xét được lưu riêng trên Apps Script, không ghi lên bài bạn. */
-  var peerCurrentTarget='',peerInboxBusy=false,peerLatestFeedback=[];
+  var peerCurrentTarget='',peerInboxBusy=false,peerLatestFeedback=[],peerMiniMap=null;
   function peerStatus(message){el('peerStatus').textContent=message||''}
   function peerCard(title,body,wide){
     var card=document.createElement('div');card.className='peer-card'+(wide?' peer-wide':'');
@@ -1177,8 +1183,35 @@ footer{padding:4px 0;font-size:10px}
     var p=document.createElement('div');p.textContent=body||'Chưa có nội dung';card.appendChild(p);
     el('peerReadOnly').appendChild(card);
   }
+  function peerRenderMap(record){
+    if(peerMiniMap){try{peerMiniMap.remove()}catch(e){}peerMiniMap=null}
+    var target=el('peerMap');
+    target.classList.add('hidden');
+    if(typeof L==='undefined'||!record||!record.order)return;
+    target.classList.remove('hidden');
+    try{
+      peerMiniMap=L.map(target,{scrollWheelZoom:false,zoomControl:false,dragging:false});
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {attribution:'© OpenStreetMap',maxZoom:18}).addTo(peerMiniMap);
+      var coords=[];
+      record.order.forEach(function(id,i){
+        var info=heritageGeo[id];
+        if(!info)return;
+        coords.push([info.lat,info.lng]);
+        L.circleMarker([info.lat,info.lng],{radius:8,color:'#216696',fillColor:'#eef8ff',fillOpacity:1,weight:3})
+         .addTo(peerMiniMap).bindPopup((i+1)+'. '+record.sites[id].name);
+      });
+      if(coords.length>1)L.polyline(coords,{color:'#bd573c',dashArray:'6,6',weight:3}).addTo(peerMiniMap);
+      if(coords.length)peerMiniMap.fitBounds(coords,{padding:[20,20]});
+      setTimeout(function(){if(peerMiniMap)peerMiniMap.invalidateSize({pan:false})},130);
+    }catch(e){
+      target.classList.add('hidden');
+      if(peerMiniMap){try{peerMiniMap.remove()}catch(err){}peerMiniMap=null}
+    }
+  }
   function peerRenderRecord(record){
     var area=el('peerReadOnly');area.innerHTML='';
+    peerRenderMap(record);
     if(!record||!record.sites){peerStatus('Không có dữ liệu để xem.');return}
     peerCard('Bản chỉ xem · '+record.klass+' / '+record.group,
       'Chỉ hiện nội dung giới thiệu di tích, nguồn, hành trình và thông điệp. Không hiển thị mã nhóm hoặc dữ liệu riêng.',true);
@@ -1243,7 +1276,11 @@ footer{padding:4px 0;font-size:10px}
       peerStatus('Đã gửi góp ý cho '+peerCurrentTarget+'. Nhóm bạn sẽ nhìn thấy khi mở hộp nhận xét.');
     });
   }
-  function peerReadOnlyClose(){el('peerDialog').classList.add('hidden');el('peerOpenBtn').focus()}
+  function peerReadOnlyClose(){
+    el('peerDialog').classList.add('hidden');
+    if(peerMiniMap){try{peerMiniMap.remove()}catch(e){}peerMiniMap=null}
+    el('peerOpenBtn').focus()
+  }
   function peerSeenKey(){
     return 'stem7_feedback_seen_'+encodeURIComponent(cloudSession?cloudSession.klass+'|'+cloudSession.group:'');
   }
@@ -1264,6 +1301,8 @@ footer{padding:4px 0;font-size:10px}
       var lastSeen=0;try{lastSeen=Number(localStorage.getItem(peerSeenKey())||0)}catch(e){}
       var newCount=peerLatestFeedback.filter(function(x){return new Date(x.createdAt).getTime()>lastSeen}).length;
       el('peerInboxCount').textContent=newCount?String(newCount):'';
+      el('peerTabNew').textContent=newCount?'●':'';
+      el('peerTabNew').setAttribute('aria-label',newCount?'Có '+newCount+' góp ý mới':'');
       el('peerNotice').textContent=newCount?'Nhóm em có '+newCount+' góp ý mới từ nhóm bạn hoặc giáo viên. Chọn “Xem góp ý dành cho nhóm em”.':'';
       el('peerNotice').classList.toggle('hidden',!newCount);
       if(show){
@@ -1296,6 +1335,7 @@ footer{padding:4px 0;font-size:10px}
         });
         try{localStorage.setItem(peerSeenKey(),String(Date.now()))}catch(e){}
         el('peerInboxCount').textContent='';
+        el('peerTabNew').textContent='';
         el('peerNotice').classList.add('hidden');
       }
     });
@@ -1904,7 +1944,7 @@ footer{padding:4px 0;font-size:10px}
   el('openCloud').addEventListener('click',cloudLogin);
   el('cloudSaveNow').addEventListener('click',function(){cloudSave(true)});
   el('cloudReload').addEventListener('click',cloudReload);
-  el('cloudLogout').addEventListener('click',function(){cloudSession=null;cloudConflict=false;clearTimeout(remoteSaveTimer);persistCloudSession();el('peerInboxCount').textContent='';el('peerNotice').classList.add('hidden');el('peerInboxPanel').classList.add('hidden');cloudStatus('Đã ngắt phiên trực tuyến. Bài cục bộ vẫn được giữ nguyên.')});
+  el('cloudLogout').addEventListener('click',function(){cloudSession=null;cloudConflict=false;clearTimeout(remoteSaveTimer);persistCloudSession();el('peerInboxCount').textContent='';el('peerTabNew').textContent='';el('peerNotice').classList.add('hidden');el('peerInboxPanel').classList.add('hidden');cloudStatus('Đã ngắt phiên trực tuyến. Bài cục bộ vẫn được giữ nguyên.')});
   el('teacherBtn').addEventListener('click',teacherOpen);
   el('teacherClose').addEventListener('click',closeTeacher);
   function teacherLogin(){
