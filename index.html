@@ -231,7 +231,7 @@ footer{padding:4px 0;font-size:10px}
 
 .lesson-clock{border:1px solid #deebf4;border-radius:8px;padding:5px 9px;margin:0 0 7px;background:#fbfdff}.lesson-clock summary{cursor:pointer;font-size:12px;color:#306080}.lesson-clock p{font-size:12px;margin:5px 0;line-height:1.5}
 
-.peer-actions{display:flex;gap:7px;flex-wrap:wrap;margin:7px 0 10px}.peer-actions button{font-size:12px}.peer-notice{padding:8px 10px;background:#edf8ef;border:1px solid #a6d1b1;border-radius:8px;margin:7px 0;font-size:12px}.peer-inbox{padding:10px;border:1px solid #cadfec;border-radius:9px;margin:8px 0;background:#f8fcff}.peer-entry{padding:9px;border-bottom:1px solid #dce7ed;margin:4px 0;font-size:12px;line-height:1.5;overflow-wrap:anywhere}.peer-entry strong{display:block}.peer-entry p{margin:4px 0}.peer-mini-map{height:210px;border:1px solid #cedfeb;border-radius:8px;margin:8px 0}.peer-tab-new{color:#bd3b30;font-size:16px;margin-left:4px;line-height:1}.peer-dialog-box{width:min(960px,96vw);max-width:960px;max-height:88vh;overflow-y:auto}.peer-choice{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:8px 0}.peer-choice label{font-size:12px;font-weight:bold}.peer-choice select{flex:1;min-width:170px}.peer-readonly{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.peer-readonly .peer-card{background:#fff;border:1px solid #d8e5ec;padding:11px;border-radius:8px;font-size:12px;line-height:1.55;overflow-wrap:anywhere;white-space:pre-wrap}.peer-readonly .peer-wide{grid-column:1/-1}.peer-readonly .peer-card strong{display:block;margin-bottom:6px}.peer-checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0}.peer-checks label{padding:8px;border:1px solid #d7e4ef;border-radius:6px;font-size:12px}.peer-status{font-size:12px;color:#17649a}.peer-status:empty{display:none}#peerInboxCount:not(:empty){display:inline-block;border-radius:10px;background:#d5edf7;padding:1px 6px;font-weight:bold}.teacher-peer-section{border-top:1px solid #d7e4ed;margin-top:12px;padding:12px 0}.teacher-peer-section textarea{min-height:60px}
+.peer-actions{display:flex;gap:7px;flex-wrap:wrap;margin:7px 0 10px}.peer-actions>*{margin:2px 6px 2px 0}.peer-actions button{font-size:12px}.peer-notice{padding:8px 10px;background:#edf8ef;border:1px solid #a6d1b1;border-radius:8px;margin:7px 0;font-size:12px}.peer-inbox{padding:10px;border:1px solid #cadfec;border-radius:9px;margin:8px 0;background:#f8fcff}.peer-entry{padding:9px;border-bottom:1px solid #dce7ed;margin:4px 0;font-size:12px;line-height:1.5;overflow-wrap:anywhere}.peer-entry strong{display:block}.peer-entry p{margin:4px 0}.peer-mini-map{height:210px;border:1px solid #cedfeb;border-radius:8px;margin:8px 0}.peer-tab-new{color:#bd3b30;font-size:16px;margin-left:4px;line-height:1}.peer-dialog-box{width:96vw;max-width:960px;max-height:88vh;overflow-y:auto}.peer-choice{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:8px 0}.peer-choice>*{margin-right:7px}.peer-choice label{font-size:12px;font-weight:bold}.peer-choice select{flex:1;min-width:170px}.peer-readonly{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.peer-readonly .peer-card{background:#fff;border:1px solid #d8e5ec;padding:11px;border-radius:8px;font-size:12px;line-height:1.55;overflow-wrap:anywhere;white-space:pre-wrap}.peer-readonly .peer-wide{grid-column:1/-1}.peer-readonly .peer-card strong{display:block;margin-bottom:6px}.peer-checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0}.peer-checks label{padding:8px;border:1px solid #d7e4ef;border-radius:6px;font-size:12px}.peer-status{font-size:12px;color:#17649a}.peer-status:empty{display:none}#peerInboxCount:not(:empty){display:inline-block;border-radius:10px;background:#d5edf7;padding:1px 6px;font-weight:bold}.teacher-peer-section{border-top:1px solid #d7e4ed;margin-top:12px;padding:12px 0}.teacher-peer-section textarea{min-height:60px}
 @media(max-width:700px){.peer-readonly,.peer-checks{grid-template-columns:1fr}.peer-choice select{width:100%}}
 
 </style>
@@ -1044,6 +1044,7 @@ footer{padding:4px 0;font-size:10px}
     if(/Quá nhiều lần nhập sai/i.test(m))return 'Đã nhập sai nhiều lần. Hãy thử lại sau hoặc nhờ giáo viên.';
     if(/Phiên.*hết hạn|đăng nhập lại/i.test(m))return 'Phiên làm bài đã hết hạn. Hãy mở lại bằng mã nhóm.';
     if(/đã tồn tại/i.test(m))return 'Nhóm đã có bài. Hãy nhập mã nhóm để mở lại.';
+    if(/Hành động không được hỗ trợ/i.test(m))return 'Chức năng góp ý chưa được bật trên hệ thống. Hãy báo giáo viên.';
     if(/Chưa có nhóm/i.test(m))return 'Không tìm thấy bài nhóm. Kiểm tra lớp và tên nhóm.';
     if(/revision|conflict|phiên bản mới/i.test(m))return 'Bài đã được sửa ở máy khác. Hãy tải bài mới nhất.';
     if(/Thiếu dữ liệu|Không hợp lệ|Invalid|Sai kiểu|payload|schema|Exception|TypeError|ReferenceError|setup\(|Script Properties|Spreadsheet/i.test(m))return 'Hệ thống lưu bài gặp lỗi. Hãy báo giáo viên.';
@@ -1229,7 +1230,7 @@ footer{padding:4px 0;font-size:10px}
   function peerOpen(){
     if(!cloudSession){setStatus('Hãy vào “Bài của nhóm” và mở bài trực tuyến trước khi góp ý chéo.');cloudOpen();return}
     peerCurrentTarget='';
-    el('peerReadOnly').innerHTML='';el('peerComposer').classList.add('hidden');
+    el('peerReadOnly').innerHTML='';el('peerMap').classList.add('hidden');el('peerComposer').classList.add('hidden');
     el('peerDialog').classList.remove('hidden');
     peerStatus('Đang tải danh sách nhóm cùng lớp…');
     peerList();
@@ -1291,8 +1292,10 @@ footer{padding:4px 0;font-size:10px}
     }
     if(peerInboxBusy)return;
     peerInboxBusy=true;
-    cloudCall({action:'peerInbox',klass:cloudSession.klass,token:cloudSession.token},function(err,res){
+    var requestedKlass=cloudSession.klass,requestedGroup=cloudSession.group,requestedToken=cloudSession.token;
+    cloudCall({action:'peerInbox',klass:requestedKlass,token:requestedToken},function(err,res){
       peerInboxBusy=false;
+      if(!cloudSession||cloudSession.token!==requestedToken||cloudSession.group!==requestedGroup||cloudSession.klass!==requestedKlass)return;
       if(err){
         if(show){el('peerInboxPanel').classList.remove('hidden');el('peerInboxEntries').textContent='Chưa tải được góp ý: '+err}
         return;
@@ -1388,6 +1391,12 @@ footer{padding:4px 0;font-size:10px}
   el('peerClose').addEventListener('click',peerReadOnlyClose);
   el('peerRefresh').addEventListener('click',peerList);
   el('peerLoad').addEventListener('click',peerLoad);
+  el('peerTarget').addEventListener('change',function(){
+    peerCurrentTarget='';el('peerComposer').classList.add('hidden');el('peerReadOnly').innerHTML='';
+    el('peerMap').classList.add('hidden');
+    if(peerMiniMap){try{peerMiniMap.remove()}catch(e){}peerMiniMap=null}
+    peerStatus('Nhấn “Xem bài” để đọc bài của nhóm vừa chọn.');
+  });
   el('peerSend').addEventListener('click',peerSend);
   el('peerInboxBtn').addEventListener('click',function(){peerInboxFetch(true)});
   el('peerInboxClose').addEventListener('click',function(){el('peerInboxPanel').classList.add('hidden')});
