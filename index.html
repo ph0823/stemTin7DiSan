@@ -676,7 +676,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
       <input id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
       <div class="actions"><button id="saveScriptUrl" type="button">Lưu địa chỉ</button><button id="pingServer" type="button">Kiểm tra kết nối</button></div></details><div id="teacherLoginPanel">
         <label for="teacherPassword">Mật khẩu giáo viên (8 ký tự)</label><input type="password" id="teacherPassword" maxlength="8" autocomplete="off" enterkeyhint="go">
-        <div class="actions"><button id="teacherLogin" class="primary" type="button">Đăng nhập</button></div>
+        <label style="display:block;margin:12px 0;font-weight:normal"><input type="checkbox" id="teacherRemember"> Giữ đăng nhập trên máy cá nhân (tối đa 6 giờ)</label><div class="actions"><button id="teacherLogin" class="primary" type="button">Đăng nhập</button></div>
       </div>
       <div id="teacherPasswordSetupPanel" class="hidden">
         <h3>Đổi mật khẩu để bắt đầu</h3>
@@ -1281,7 +1281,10 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   /* Sau khi triển khai Apps Script, đặt URL /exec vào đây để mọi máy tự kết nối.
      Để trống nếu giáo viên muốn cấu hình từ nút "Lưu trực tuyến" trên từng máy. */
   var DEFAULT_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwSPofyS3booetjjI90Vc1eCsCectWbJHAr5mCQAaVhumjkVR62dsr1JuDZEdESozC0/exec';
-  var CLOUD_URL_KEY='stem7_apps_script_url',STUDENT_SESSION_KEY='stem7_cloud_student_session';
+  var CLOUD_URL_KEY='stem7_apps_script_url',STUDENT_SESSION_KEY='stem7_cloud_student_session',TEACHER_SESSION_KEY='stem7_teacher_session_v43',STUDENT_KEEP_KEY='stem7_student_session_v43';
+  var SESSION_MAX_MS=6*60*60*1000,teacherSessionUntil=0,teacherRemember=false,studentSessionUntil=0,studentSessionToken='';
+  function readStoredSession(key,store){try{var x=JSON.parse(store.getItem(key)||'null');if(x&&x.url===DEFAULT_SCRIPT_URL&&x.until>Date.now()&&x.token)return x;store.removeItem(key)}catch(e){}return null}
+  function removeStoredSession(key){try{localStorage.removeItem(key)}catch(e){}try{sessionStorage.removeItem(key)}catch(e){}}
   var scriptUrl='',cloudRequests={},cloudCounter=0,cloudSession=null,teacherToken='',teacherGroupsData=[],teacherRecord=null;
   var teacherCurrentSite='nga',remoteSaveTimer=null,remoteBusy=false,remotePending=false,cloudConflict=false,cloudLastActive=Date.now();
   var CREATE_PENDING_PREFIX='stem7_auto_create_v1_',CODE_SESSION_PREFIX='stem7_access_code_v1_';
@@ -1523,9 +1526,28 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     el('cloudBtn').textContent=ok?'Bài: '+cloudSession.group:'Bài của em/nhóm em';
   }
   function persistCloudSession(){
-    try{if(cloudSession)sessionStorage.setItem(STUDENT_SESSION_KEY,JSON.stringify(cloudSession));
-        else sessionStorage.removeItem(STUDENT_SESSION_KEY)}catch(e){}
+    if(cloudSession){
+      if(studentSessionToken!==cloudSession.token){studentSessionToken=cloudSession.token;studentSessionUntil=Date.now()+SESSION_MAX_MS}
+      var saved={token:cloudSession.token,url:scriptUrl,until:studentSessionUntil,session:cloudSession};
+      try{sessionStorage.setItem(STUDENT_SESSION_KEY,JSON.stringify(cloudSession));localStorage.setItem(STUDENT_KEEP_KEY,JSON.stringify(saved))}catch(e){}
+    }else{studentSessionToken='';studentSessionUntil=0;removeStoredSession(STUDENT_SESSION_KEY);removeStoredSession(STUDENT_KEEP_KEY)}
     updateCloudUI();
+  }
+  function persistTeacherSession(reset){
+    if(!teacherToken){removeStoredSession(TEACHER_SESSION_KEY);return}
+    if(reset)teacherSessionUntil=Date.now()+SESSION_MAX_MS;
+    var data=JSON.stringify({token:teacherToken,url:scriptUrl,until:teacherSessionUntil,remember:teacherRemember,mustChange:teacherNeedsPasswordChange});
+    try{sessionStorage.setItem(TEACHER_SESSION_KEY,data)}catch(e){}
+    try{if(teacherRemember)localStorage.setItem(TEACHER_SESSION_KEY,data);else localStorage.removeItem(TEACHER_SESSION_KEY)}catch(e){}
+  }
+  function restoreTeacherSession(){
+    var saved=null;try{saved=readStoredSession(TEACHER_SESSION_KEY,sessionStorage)}catch(e){}
+    if(!saved)saved=readStoredSession(TEACHER_SESSION_KEY,localStorage);
+    if(!saved)return false;
+    teacherToken=saved.token;teacherRemember=!!saved.remember;teacherSessionUntil=saved.until;teacherNeedsPasswordChange=!!saved.mustChange;return true
+  }
+  function expireTeacherSession(){
+    removeStoredSession(TEACHER_SESSION_KEY);teacherToken='';teacherNeedsPasswordChange=false;teacherSessionUntil=0;teacherRecord=null;teacherGroupsData=[];gvDirty=false;gvLoading=false;gvSaving=false;gvLoadSeq++;el('gvDetailBody').classList.add('hidden');el('gvCards').textContent='';el('v4TeacherSummary').textContent='';showTeacherPanels();teacherStatus('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
   }
   function adoptCloudRecord(result,token){
     var record=result.record,candidate=normalizeData(record.data),klass=clean(record.klass),group=clean(record.group);
@@ -1659,6 +1681,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     cloudCall({action:'studentGet',klass:klass,group:group,token:token},function(err,res){
       if(!cloudSession||cloudSession.token!==token||activeKey!==targetKey)return;
       if(err){
+        if(/hết hạn|đăng nhập lại|mã nhóm chưa đúng|không có quyền/i.test(err)){removeStoredSession(STUDENT_KEEP_KEY);removeStoredSession(STUDENT_SESSION_KEY);cloudSession=null;studentSessionToken='';studentSessionUntil=0;updateCloudUI();syncIssue='Phiên hết hạn. Hãy mở lại bài bằng mã của em.';syncStatusForLocal();return}
         syncIssue='Chưa kiểm tra được Google Sheets. Bài vẫn còn trên máy. '+err;
         syncStatusForLocal();return;
       }
@@ -1940,7 +1963,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     el('teacherWorkspace').classList.toggle('hidden',!authenticated||mustChange);
   }
   function teacherSignOut(){
-    if(gvDirty||gvSaving){teacherStatus('Hãy lưu chỉnh sửa trước khi đăng xuất.');return}gvLoadSeq++;gvLoading=false;el('gvDetailBody').classList.add('hidden');el('gvCards').textContent='';teacherToken='';teacherRecord=null;teacherNeedsPasswordChange=false;teacherLoginBusy=false;teacherListBusy=false;
+    if(gvDirty||gvSaving){teacherStatus('Hãy lưu chỉnh sửa trước khi đăng xuất.');return}gvLoadSeq++;gvLoading=false;el('gvDetailBody').classList.add('hidden');el('gvCards').textContent='';removeStoredSession(TEACHER_SESSION_KEY);teacherSessionUntil=0;teacherRemember=false;teacherToken='';teacherRecord=null;teacherNeedsPasswordChange=false;teacherLoginBusy=false;teacherListBusy=false;
     teacherGroupsData=[];el('v4TeacherSummary').textContent='';
     el('teacherFeedbackList').innerHTML='';el('teacherFeedbackText').value='';teacherFeedbackStatus('');
     el('teacherPassword').value='';el('teacherSetupPassword').value='';el('teacherSetupConfirm').value='';
@@ -1952,6 +1975,8 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   }
   function teacherOpen(){
     el('teacherDialog').classList.remove('hidden');el('scriptUrl').value=scriptUrl;
+    if(!teacherToken)restoreTeacherSession();
+    if(teacherToken&&teacherSessionUntil<=Date.now()){expireTeacherSession();return}
     showTeacherPanels();
     if(teacherNeedsPasswordChange){teacherStatus('Hãy đổi mật khẩu để tiếp tục.');focusTeacherInput('teacherSetupPassword')}
     else if(teacherToken){teacherList()}
@@ -1969,6 +1994,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
       teacherListBusy=false;el('teacherRefresh').disabled=false;
       if(teacherToken!==previousToken)return;
       if(err){
+        if(/hết hạn|đăng nhập lại|không có quyền/i.test(err)){if(!gvDirty)expireTeacherSession();else teacherStatus('Phiên hết hạn. Hãy sao chép nội dung đang sửa trước khi đăng nhập lại.');return}
         teacherStatus('Không tải được danh sách nhóm: '+err);
         el('teacherListHint').textContent='Không tải được dữ liệu. Nhấn “Tải danh sách nhóm” để thử lại.';
         return;
@@ -2089,7 +2115,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     if(cloudSession&&syncConfirmedJSON!==JSON.stringify(state)){
       if(/hết hạn|đăng nhập lại/i.test(syncIssue))return;
       verifyCloudOnResume();
-    }else if(!cloudSession&&checkedServerVersion>=0&&!/đã có bài|đã tồn tại|không ghi đè/i.test(syncIssue))autoRegisterCloud();
+    }else if(!cloudSession&&checkedServerVersion>=0&&!/đã có bài|đã tồn tại|không ghi đè|hết hạn/i.test(syncIssue))autoRegisterCloud();
   },30000);
   window.addEventListener('online',function(){
     if(!hasProfile())return;
@@ -2558,7 +2584,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
       el('teacherPassword').value='';
       if(err){teacherStatus(err);focusTeacherInput('teacherPassword');return}
       if(!res||!res.token){teacherStatus('Chưa nhận được xác nhận đăng nhập. Hãy thử lại.');focusTeacherInput('teacherPassword');return}
-      teacherToken=res.token;teacherNeedsPasswordChange=!!res.mustChange;
+      teacherToken=res.token;teacherNeedsPasswordChange=!!res.mustChange;teacherRemember=el('teacherRemember').checked;persistTeacherSession(true);
       showTeacherPanels();
       if(teacherNeedsPasswordChange){
         teacherStatus('Vui lòng đặt mật khẩu mới trước khi xem bài của học sinh.');
@@ -2577,7 +2603,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
       button.disabled=false;
       if(err){teacherStatus(err);focusTeacherInput(setup?'teacherSetupPassword':'teacherNewPassword');return}
       el('teacherNewPassword').value='';el('teacherSetupPassword').value='';el('teacherSetupConfirm').value='';
-      teacherNeedsPasswordChange=false;showTeacherPanels();
+      teacherNeedsPasswordChange=false;persistTeacherSession(true);showTeacherPanels();
       teacherStatus('Đã đổi mật khẩu. Đang tải bài học sinh…');
       teacherList();
     });
@@ -2612,7 +2638,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   var rememberedScriptUrl='';
   try{rememberedScriptUrl=localStorage.getItem(CLOUD_URL_KEY)||''}catch(e){}
   scriptUrl=DEFAULT_SCRIPT_URL;
-  if(rememberedScriptUrl&&rememberedScriptUrl!==DEFAULT_SCRIPT_URL){try{sessionStorage.removeItem(STUDENT_SESSION_KEY)}catch(e){}}
+  if(rememberedScriptUrl&&rememberedScriptUrl!==DEFAULT_SCRIPT_URL){removeStoredSession(STUDENT_SESSION_KEY);removeStoredSession(STUDENT_KEEP_KEY);removeStoredSession(TEACHER_SESSION_KEY)}
   try{localStorage.setItem(CLOUD_URL_KEY,DEFAULT_SCRIPT_URL)}catch(e){}
   if(!validScriptUrl(scriptUrl))scriptUrl='';
   updateCloudUI();
@@ -2873,7 +2899,8 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
 
   populateOrders();
   restore();
-  try{var st=sessionStorage.getItem(STUDENT_SESSION_KEY);if(st){var session=JSON.parse(st);if(session&&session.token)cloudSession=session}}catch(e){}
+  var savedStudent=readStoredSession(STUDENT_KEEP_KEY,localStorage);if(savedStudent&&savedStudent.session){cloudSession=savedStudent.session;studentSessionToken=savedStudent.token;studentSessionUntil=savedStudent.until;}
+  else{try{var st=sessionStorage.getItem(STUDENT_SESSION_KEY);if(st){var session=JSON.parse(st);if(session&&session.token){cloudSession=session;studentSessionToken=session.token;studentSessionUntil=Date.now()+SESSION_MAX_MS}}}catch(e){}}
   if(cloudSession&&(!hasProfile()||clean(cloudSession.klass).toLowerCase()!==clean(state.klass).toLowerCase()||clean(cloudSession.group).toLowerCase()!==clean(state.group).toLowerCase())){cloudSession=null;persistCloudSession()}
   updateCloudUI();
   refresh();
@@ -2893,7 +2920,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   updateLesson();
   if(hasProfile()){
     if(cloudSession){
-      syncSafeCode=currentAccessCode();
+      persistCloudSession();syncSafeCode=currentAccessCode();
       setTimeout(verifyCloudOnResume,650);
     }else{
       setTimeout(autoRegisterCloud,650);
