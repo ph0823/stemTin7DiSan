@@ -349,6 +349,8 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
 @media(max-width:560px){header h1{font-size:18px}.v4-journey .step-journey button{padding:5px 3px;font-size:11px}.v4-journey .step-journey button small{display:none}.v4-stage-count{font-size:10px}.v4-thumb{height:38px}.v4-badge{font-size:10px}.toolbar-actions{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.v4-fill,.v4-word-fill,.toolbar-actions button{transition:none}.route-pin.selected,.v4-route,.v4-badge.pop,.work-panel .tab:not(.hidden){animation:none}}
 @media print{.v4-journey,.v4-word-track,.v4-sync-detail{display:none!important}}
+/* V4.1 – reduce repeated information */
+#syncPanel{min-height:28px;padding:4px 9px;justify-content:flex-start}#syncPanel #syncMessage{flex:1;min-width:0}#syncPanel.success{background:#f1f9f4}#taskCompletion:empty{display:none}.v4-journey .step-journey button .v4-stage-count{font-size:11px;font-weight:bold;margin-left:auto;white-space:nowrap}.v4-journey .step-journey button small:not(.v4-stage-count){display:none}.v4-badges{margin-top:4px}.v4-badge:not(.earned){display:none}.v4-badges:empty{display:none}#teacherConnection p:empty,#cloudStatus:empty,#status:empty{display:none}#cloudErrorBanner{display:none!important}
 </style>
 </head>
 <body class="needs-profile">
@@ -387,7 +389,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   <div id="syncPanel" class="sync-panel hidden" role="status" aria-live="polite">
     <span id="syncMessage">Bài được giữ trên máy.</span>
     <button id="retrySync" type="button" class="hidden">Thử lại</button>
-    <button id="showSyncCode" type="button" class="hidden">Xem mã bài</button><details class="v4-sync-detail"><summary>Chi tiết</summary><p id="v4SyncDetail"></p></details>
+    <button id="showSyncCode" type="button" class="hidden">Xem mã bài</button>
   </div>
 
   <section id="profilePrompt" class="profile-prompt" aria-labelledby="welcomeTitle">
@@ -626,9 +628,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     <div class="reset-box cloud-box">
       <h2 id="cloudTitle">Bài của em / nhóm em</h2>
       <p class="muted">Nếu làm trên máy khác, em hãy nhập mã 4 ký tự của bài mình để mở lại. Không chia sẻ mã với người khác.</p>
-      <details class="server-config"><summary>Cài đặt kết nối (dành cho giáo viên)</summary><label for="scriptUrl">Địa chỉ hệ thống lưu bài</label>
-      <input id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
-      <div class="actions"><button id="saveScriptUrl" type="button">Lưu địa chỉ</button><button id="pingServer" type="button">Kiểm tra kết nối</button></div></details>
+      
       <div id="cloudConnectPanel">
         <label for="cloudClass">Lớp</label><input id="cloudClass" maxlength="30" placeholder="7A1">
         <label for="cloudGroup">Tên học sinh hoặc nhóm</label><input id="cloudGroup" maxlength="50" placeholder="Nhóm 1">
@@ -670,7 +670,9 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   <div id="teacherDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="teacherTitle">
     <div class="reset-box teacher-box">
       <div class="teacher-dialog-heading"><h2 id="teacherTitle">Quản lý sản phẩm STEM – Giáo viên</h2><button id="teacherHelpBtn" type="button">Hướng dẫn giáo viên</button></div>
-      <div id="teacherLoginPanel">
+      <details class="server-config" id="teacherConnection"><summary>Kiểm tra kết nối</summary><p id="v4SyncDetail" class="muted"></p><p id="teacherConnectionResult" role="status"></p><label for="scriptUrl">Địa chỉ hệ thống lưu bài</label>
+      <input id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
+      <div class="actions"><button id="saveScriptUrl" type="button">Lưu địa chỉ</button><button id="pingServer" type="button">Kiểm tra kết nối</button></div></details><div id="teacherLoginPanel">
         <label for="teacherPassword">Mật khẩu giáo viên (8 ký tự)</label><input type="password" id="teacherPassword" maxlength="8" autocomplete="off" enterkeyhint="go">
         <div class="actions"><button id="teacherLogin" class="primary" type="button">Đăng nhập</button></div>
       </div>
@@ -757,7 +759,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   </div>
   <div id="backupDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="backupTitle"><div class="reset-box"><h3 id="backupTitle">Khôi phục bản sao lưu</h3><p class="muted">Chọn bản sao của bài đang mở. Ứng dụng sẽ sao lưu trạng thái trước khi khôi phục.</p><label for="backupList">Bản lưu gần đây</label><select id="backupList"></select><div class="actions"><button type="button" id="backupCancel">Hủy</button><button type="button" class="primary" id="backupApply">Khôi phục bản đã chọn</button></div></div></div>
   <div id="resetDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="resetTitle"><div class="reset-box"><h3 id="resetTitle">Khôi phục bài làm?</h3><p>Chỉ khôi phục bài làm đang mở. Hãy xuất JSON trước nếu muốn giữ bản sao.</p><div class="actions"><button type="button" id="resetNo">Hủy</button><button type="button" class="primary" id="resetYes">Khôi phục</button></div></div></div>
-  <footer>STEM Tin học 7 · Bản đồ OpenStreetMap cần Internet · Tự lưu cục bộ trên trình duyệt</footer>
+  <footer>STEM Tin học 7 · Hành trình di sản số</footer>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -907,7 +909,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
       }
       refresh();updateProfileUI();el('groupDialog').classList.add('hidden');
       tab('explore');toggleEditor(true);
-      setStatus(storagePersistent?'Đã mở bài của '+group+'. Em hãy bắt đầu viết lời giới thiệu.':'Bài chỉ được lưu tạm. Em nhớ tải bài về máy trước khi đóng trang.');
+      if(!storagePersistent)setStatus('Hãy tải bài về máy trước khi đóng trang.');else setStatus('');
       if(!cloudSession){
         /* Tạo mới hoặc mở bài cũ chưa đồng bộ: thử tạo đúng một bài
            trên server; tên trùng sẽ bị từ chối mà không làm mất bản máy. */
@@ -1168,7 +1170,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     var tileErrors = 0;
     tiles.on('tileerror', function(){
       tileErrors++;
-      if (tileErrors === 5) setStatus('Một số ô bản đồ tải lỗi. Hãy kiểm tra mạng và thử tải lại trang.');
+      if (tileErrors === 5) console.warn('STEM7 map tiles unavailable');
     });
 
     mapBounds = [];
@@ -1315,14 +1317,17 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     box.classList.toggle('success',level==='success');
     box.classList.toggle('warning',level==='warning');
     var detail=String(message||'');el('v4SyncDetail').textContent=detail;
-    el('syncMessage').textContent=/Mã bài:|Mã bài của/i.test(detail)?detail:cloudConflict?'Cần kiểm tra hai bản bài':level==='success'?'Đã lưu trực tuyến':creationBusy||remoteBusy||/Đang |đang |chờ xác nhận/i.test(detail)&&!canRetry?'Đang đồng bộ…':storagePersistent?'Chưa lưu trực tuyến · Bài còn trên máy':'Chỉ lưu tạm · Hãy tải bài về máy';
+    var shortText=cloudConflict?'Bài có thay đổi trên máy khác. Hãy báo giáo viên.':level==='success'?'Đã lưu trực tuyến':!storagePersistent?'Chỉ lưu tạm. Hãy tải bài về máy.':/hết hạn|đăng nhập lại/i.test(detail)?'Hãy mở lại bài bằng mã của em.':/đã có bài|đã tồn tại/i.test(detail)?'Bài đã có. Hãy mở lại bằng mã bài.':creationBusy||remoteBusy||(/đang |chờ xác nhận/i.test(detail)&&!canRetry)?'Đang lưu…': 'Chưa lưu trực tuyến. Hãy thử lại.';
+    el('syncMessage').textContent=shortText;
+    el('syncMessage').setAttribute('aria-label',shortText);
+    el('showSyncCode').textContent='Mã bài';
     el('retrySync').classList.toggle('hidden',!canRetry);
     el('showSyncCode').classList.toggle('hidden',!currentAccessCode());
   }
   function showSyncCode(){
     var code=currentAccessCode();
-    if(code)syncDisplay('success','Mã bài của em/nhóm em: '+code+'. Hãy ghi lại để mở bài trên máy khác.',false);
-    else syncDisplay('warning','Chưa có mã bài trên máy này. Hãy mở bài trực tuyến bằng mã đã nhận trước đây.',true);
+    if(code){el('syncMessage').textContent+=' · Mã bài: '+code;el('showSyncCode').classList.add('hidden')}
+    else cloudOpen();
   }
   function syncStatusForLocal(){
     if(!hasProfile())return;
@@ -1460,7 +1465,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   el('showSyncCode').addEventListener('click',showSyncCode);
   function validScriptUrl(url){return /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(String(url||'').trim())}
   function cloudId(){cloudCounter++;return 'stem7_'+Date.now().toString(36)+'_'+cloudCounter+'_'+Math.random().toString(36).slice(2)}
-  function cloudStatus(msg){el('cloudStatus').textContent=msg||''}
+  function cloudStatus(msg){var m=String(msg||'');if(/Google Sheets|máy chủ|server|revision|Apps Script|JSON/i.test(m)){el('v4SyncDetail').textContent=m;if(/đã lưu thành công/i.test(m))m='Đã lưu bài';else if(/đang lưu|đang kiểm tra/i.test(m))m='Đang lưu…';else if(/khác nhau|đã khác|ghi đè/i.test(m))m='Bài có thay đổi trên máy khác. Hãy báo giáo viên.';else if(/đã mở/i.test(m))m='Đã mở bài';else m='Chưa thực hiện được. Hãy thử lại hoặc báo giáo viên.'}el('cloudStatus').textContent=m}
   function friendlyError(err){
     var m=String(err||'');
     if(/Sai mã nhóm|mã nhóm đã thay đổi|Sai nhóm truy cập/i.test(m))return 'Mã nhóm chưa đúng hoặc đã đổi. Hãy hỏi giáo viên.';
@@ -1475,8 +1480,8 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     return m.length>180?'Có lỗi. Hãy thử lại hoặc nhờ giáo viên.':m;
   }
   function connectionError(message){
-    var b=el('cloudErrorBanner');b.textContent=message?'Chưa kết nối được. Bài vẫn được giữ trên máy.':'';b.classList.toggle('hidden',!message);
-    if(message)cloudStatus(message);
+    var b=el('cloudErrorBanner');b.textContent='';b.classList.add('hidden');
+    if(message)el('v4SyncDetail').textContent=String(message);
   }
   function teacherStatus(msg){el('teacherStatus').textContent=msg}
   function closeBridgeDialog(which){el(which).classList.add('hidden')}
@@ -1949,7 +1954,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     teacherStatus('');showTeacherPanels();focusTeacherInput('teacherPassword');
   }
   function teacherOpen(){
-    el('teacherDialog').classList.remove('hidden');
+    el('teacherDialog').classList.remove('hidden');el('scriptUrl').value=scriptUrl;
     showTeacherPanels();
     if(teacherNeedsPasswordChange){teacherStatus('Hãy đổi mật khẩu để tiếp tục.');focusTeacherInput('teacherSetupPassword')}
     else if(teacherToken){teacherList()}
@@ -2056,8 +2061,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
       dirty = false;
       if(el('autosaveHint'))el('autosaveHint').textContent=
         storagePersistent?'Bài lưu trên máy':'Chỉ lưu tạm · tải bài về máy';
-      if(!silent)setStatus(storagePersistent?'Đã lưu trên máy; đang kiểm tra Google Sheets.':
-        'Bài chỉ lưu tạm trong phiên. Hãy tải bài về máy trước khi đóng trang.');
+      if(!silent&&!storagePersistent)setStatus('Hãy tải bài về máy trước khi đóng trang.');
       if(!silent)syncStatusForLocal();
       return true;
     } catch (e) {
@@ -2201,7 +2205,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     el('taskFocusTitle').textContent=focus[activeTab][0];
     el('taskFocusText').textContent=stageInstructions[activeTab][1];
     el('taskResultText').textContent=focus[activeTab][1];
-    var stage=stageMetrics(activeTab);el('taskCompletion').textContent=stage.done+'/'+stage.total+' việc đã xong';
+    var stage=stageMetrics(activeTab);el('taskCompletion').textContent=stage.done===stage.total?'✓ Hoàn thành':'';
     el('stepInstruction').textContent=stageInstructions[activeTab][1];
     el('stepPosition').textContent='Bước '+(idx+1)+'/4';
     el('stepBack').disabled=idx===0;
@@ -2237,9 +2241,9 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
       report:'Bước 4 · Báo cáo sản phẩm'
     };
     var m=stageMetrics(activeTab);
-    el('lessonTitle').textContent=captions[activeTab];
+    el('lessonTitle').textContent='Nhiệm vụ cần làm';
     el('lessonTask').textContent=stageInstructions[activeTab][1];
-    el('lessonProgress').textContent=m.done+'/'+m.total+' nhiệm vụ';
+    el('lessonProgress').textContent=(m.total-m.done)+' việc còn lại';
     el('progressFill').style.width=Math.round(100*m.done/m.total)+'%';
     var box=el('lessonDetails');box.innerHTML='';
     m.items.forEach(function(item){
@@ -2314,7 +2318,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     el('writingTitle').textContent='Viết về '+siteName;
     el('previewHeading').textContent='Xem thẻ '+siteName;
     el('siteTaskLine').textContent=!hasWriting?
-      'Em hãy viết lời giới thiệu của em/nhóm em về '+siteName+' (25–50 từ), rồi ghi nguồn.':
+      'Viết lời giới thiệu và ghi nguồn thông tin.':
       !hasSource?'Em đã viết lời giới thiệu. Hãy ghi nguồn thông tin em đã sử dụng.':
       'Em đã có lời giới thiệu và nguồn. Hãy chọn di tích tiếp theo.';
     el('site').value = current;
@@ -2527,16 +2531,16 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   el('cloudClose').addEventListener('click',function(){closeBridgeDialog('cloudDialog')});
   el('saveScriptUrl').addEventListener('click',function(){
     var url=clean(el('scriptUrl').value);
-    if(!validScriptUrl(url)){cloudStatus('Đường dẫn cần có dạng https://script.google.com/macros/s/.../exec');return}
-    if(url!==DEFAULT_SCRIPT_URL){cloudStatus('Ứng dụng sử dụng địa chỉ kết nối chung do giáo viên quản lý.');return}
+    if(!validScriptUrl(url)){el('teacherConnectionResult').textContent='Địa chỉ Web App không hợp lệ.';return}
+    if(url!==DEFAULT_SCRIPT_URL){el('teacherConnectionResult').textContent='Cần dùng địa chỉ mặc định của ứng dụng.';return}
     scriptUrl=url;checkedServerVersion=0;checkingServerVersion=false;
     try{localStorage.setItem(CLOUD_URL_KEY,scriptUrl)}catch(e){}
-    cloudStatus('Đã lưu địa chỉ kết nối. Nhấn “Thử lưu lên Google Sheets” để kiểm tra lại.');
+    el('teacherConnectionResult').textContent='Đã lưu địa chỉ kết nối.';
   });
   el('pingServer').addEventListener('click',function(){var v=clean(el('scriptUrl').value);
-    if(!validScriptUrl(v)){cloudStatus('Đường dẫn Web App chưa hợp lệ.');return}
-    if(v!==DEFAULT_SCRIPT_URL){cloudStatus('Hãy sử dụng địa chỉ kết nối chung của ứng dụng.');return}
-    scriptUrl=v;cloudStatus('');cloudCall({action:'ping'},function(err,res){cloudStatus(err||('Kết nối thành công · Server V'+res.version))});
+    if(!validScriptUrl(v)){el('teacherConnectionResult').textContent='Địa chỉ Web App chưa hợp lệ.';return}
+    if(v!==DEFAULT_SCRIPT_URL){el('teacherConnectionResult').textContent='Cần dùng địa chỉ mặc định của ứng dụng.';return}
+    scriptUrl=v;el('teacherConnectionResult').textContent='Đang kiểm tra…';cloudCall({action:'ping'},function(err,res){el('teacherConnectionResult').textContent=err||('Kết nối thành công · Server V'+(res&&res.version||'?'))});
   });
   el('createCloud').addEventListener('click',cloudCreate);
   el('openCloud').addEventListener('click',cloudLogin);
