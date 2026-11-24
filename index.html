@@ -226,6 +226,7 @@ footer{padding:4px 0;font-size:10px}
 @media(max-width:560px){.wrap{padding:5px}.toolbar{padding:5px}.map-shell .map{height:330px;min-height:290px}.mode-summary{font-size:12px}.step-journey{grid-template-columns:repeat(2,minmax(0,1fr))}.toolbar-actions{flex-wrap:wrap}}
 @media print{.compact-card-head,.map-shell .compact-card-head,.learning-mode-bar{display:none!important}.preview.is-collapsed{display:block}}
 
+.map-challenge{border:1px solid #cfe0ee;background:#f7fbff;border-radius:9px;margin:0 0 7px;padding:7px 10px}.map-challenge>summary{cursor:pointer;color:#175d91;font-size:13px;font-weight:bold}.map-challenge-sub{font-size:11px;font-weight:normal;color:#596f7f;margin-left:8px}.map-challenge-body{padding-top:8px}.map-challenge-body label{display:block;font-size:12px;margin:6px 0 3px}.map-challenge-row{display:flex;gap:6px;align-items:center}.map-challenge-row select{min-width:0;flex:1;max-width:100%;height:32px}.map-challenge-row button{white-space:nowrap;padding:6px 10px}.map-feedback{font-size:12px;color:#175d91;min-height:1px;margin:3px 0 6px}.map-feedback:empty{display:none}
 </style>
 </head>
 <body>
@@ -273,11 +274,22 @@ footer{padding:4px 0;font-size:10px}
           <button id="fitMap" type="button">Xem cả 3</button><button id="focusMap" type="button">Đến điểm chọn</button><button id="toggleRoute" type="button" aria-pressed="true">Ẩn đường nối</button>
           <span class="map-legend">Số 1–2–3 hiển thị thứ tự hành trình</span>
         </div>
-        <div class="map-legend-panel" id="mapLegend" aria-label="Chú giải điểm di tích"></div><div class="map-note">Đường nét đứt chỉ thứ tự khám phá, không phải đường đi thực tế.</div>
+        <div class="map-legend-panel" id="mapLegend" aria-label="Chú giải điểm di tích"></div><div class="map-note">Vị trí chỉ để tham khảo. Đường nét đứt thể hiện thứ tự khám phá, không phải đường đi thực tế.</div>
         <div id="mapFallback" class="map-fallback hidden">Không tải được bản đồ trực tuyến. Hãy kiểm tra Internet hoặc mở địa điểm bằng nút “Xem vị trí trên bản đồ”.</div>
       </div>
       </div>
-
+      <details class="map-challenge" id="mapChallenge">
+        <summary>Thử thách đọc bản đồ <span class="map-challenge-sub">2 câu · Quan sát và kiểm chứng</span></summary>
+        <div class="map-challenge-body">
+          <label for="mapPrediction"><strong>1. Dự đoán:</strong> Di tích nào nằm xa nhất về phía Nam trong ba di tích?</label>
+          <div class="map-challenge-row"><select id="mapPrediction"><option value="">Chọn đáp án</option><option value="nga">Ngã Ba Giồng</option><option value="cu">Địa đạo Củ Chi</option><option value="giong">Giồng Cá Vồ</option></select><button id="mapCheckPrediction" type="button">Kiểm tra</button></div>
+          <p id="mapPredictionFeedback" class="map-feedback" role="status"></p>
+          <label for="mapLineAnswer"><strong>2. Nhận xét:</strong> Đường nét đứt nối các điểm trên bản đồ thể hiện điều gì?</label>
+          <div class="map-challenge-row"><select id="mapLineAnswer"><option value="">Chọn đáp án</option><option value="road">Đường giao thông thực tế</option><option value="order">Thứ tự khám phá do nhóm chọn</option><option value="distance">Khoảng cách chính xác giữa các điểm</option></select><button id="mapCheckLine" type="button">Kiểm tra</button></div>
+          <p id="mapLineFeedback" class="map-feedback" role="status"></p>
+          <p class="muted">Gợi ý: chọn “Xem cả 3” để quan sát. Vị trí là điểm tham khảo, không phải lối vào thực tế.</p>
+        </div>
+      </details>
       <div class="panel lesson-panel is-collapsed" id="lessonPanel">
         <div class="lesson-head">
           <strong id="lessonTitle">Bước 1 · Khám phá di sản</strong>
@@ -1264,7 +1276,7 @@ footer{padding:4px 0;font-size:10px}
   var uiMode='basic';
   var stageNames=['explore','design','test','report'];
   var stageInstructions={
-    explore:['13 phút','Đọc tư liệu ba di tích, viết lời giới thiệu và ghi nguồn.'],
+    explore:['13 phút','Quan sát bản đồ, thử dự đoán, đọc tư liệu và viết lời giới thiệu ba di tích.'],
     design:['22 phút','Chọn thứ tự khám phá, giải thích lựa chọn và viết thông điệp bảo tồn.'],
     test:['7 phút','Lưu bài trước khi sửa, nhận góp ý rồi cải tiến và lưu lại.'],
     report:['3 phút','Tự đánh giá và giới thiệu điều nhóm em đã cải tiến.']
@@ -1389,6 +1401,20 @@ footer{padding:4px 0;font-size:10px}
     node('p',box,'Tọa độ tham khảo: '+heritageGeo[current].precision,'muted');
     updateWordCount(site.desc);el('cardStyle').value=site.cardStyle||state.cardStyle||'stack';
   }
+
+  /* Hoạt động đọc bản đồ, không chấm điểm hay thay đổi dữ liệu nhóm. */
+  function checkMapObservation(which){
+    if(which==='prediction'){
+      var choice=el('mapPrediction').value;
+      el('mapPredictionFeedback').textContent=!choice?'Hãy chọn một di tích.':choice==='giong'?'Đúng! Giồng Cá Vồ nằm về phía Nam so với hai di tích còn lại.':'Chưa chính xác. Hãy xem ba điểm trên bản đồ và thử lại.';
+      return;
+    }
+    var answer=el('mapLineAnswer').value;
+    el('mapLineFeedback').textContent=!answer?'Hãy chọn một đáp án.':answer==='order'?'Đúng! Đường nét đứt minh họa thứ tự khám phá, không phải đường giao thông hay quãng đường.':'Hãy quan sát: đường nét đứt chỉ nối các điểm theo thứ tự nhóm chọn, không phải tuyến đường thực địa.';
+  }
+  el('mapCheckPrediction').addEventListener('click',function(){checkMapObservation('prediction')});
+  el('mapCheckLine').addEventListener('click',function(){checkMapObservation('line')});
+  ['mapPrediction','mapLineAnswer'].forEach(function(id){el(id).addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();checkMapObservation(id==='mapPrediction'?'prediction':'line')}})});
 
   function showSite(markVisited){
     var site = state.sites[current];
