@@ -332,6 +332,23 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
 @media(max-width:620px){.profile-prompt{padding:20px 14px;margin:16px auto}.profile-prompt h2{font-size:19px}.profile-prompt .welcome-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.profile-prompt .profile-prompt-actions{flex-direction:column}.profile-prompt .profile-prompt-actions button{width:100%;min-width:0}}
 
 .sync-panel{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin:5px 0 7px;padding:7px 10px;border:1px solid #cddfea;background:#f4f9fd;border-radius:8px;font-size:12px;color:#234b65}.sync-panel.warning{background:#fff8ed;border-color:#f0d8ab;color:#795220}.sync-panel.success{background:#f2faf4;border-color:#bcd9c4;color:#286139}.sync-panel button{padding:5px 9px;font-size:12px}.sync-panel #syncMessage{flex:1;min-width:200px}
+
+/* V4 – Interactive Learning: lightweight CSS, no new dependencies */
+:root{--v4-blue:#145578;--v4-green:#258c70;--v4-gold:#d9a441;--v4-ink:#16354b}
+body{background:#f1f5f9;color:var(--v4-ink)}header{background:linear-gradient(110deg,#123e60,#176b85);padding:12px 18px}header h1{font-size:22px;letter-spacing:.4px}header p{font-size:12px}
+.toolbar,.work-panel,.map-shell{border-radius:12px;box-shadow:0 2px 8px rgba(30,64,90,.07)}.toolbar-actions button{transition:background .15s,transform .15s}.toolbar-actions button:active, .step-journey button:active{transform:scale(.98)}
+#autosaveHint{display:none}.tools-menu #helpBtn{width:100%}.v4-journey{margin:8px 0;padding:10px 12px;border:1px solid #cbdde8;background:white;border-radius:12px}.needs-profile .v4-journey{display:none}.v4-progress-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:14px;margin-bottom:6px}.v4-progress-head strong{color:#17664f}.v4-track{height:8px;background:#e0eaf0;border-radius:8px;overflow:hidden}.v4-fill{height:100%;width:0;background:#258c70;transition:width .4s ease;border-radius:8px}
+.v4-journey .step-journey{margin:9px 0 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-gap:6px}.v4-journey .step-journey button{min-height:42px;text-align:left}.v4-journey .step-journey button.active{background:#e1f2ff;border-color:#17649a}.v4-journey .step-journey button.step-done{border-color:#70b59e}.v4-stage-count{display:block;color:#456477;font-size:11px}.v4-badges{display:flex;flex-wrap:wrap;margin-top:7px}.v4-badge{margin:2px 5px 2px 0;border-radius:20px;background:#edf1f4;color:#526878;padding:4px 9px;font-size:11px}.v4-badge.earned{background:#e1f3e9;color:#17664f;font-weight:bold}.v4-badge.pop{animation:v4-pop .5s ease-out}@keyframes v4-pop{0%{transform:scale(.85)}60%{transform:scale(1.1)}100%{transform:scale(1)}}
+body.mode-basic .map-shell .map{height:calc(100vh - 365px);min-height:300px;max-height:560px}.layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}body.mode-basic #desc{min-height:132px;font-size:15px;line-height:1.5}body.mode-basic #source{font-size:14px}.work-panel .tab:not(.hidden){animation:v4-in .22s ease-out}@keyframes v4-in{from{opacity:.55}to{opacity:1}}
+body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height:70px;overflow:hidden;background:#f6fafc;display:flex;flex-direction:column;align-items:center;justify-content:flex-start}.v4-thumb{display:block;width:100%;height:56px;object-fit:cover;background:#e5edf0}.v4-thumb-fallback{display:flex;align-items:center;justify-content:center;color:#426779;font-size:11px;background:#e5edf0}.v4-site-name{display:block;font-size:12px;padding:4px 2px 0}.site-quick button .v4-site-status{display:block;color:#557080;font-size:10px;margin:2px 0 0}.site-quick button.v4-site-done{border-color:#258c70}.site-quick button.v4-site-done .v4-site-status{color:#17664f;font-weight:bold}
+#wordCount{margin:5px 0}.v4-word-track{height:5px;margin:4px 0;background:#e0eaf0;border-radius:6px;overflow:hidden}.v4-word-fill{height:100%;background:#d9a441;transition:width .2s}.v4-word-fill.ok{background:#258c70}.v4-word-fill.over{background:#c75c43}
+.route-pin.selected{animation:v4-pulse 1.8s ease-out infinite}.route-pin.v4-pin-done{background:#258c70!important}.route-pin.selected.v4-pin-done{outline:2px solid #145578}@keyframes v4-pulse{0%{box-shadow:0 0 0 0 rgba(20,85,120,.45)}80%,100%{box-shadow:0 0 0 12px rgba(20,85,120,0)}}.v4-route{animation:v4-dash .75s linear 1}@keyframes v4-dash{from{stroke-dashoffset:32}to{stroke-dashoffset:0}}
+#syncPanel{padding:6px 10px;min-height:30px;font-size:12px}#syncPanel.success{background:#edf8f1;border-color:#b7dcc8}#syncPanel.warning{background:#fff8e9;border-color:#ead6a5}#syncPanel button{font-size:11px;padding:5px 9px}#syncPanel .v4-sync-detail{margin-left:auto;font-size:11px}#syncPanel .v4-sync-detail summary{cursor:pointer}#syncPanel .v4-sync-detail p{max-width:500px;margin:4px 0;overflow-wrap:anywhere}
+.v4-teacher-summary{display:flex;flex-wrap:wrap;margin:8px 0}.v4-teacher-summary span{padding:6px 10px;margin:3px;background:#eef5f9;border-radius:7px;font-size:12px}.v4-teacher-summary strong{color:#145578}
+@media(max-width:950px){.layout{grid-template-columns:1fr}body.mode-basic .map-shell .map{height:310px;min-height:250px}.v4-thumb{height:46px}}
+@media(max-width:560px){header h1{font-size:18px}.v4-journey .step-journey button{padding:5px 3px;font-size:11px}.v4-journey .step-journey button small{display:none}.v4-stage-count{font-size:10px}.v4-thumb{height:38px}.v4-badge{font-size:10px}.toolbar-actions{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){.v4-fill,.v4-word-fill,.toolbar-actions button{transition:none}.route-pin.selected,.v4-route,.v4-badge.pop,.work-panel .tab:not(.hidden){animation:none}}
+@media print{.v4-journey,.v4-word-track,.v4-sync-detail{display:none!important}}
 </style>
 </head>
 <body class="needs-profile">
@@ -350,13 +367,13 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     </div>
     <div class="toolbar-actions">
       <span id="autosaveHint" class="save-hint" role="status">Bài được tự lưu</span>
-      <button id="helpBtn" type="button" aria-haspopup="dialog">Hướng dẫn</button>
+      
       <button id="cloudBtn" type="button">Bài của em/nhóm em</button>
       <button id="teacherBtn" type="button">Giáo viên</button>
       <button id="save" class="primary" type="button">Lưu bài</button>
       <details class="tools-more">
         <summary>Tùy chọn</summary>
-        <div class="tools-menu">
+        <div class="tools-menu"><button id="helpBtn" type="button" aria-haspopup="dialog">Hướng dẫn</button>
           <button id="export" type="button">Tải bài về máy</button>
           <button id="importBtn" type="button">Mở bài từ tệp</button>
           <button id="print" type="button">In sản phẩm</button>
@@ -369,8 +386,8 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
 
   <div id="syncPanel" class="sync-panel hidden" role="status" aria-live="polite">
     <span id="syncMessage">Bài được giữ trên máy.</span>
-    <button id="retrySync" type="button" class="hidden">Thử lưu lên Google Sheets</button>
-    <button id="showSyncCode" type="button" class="hidden">Xem mã bài</button>
+    <button id="retrySync" type="button" class="hidden">Thử lại</button>
+    <button id="showSyncCode" type="button" class="hidden">Xem mã bài</button><details class="v4-sync-detail"><summary>Chi tiết</summary><p id="v4SyncDetail"></p></details>
   </div>
 
   <section id="profilePrompt" class="profile-prompt" aria-labelledby="welcomeTitle">
@@ -394,7 +411,12 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   </section>
   <div class="learning-mode-bar is-collapsed" id="learningModeBar"><div class="mode-summary"><strong>Chế độ:</strong> <span id="modeDescription" class="muted">Cơ bản · 45 phút</span><button type="button" id="modeCollapseBtn" class="collapse-control" aria-expanded="false" aria-controls="modeSwitch">Đổi chế độ ▾</button><button type="button" id="compactPresetBtn" class="collapse-control" aria-pressed="false">Gọn cho TV</button></div><div class="mode-switch" id="modeSwitch" role="group" aria-label="Chế độ học tập"><button type="button" id="basicModeBtn" class="active" aria-pressed="true">Cơ bản · 45 phút</button><button type="button" id="advancedModeBtn" aria-pressed="false">Mở rộng</button></div></div>
   <div id="cloudErrorBanner" class="cloud-error hidden" role="alert"></div>
-  <div class="layout" id="workArea">
+  <section class="v4-journey" aria-label="Tiến độ toàn bài"><div class="v4-progress-head"><b>Hành trình của em</b><strong id="v4ProgressText">0/13 · 0%</strong></div><div class="v4-track" role="progressbar" aria-label="Tiến độ toàn bài" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="v4ProgressFill" class="v4-fill"></div></div><nav class="tabbar step-journey" aria-label="Hành trình STEM bốn bước">
+          <button data-tab="explore" class="active" type="button" aria-current="step"><span class="step-number">1</span><span><strong>Khám phá</strong><small>3 di tích</small></span><span class="step-check"></span></button>
+          <button data-tab="design" type="button"><span class="step-number">2</span><span><strong>Thiết kế</strong><small>Chọn hành trình</small></span><span class="step-check"></span></button>
+          <button data-tab="test" type="button"><span class="step-number">3</span><span><strong>Kiểm thử</strong><small>Góp ý, sửa bài</small></span><span class="peer-tab-new" id="peerTabNew" aria-label="Góp ý mới"></span><span class="step-check"></span></button>
+          <button data-tab="report" type="button"><span class="step-number">4</span><span><strong>Báo cáo</strong><small>Giới thiệu kết quả</small></span><span class="step-check"></span></button>
+        </nav><div id="v4Badges" class="v4-badges" aria-label="Huy hiệu học tập"></div></section><div class="layout" id="workArea">
     <section class="map-column">
       <div class="map-shell" id="mapShell">
         <div class="compact-card-head"><strong>Bản đồ 3 di tích</strong><button type="button" id="mapCollapseBtn" class="collapse-control" aria-expanded="true" aria-controls="map">Thu gọn bản đồ ▴</button></div>
@@ -432,12 +454,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
 
     <section>
       <div class="panel work-panel">
-        <nav class="tabbar step-journey" aria-label="Hành trình STEM bốn bước">
-          <button data-tab="explore" class="active" type="button" aria-current="step"><span class="step-number">1</span><span><strong>Khám phá</strong><small>3 di tích</small></span><span class="step-check"></span></button>
-          <button data-tab="design" type="button"><span class="step-number">2</span><span><strong>Thiết kế</strong><small>Chọn hành trình</small></span><span class="step-check"></span></button>
-          <button data-tab="test" type="button"><span class="step-number">3</span><span><strong>Kiểm thử</strong><small>Góp ý, sửa bài</small></span><span class="peer-tab-new" id="peerTabNew" aria-label="Góp ý mới"></span><span class="step-check"></span></button>
-          <button data-tab="report" type="button"><span class="step-number">4</span><span><strong>Báo cáo</strong><small>Giới thiệu kết quả</small></span><span class="step-check"></span></button>
-        </nav>
+        
         <div class="step-instruction"><span class="step-time" id="stepTime">Bước 1</span><span id="stepInstruction">Chọn một di tích, viết lời giới thiệu và ghi nguồn.</span></div>
         <details class="lesson-clock"><summary>Tiết STEM 45 phút: xem phân bố thời gian</summary><p><b>Hoạt động 1:</b> Xác định vấn đề – 5 phút; <b>Hoạt động 2:</b> Khám phá, đề xuất – 8 phút; <b>Hoạt động 3:</b> Tạo sản phẩm – 22 phút; <b>Hoạt động 4:</b> Kiểm thử và báo cáo – 10 phút.</p><p>Đây là thời gian giáo viên tổ chức trên lớp. Bốn bước trên ứng dụng là các thao tác thực hiện trong các hoạt động đó.</p></details>
         <div class="task-focus"><div><strong id="taskFocusTitle">Việc em cần làm</strong><p id="taskFocusText">Xem bản đồ và viết lời giới thiệu.</p></div><div class="task-result">Cần có: <span id="taskResultText">3 lời giới thiệu và nguồn</span></div><span id="taskCompletion" class="task-completion">0/3</span></div>
@@ -462,7 +479,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
             <div class="field">
               <details class="card-style-options" id="cardStyleOptions"><summary>Đổi cách trình bày thẻ</summary><label for="cardStyle">Kiểu thẻ</label><select id="cardStyle"><option value="stack">Ảnh trên – chữ dưới</option><option value="side">Ảnh trái – chữ phải</option><option value="compact">Thẻ tóm tắt</option></select></details><label for="desc" id="descLabel">Em hãy viết lời giới thiệu của em/nhóm em về di tích này (25–50 từ)</label>
               <textarea id="desc" rows="4" maxlength="1000"></textarea>
-              <div id="wordCount" class="word-count"></div>
+              <div id="wordCount" class="word-count" aria-live="polite"></div><div class="v4-word-track"><div id="v4WordFill" class="v4-word-fill"></div></div>
             </div>
             <div class="field advanced-only">
               <label for="image">Link hình ảnh (không bắt buộc)</label>
@@ -668,7 +685,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
       </div>
       <div id="teacherWorkspace" class="hidden">
         <div class="actions"><button id="teacherRefresh" type="button">Tải danh sách nhóm</button><button id="teacherLogout" type="button">Đăng xuất</button></div>
-        <div class="teacher-grid">
+        <div id="v4TeacherSummary" class="v4-teacher-summary" aria-live="polite"></div><div class="teacher-grid">
           <div><label for="teacherGroups">Bài học sinh / nhóm đã lưu</label><select id="teacherGroups" size="9"></select><p id="teacherListHint" class="muted">Nhấn “Tải danh sách nhóm” để kiểm tra các bài đã lưu trực tuyến.</p></div>
           <div>
             <h3 id="teacherGroupTitle">Chọn nhóm để xem</h3>
@@ -1017,11 +1034,11 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     return valid;
   }
 
-  function makeNumberIcon(num, isSelected){
+  function makeNumberIcon(num, isSelected, done){
     var size = isSelected ? 34 : 28;
     return L.divIcon({
       className: 'route-pin-wrap',
-      html: '<div class="route-pin' + (isSelected ? ' selected' : '') + '">' + num + '</div>',
+      html: '<div class="route-pin' + (isSelected ? ' selected' : '') + (done?' v4-pin-done':'') + '">' + (done?'✓':num) + '</div>',
       iconSize: [size, size],
       iconAnchor: [size / 2, size / 2],
       popupAnchor: [0, -size / 2]
@@ -1037,15 +1054,15 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
       latlngs.push([g.lat, g.lng]);
       if (siteMarkers[id]) {
         var isSel = (id === current);
-        siteMarkers[id].setIcon(makeNumberIcon(idx + 1, isSel));
+        siteMarkers[id].setIcon(makeNumberIcon(idx + 1, isSel, v4SiteDone(id)));
         siteMarkers[id].setZIndexOffset(isSel ? 500 : 100);
       }
     });
     if (routeLine) {
-      routeLine.setLatLngs(latlngs);
+      routeLine.setLatLngs(latlngs);var path=routeLine.getElement&&routeLine.getElement();if(path){path.classList.remove("v4-route");void path.getBoundingClientRect();path.classList.add("v4-route")}
     } else {
       routeLine = L.polyline(latlngs, {
-        color: '#d65336',
+        className:'v4-route',color: '#d65336',
         weight: 3,
         dashArray: '8, 8',
         opacity: 0.85
@@ -1140,7 +1157,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
       el('mapFallback').classList.remove('hidden');
       return;
     }
-    realMap = L.map('leafletMap', { scrollWheelZoom: false, zoomControl: true, preferCanvas: true });
+    realMap = L.map('leafletMap', { scrollWheelZoom: false, zoomControl: true, preferCanvas: false });
     var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       updateWhenIdle: false,
@@ -1297,7 +1314,8 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     box.classList.remove('hidden');
     box.classList.toggle('success',level==='success');
     box.classList.toggle('warning',level==='warning');
-    el('syncMessage').textContent=message||'';
+    var detail=String(message||'');el('v4SyncDetail').textContent=detail;
+    el('syncMessage').textContent=/Mã bài:|Mã bài của/i.test(detail)?detail:cloudConflict?'Cần kiểm tra hai bản bài':level==='success'?'Đã lưu trực tuyến':creationBusy||remoteBusy||/Đang |đang |chờ xác nhận/i.test(detail)&&!canRetry?'Đang đồng bộ…':storagePersistent?'Chưa lưu trực tuyến · Bài còn trên máy':'Chỉ lưu tạm · Hãy tải bài về máy';
     el('retrySync').classList.toggle('hidden',!canRetry);
     el('showSyncCode').classList.toggle('hidden',!currentAccessCode());
   }
@@ -1476,7 +1494,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
       if(form.parentNode)form.parentNode.removeChild(form);
       setTimeout(function(){if(frame.parentNode)frame.parentNode.removeChild(frame)},700);
       if(networkError)connectionError(error);else connectionError('');
-      callback(error?friendlyError(error):null,result);
+      if(error&&data.action==='ping'){console.warn('STEM7 ping:',String(error));callback(String(error),result)}else callback(error?friendlyError(error):null,result);
     }
     cloudRequests[id]={finish:finish,frame:frame,timer:setTimeout(function(){finish('Không nhận được phản hồi. Hãy kiểm tra mạng hoặc nhờ giáo viên.',null,true)},25000)};
     data.requestId=id;payload.value=JSON.stringify(data);
@@ -1921,7 +1939,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   }
   function teacherSignOut(){
     teacherToken='';teacherRecord=null;teacherNeedsPasswordChange=false;teacherLoginBusy=false;teacherListBusy=false;
-    teacherGroupsData=[];
+    teacherGroupsData=[];el('v4TeacherSummary').textContent='';
     el('teacherFeedbackList').innerHTML='';el('teacherFeedbackText').value='';teacherFeedbackStatus('');
     el('teacherPassword').value='';el('teacherSetupPassword').value='';el('teacherSetupConfirm').value='';
     el('teacherGroups').innerHTML='';
@@ -1960,11 +1978,13 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
       }
       var keep=background===true?teacherRecord:null;
       teacherGroupsData=res.groups;
+      var known=teacherGroupsData.filter(function(g){return g.progress&&typeof g.progress.percent==='number'}),complete=known.filter(function(g){return g.progress.percent===100}).length,started=known.filter(function(g){return g.progress.percent>0&&g.progress.percent<100}).length;
+      var summary=el('v4TeacherSummary');summary.textContent='';['Đã tạo: '+teacherGroupsData.length,'Đang làm: '+started,'Hoàn thành: '+complete,'Mới tạo: '+(known.length-started-complete),'Chưa có tiến độ: '+(teacherGroupsData.length-known.length)].forEach(function(t){var sp=document.createElement('span');sp.textContent=t;summary.appendChild(sp)});
       if(!keep)teacherRecord=null;
       var sel=el('teacherGroups');sel.innerHTML='';
       teacherGroupsData.forEach(function(g,i){
         var option=document.createElement('option');option.value=String(i);
-        option.textContent=g.klass+' · '+g.group+' · '+Math.floor(Number(g.seconds||0)/60)+' phút';
+        option.textContent=g.klass+' · '+g.group+' · '+(g.progress?g.progress.percent+'% (cơ bản)':'Chưa có tiến độ')+' · '+Math.floor(Number(g.seconds||0)/60)+' phút';
         sel.appendChild(option);
       });
       if(keep){var keepIndex=teacherGroupsData.findIndex(function(g){return g.id===keep.id});if(keepIndex>=0){sel.value=String(keepIndex);teacherStatus('Tìm thấy '+teacherGroupsData.length+' nhóm.');el('teacherListHint').textContent='Danh sách tự cập nhật; bài đang xem được giữ nguyên.';return}}
@@ -2151,6 +2171,18 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     var done=0;list.forEach(function(t){if(t.ok)done++});
     return {done:done,total:list.length,items:list};
   }
+  var v4BadgeOwner='',v4BadgeHistory={},v4MarkerSignature='',v4ThumbnailsReady=false;
+  function v4SiteDone(id){var v=state.sites[id]||{},w=countWords(v.desc);return !!(state.visited[id]&&w>=(isBasic()?25:50)&&w<=80&&clean(v.source)&&(isBasic()||!v.image||(safeURL(v.image)&&safeURL(v.imageSource)&&clean(v.license))))}
+  function v4RenderProgress(){
+    var names=['Nhà khám phá','Nhà thiết kế','Nhà kiểm thử','Đại sứ di sản'],done=0,total=0,box=el('v4Badges');
+    if(v4BadgeOwner!==activeKey){v4BadgeOwner=activeKey;v4BadgeHistory={};v4MarkerSignature=''}
+    stageNames.forEach(function(name,i){var m=stageMetrics(name);done+=m.done;total+=m.total;var b=document.querySelector('[data-tab="'+name+'"]'),n=b.querySelector('.v4-stage-count');if(!n){n=document.createElement('small');n.className='v4-stage-count';b.appendChild(n)}n.textContent=m.done+'/'+m.total;
+      var earned=m.done===m.total,tag=box.children[i];if(!tag){tag=document.createElement('span');box.appendChild(tag)}tag.textContent=(earned?'✓ ':'○ ')+names[i];tag.className='v4-badge'+(earned?' earned':'')+(earned&&v4BadgeHistory[name]===false?' pop':'');v4BadgeHistory[name]=earned;
+    });
+    var pct=Math.round(done*100/total);el('v4ProgressText').textContent=done+'/'+total+' nhiệm vụ · '+pct+'%';el('v4ProgressFill').style.width=pct+'%';el('v4ProgressFill').parentNode.setAttribute('aria-valuenow',String(pct));
+    document.querySelectorAll('[data-site-quick]').forEach(function(b){var id=b.getAttribute('data-site-quick'),v=state.sites[id],complete=v4SiteDone(id),status=b.querySelector('.v4-site-status');if(!status){b.textContent='';var g=heritageGeo[id],img=document.createElement(g.photo?'img':'div');img.className='v4-thumb'+(g.photo?'':' v4-thumb-fallback');if(g.photo){img.src=g.photo;img.alt='Ảnh tư liệu '+referenceSites[id].name;img.title=g.credit;img.onerror=function(){var f=document.createElement('div');f.className='v4-thumb v4-thumb-fallback';f.textContent='Tư liệu di tích';if(this.parentNode)this.parentNode.replaceChild(f,this)}}else{img.textContent='Di chỉ khảo cổ';img.title=g.credit}b.appendChild(img);var title=document.createElement('strong');title.className='v4-site-name';title.textContent=referenceSites[id].name;b.appendChild(title);status=document.createElement('span');status.className='v4-site-status';b.appendChild(status)}b.classList.toggle('v4-site-done',complete);status.textContent=complete?'✓ Đã khám phá':(clean(v.desc)||clean(v.source)||state.visited[id])?'Đang thực hiện':'Chưa khám phá'});
+    var sig=ids.map(function(id){return v4SiteDone(id)?'1':'0'}).join('');if(sig!==v4MarkerSignature){v4MarkerSignature=sig;if(realMap)updateRoute()}
+  }
   function renderStageNavigation(){
     var idx=stageNames.indexOf(activeTab);if(idx<0)idx=0;
     document.querySelectorAll('[data-tab]').forEach(function(b){
@@ -2177,8 +2209,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     document.querySelectorAll('[data-site-quick]').forEach(function(b,i){
       var id=b.getAttribute('data-site-quick');
       b.classList.toggle('active',id===current);
-      var mark=b.querySelector('span');
-      if(mark)mark.textContent=explored[i+1]&&explored[i+1].ok?'✓':'';
+      // V4 cards update their own status in v4RenderProgress.
     });
     el('stepNext').textContent=idx===3?'Xem lại từ đầu':'Tiếp tục →';
   }
@@ -2216,6 +2247,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
       p.textContent=(item.ok?'✓ ':'○ ')+item.label;box.appendChild(p);
     });
     renderStageNavigation();
+    v4RenderProgress();
     updateQuestions();
   }
 
@@ -2226,6 +2258,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     else if(words<lower)label+=' · Cần thêm '+(lower-words)+' từ';
     else if(words>upper)label+=' · Đã có nội dung, nên viết gọn nếu còn thời gian';
     else label+=' · Đạt yêu cầu';
+    var fill=el('v4WordFill');fill.style.width=Math.min(100,Math.round(words/lower*100))+'%';fill.className='v4-word-fill '+(words>upper?'over':ok?'ok':'');
     wc.textContent=label;wc.className='word-count '+(ok?'ok':'warn');
   }
 
