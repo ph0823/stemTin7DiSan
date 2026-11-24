@@ -875,6 +875,9 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     }
     try{
       var candidate=normalizeData(next);
+      if(cloudSession&&activeKey!==nextKey&&syncConfirmedJSON!==JSON.stringify(state)&&!cloudConflict){
+        cloudSave(true);pickerMessage('Bài hiện tại chưa đồng bộ xong. Hãy chờ xác nhận hoặc tải bản sao trước khi đổi bài.');return;
+      }
       localStorage.setItem(nextKey,JSON.stringify(candidate));
       localStorage.setItem(ACTIVE_KEY,nextKey);
       var sameCloudSession=!!cloudSession&&
@@ -1267,7 +1270,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   var teacherCurrentSite='nga',remoteSaveTimer=null,remoteBusy=false,remotePending=false,cloudConflict=false,cloudLastActive=Date.now();
   var CREATE_PENDING_PREFIX='stem7_auto_create_v1_',CODE_SESSION_PREFIX='stem7_access_code_v1_';
   var creationBusy=false,creationFor='',syncIssue='',syncConfirmedJSON='',syncSafeCode='';
-  var checkedServerVersion=0,checkingServerVersion=false;
+  var checkedServerVersion=0,checkingServerVersion=false,cloudFirstPending=0;
   function cloudOwnerKey(){return activeKey&&activeKey.indexOf(PROFILE_PREFIX)===0?activeKey:''}
   function cloudPendingStorageKey(){return CREATE_PENDING_PREFIX+cloudOwnerKey()}
   function cloudCodeStorageKey(){return CODE_SESSION_PREFIX+cloudOwnerKey()}
@@ -1411,14 +1414,14 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
         syncIssue='Máy chủ chưa trả đủ thông tin xác nhận. Bài vẫn lưu trên máy. Hãy thử lại.';
         syncStatusForLocal();return;
       }
-      clearPendingCreate();
       rememberAccessCode(res.code);
       var serverRecord=res.record;
       cloudSession={token:res.token,klass:klass,group:group,revision:serverRecord.revision,
         firstAt:serverRecord.firstAt,updatedAt:serverRecord.updatedAt,seconds:serverRecord.seconds};
       cloudConflict=false;
-      syncConfirmedJSON=JSON.stringify(initial);
+      syncConfirmedJSON=JSON.stringify(normalizeData(serverRecord.data));
       persistCloudSession();
+      clearPendingCreate();
       /* Nếu bài cũ trên Sheets đã thay đổi, chỉ giữ bài cục bộ để giáo viên
          hoặc học sinh giải quyết; tuyệt đối không ghi đè bằng revision mới. */
       if(res.reused&&Number(serverRecord.revision)>1&&JSON.stringify(normalizeData(serverRecord.data))!==JSON.stringify(normalizeData(initial))){
@@ -1428,7 +1431,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
       }
       syncIssue='';
       syncDisplay('success','Đã tạo bài trên Google Sheets. Mã bài: '+res.code+' — hãy ghi lại để mở bài trên máy khác.',false);
-      if(JSON.stringify(state)!==JSON.stringify(initial))scheduleCloudSave();
+      if(JSON.stringify(state)!==syncConfirmedJSON)scheduleCloudSave();
     });
   }
   el('retrySync').addEventListener('click',function(){
@@ -1567,6 +1570,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   }
   function cloudSave(manual){
     if(!cloudSession||!hasProfile())return;
+    clearTimeout(remoteSaveTimer);cloudFirstPending=0;
     if(cloudConflict){
       if(manual)cloudStatus('Bài trên Google Sheets đã khác. Không ghi đè. Hãy xem lại trong “Bài của em/nhóm em”.');
       syncStatusForLocal();return;
@@ -1617,7 +1621,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
       }
     });
   }
-  function scheduleCloudSave(){if(!cloudSession||cloudConflict)return;clearTimeout(remoteSaveTimer);remoteSaveTimer=setTimeout(function(){cloudSave(false)},12000)}
+  function scheduleCloudSave(){if(!cloudSession||cloudConflict)return;var now=Date.now();if(!cloudFirstPending)cloudFirstPending=now;clearTimeout(remoteSaveTimer);remoteSaveTimer=setTimeout(function(){cloudFirstPending=0;cloudSave(false)},Math.max(0,Math.min(5000,15000-(now-cloudFirstPending))))}
   function cloudReload(){
     if(!cloudSession)return;
     if(!safeBackup('Trước lấy lại bài từ máy chủ')){cloudStatus('Không sao lưu được bài hiện tại.');return}
@@ -1664,8 +1668,10 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   }
   function cloudHeartbeat(){
     if(!cloudSession||remoteBusy||cloudConflict||document.hidden)return;
+    var heartbeatToken=cloudSession.token,heartbeatKey=activeKey;
     var seconds=activeSeconds();if(seconds<1)return;
     cloudCall({action:'studentHeartbeat',klass:cloudSession.klass,group:cloudSession.group,token:cloudSession.token,activeSeconds:seconds},function(err,res){
+      if(!cloudSession||cloudSession.token!==heartbeatToken||activeKey!==heartbeatKey)return;
       if(!err&&res&&res.record){cloudSession.seconds=res.record.seconds;persistCloudSession()}
     });
   }
@@ -1931,7 +1937,8 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     else if(teacherToken){teacherList()}
     else {teacherStatus('');focusTeacherInput('teacherPassword')}
   }
-  function teacherList(){
+  function teacherList(background){
+    var previousRecord=teacherRecord,previousToken=teacherToken;
     if(!teacherToken){teacherStatus('Hãy đăng nhập trước khi xem bài.');return}
     if(teacherNeedsPasswordChange){teacherStatus('Hãy đổi mật khẩu trước khi xem bài nhóm.');return}
     if(teacherListBusy)return;
@@ -1940,6 +1947,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     el('teacherListHint').textContent='Đang kiểm tra bài lưu trực tuyến…';
     cloudCall({action:'teacherList',token:teacherToken},function(err,res){
       teacherListBusy=false;el('teacherRefresh').disabled=false;
+      if(teacherToken!==previousToken)return;
       if(err){
         teacherStatus('Không tải được danh sách nhóm: '+err);
         el('teacherListHint').textContent='Không tải được dữ liệu. Nhấn “Tải danh sách nhóm” để thử lại.';
@@ -1950,14 +1958,17 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
         el('teacherListHint').textContent='Dữ liệu danh sách nhóm chưa hợp lệ.';
         return;
       }
+      var keep=background===true?teacherRecord:null;
       teacherGroupsData=res.groups;
-      teacherRecord=null;
+      if(!keep)teacherRecord=null;
       var sel=el('teacherGroups');sel.innerHTML='';
       teacherGroupsData.forEach(function(g,i){
         var option=document.createElement('option');option.value=String(i);
         option.textContent=g.klass+' · '+g.group+' · '+Math.floor(Number(g.seconds||0)/60)+' phút';
         sel.appendChild(option);
       });
+      if(keep){var keepIndex=teacherGroupsData.findIndex(function(g){return g.id===keep.id});if(keepIndex>=0){sel.value=String(keepIndex);teacherStatus('Tìm thấy '+teacherGroupsData.length+' nhóm.');el('teacherListHint').textContent='Danh sách tự cập nhật; bài đang xem được giữ nguyên.';return}}
+      teacherRecord=null;
       el('teacherGroupTitle').textContent='Chọn nhóm để xem';
       el('teacherMeta').textContent='';
       if(!teacherGroupsData.length){
@@ -2049,6 +2060,16 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   }
   document.addEventListener('visibilitychange', function(){ if (document.hidden) saveIfNeeded(); });
   window.addEventListener('pagehide', saveIfNeeded);
+  document.addEventListener('visibilitychange',function(){if(document.hidden&&cloudSession&&!cloudConflict&&!remoteBusy&&syncConfirmedJSON!==JSON.stringify(state))cloudSave(false)});
+  window.setInterval(function(){
+    if(document.hidden)return;
+    if(teacherToken&&!teacherNeedsPasswordChange&&!el('teacherDialog').classList.contains('hidden'))teacherList(true);
+    if(!hasProfile()||navigator.onLine===false||remoteBusy||creationBusy||cloudConflict)return;
+    if(cloudSession&&syncConfirmedJSON!==JSON.stringify(state)){
+      if(/hết hạn|đăng nhập lại/i.test(syncIssue))return;
+      verifyCloudOnResume();
+    }else if(!cloudSession&&checkedServerVersion>=0&&!/đã có bài|đã tồn tại|không ghi đè/i.test(syncIssue))autoRegisterCloud();
+  },30000);
   window.addEventListener('online',function(){
     if(!hasProfile())return;
     syncIssue='';
@@ -2474,13 +2495,15 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   el('saveScriptUrl').addEventListener('click',function(){
     var url=clean(el('scriptUrl').value);
     if(!validScriptUrl(url)){cloudStatus('Đường dẫn cần có dạng https://script.google.com/macros/s/.../exec');return}
+    if(url!==DEFAULT_SCRIPT_URL){cloudStatus('Ứng dụng sử dụng địa chỉ kết nối chung do giáo viên quản lý.');return}
     scriptUrl=url;checkedServerVersion=0;checkingServerVersion=false;
     try{localStorage.setItem(CLOUD_URL_KEY,scriptUrl)}catch(e){}
     cloudStatus('Đã lưu địa chỉ kết nối. Nhấn “Thử lưu lên Google Sheets” để kiểm tra lại.');
   });
   el('pingServer').addEventListener('click',function(){var v=clean(el('scriptUrl').value);
     if(!validScriptUrl(v)){cloudStatus('Đường dẫn Web App chưa hợp lệ.');return}
-    scriptUrl=v;cloudStatus('');cloudCall({action:'ping'},function(err,res){cloudStatus(err||'')});
+    if(v!==DEFAULT_SCRIPT_URL){cloudStatus('Hãy sử dụng địa chỉ kết nối chung của ứng dụng.');return}
+    scriptUrl=v;cloudStatus('');cloudCall({action:'ping'},function(err,res){cloudStatus(err||('Kết nối thành công · Server V'+res.version))});
   });
   el('createCloud').addEventListener('click',cloudCreate);
   el('openCloud').addEventListener('click',cloudLogin);
@@ -2549,7 +2572,9 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   document.addEventListener('visibilitychange',function(){cloudLastActive=Date.now()});
   var rememberedScriptUrl='';
   try{rememberedScriptUrl=localStorage.getItem(CLOUD_URL_KEY)||''}catch(e){}
-  scriptUrl=validScriptUrl(rememberedScriptUrl)?rememberedScriptUrl:DEFAULT_SCRIPT_URL;
+  scriptUrl=DEFAULT_SCRIPT_URL;
+  if(rememberedScriptUrl&&rememberedScriptUrl!==DEFAULT_SCRIPT_URL){try{sessionStorage.removeItem(STUDENT_SESSION_KEY)}catch(e){}}
+  try{localStorage.setItem(CLOUD_URL_KEY,DEFAULT_SCRIPT_URL)}catch(e){}
   if(!validScriptUrl(scriptUrl))scriptUrl='';
   updateCloudUI();
 
@@ -2831,10 +2856,8 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     if(cloudSession){
       syncSafeCode=currentAccessCode();
       setTimeout(verifyCloudOnResume,650);
-    }else if(pendingCreateKey()){
-      setTimeout(autoRegisterCloud,650);
     }else{
-      syncStatusForLocal();
+      setTimeout(autoRegisterCloud,650);
     }
   }
 })();
