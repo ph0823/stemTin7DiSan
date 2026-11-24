@@ -560,8 +560,8 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
       <div id="studentHelp">
         <p class="muted">Em có thể làm bài một mình hoặc cùng nhóm. Chọn chế độ Cơ bản để hoàn thành bốn bước trong tiết học.</p>
         <div class="help-section"><h3>1. Bắt đầu làm bài</h3>
-          <p><strong>Lần đầu:</strong> nhấn <strong>Nhập tên học sinh/nhóm (lần đầu)</strong>, nhập lớp và tên của em hoặc tên nhóm, sau đó nhấn <strong>Tạo và bắt đầu</strong>.</p>
-          <p><strong>Đã làm trên máy này:</strong> nhấn <strong>Chọn tên đã tạo</strong>, chọn đúng tên trong danh sách rồi nhấn <strong>Mở bài đã lưu</strong>. Không tạo lại nếu em muốn làm tiếp bài cũ.</p>
+          <p><strong>Lần đầu:</strong> nhấn <strong>Tạo bài lần đầu</strong>, nhập lớp và tên học sinh/nhóm, rồi nhấn <strong>Tạo và bắt đầu</strong>. Ứng dụng tự lưu trên máy và thử tạo bài trên Google Sheets.</p>
+          <p><strong>Đã làm trên máy này:</strong> nhấn <strong>Mở bài đã làm</strong>, chọn tên rồi nhấn <strong>Mở bài đã lưu</strong>. Không tạo lại nếu muốn tiếp tục bài cũ.</p>
         </div>
         <div class="help-section"><h3>2. Khám phá ba di tích</h3>
           <p>Em hãy chọn từng di tích, đọc tư liệu tham khảo rồi <strong>tự viết lời giới thiệu của em/nhóm em</strong> (25–50 từ ở chế độ Cơ bản). Ghi nguồn thông tin đã sử dụng.</p>
@@ -574,7 +574,7 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
           <p>Em hãy lưu bài trước khi sửa, đọc góp ý của bạn hoặc giáo viên, chỉnh ít nhất một điểm rồi lưu bản sau khi sửa. Nếu đã mở bài trực tuyến, em có thể gửi và nhận góp ý mà không cần đổi máy.</p>
         </div>
         <div class="help-section"><h3>5. Báo cáo và lưu bài</h3>
-          <p>Em hãy xem lại ba lời giới thiệu, hành trình, điều đã sửa và chuẩn bị báo cáo trong một phút. Chọn <strong>Lưu bài</strong> để lưu trên máy. Nếu cần chuyển máy, dùng mục <strong>Bài của em/nhóm em</strong> để mở bằng mã riêng hoặc tải bản sao về máy theo hướng dẫn của giáo viên.</p>
+          <p>Em hãy xem lại ba lời giới thiệu, hành trình và điều đã sửa; chuẩn bị báo cáo một phút. Chọn <strong>Lưu bài</strong>: ứng dụng lưu trên máy trước, sau đó đồng bộ lên Google Sheets khi kết nối thành công. Chỉ khi hiện <strong>“Đã lưu bài mới nhất lên Google Sheets”</strong> mới xem là đã gửi thành công. Hãy ghi lại mã 4 ký tự khi được cấp để mở bài trên máy khác.</p>
         </div>
       </div>
       <div id="teacherHelp" class="hidden">
@@ -616,11 +616,11 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
         <label for="cloudClass">Lớp</label><input id="cloudClass" maxlength="30" placeholder="7A1">
         <label for="cloudGroup">Tên học sinh hoặc nhóm</label><input id="cloudGroup" maxlength="50" placeholder="Nhóm 1">
         <label for="cloudCode">Mã bài (4 ký tự, dùng khi mở trên máy khác)</label><input id="cloudCode" maxlength="4" autocomplete="off" placeholder="AB23">
-        <div class="actions"><button id="createCloud" type="button">Tạo bài mới</button><button id="openCloud" class="primary" type="button">Mở bài đã tạo</button></div>
+        <div class="actions"><button id="createCloud" type="button">Thử tạo bài trực tuyến</button><button id="openCloud" class="primary" type="button">Mở bài đã tạo</button></div>
       </div>
       <div id="cloudSessionPanel" class="hidden">
         <p><strong id="cloudSessionName"></strong></p>
-        <details class="cloud-times"><summary>Thời gian học của nhóm</summary><p id="cloudTimes" class="muted"></p></details>
+        <details class="cloud-times"><summary>Thời gian học của em/nhóm em</summary><p id="cloudTimes" class="muted"></p></details>
         <div class="actions"><button id="cloudSaveNow" class="primary" type="button">Lưu bài</button><button id="cloudReload" type="button">Tải bài mới nhất</button><button id="cloudLogout" type="button">Đổi bài đang mở</button></div>
       </div>
       <p id="cloudStatus" role="status" class="muted"></p>
@@ -2442,8 +2442,9 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
   el('saveScriptUrl').addEventListener('click',function(){
     var url=clean(el('scriptUrl').value);
     if(!validScriptUrl(url)){cloudStatus('Đường dẫn cần có dạng https://script.google.com/macros/s/.../exec');return}
-    scriptUrl=url;try{localStorage.setItem(CLOUD_URL_KEY,scriptUrl)}catch(e){}
-    cloudStatus('');
+    scriptUrl=url;checkedServerVersion=0;checkingServerVersion=false;
+    try{localStorage.setItem(CLOUD_URL_KEY,scriptUrl)}catch(e){}
+    cloudStatus('Đã lưu địa chỉ kết nối. Nhấn “Thử lưu lên Google Sheets” để kiểm tra lại.');
   });
   el('pingServer').addEventListener('click',function(){var v=clean(el('scriptUrl').value);
     if(!validScriptUrl(v)){cloudStatus('Đường dẫn Web App chưa hợp lệ.');return}
@@ -2514,7 +2515,10 @@ body.needs-profile .toolbar-actions>button{margin-left:7px}
     window.setInterval(function(){if(cloudSession)cloudHeartbeat()},50000);
   window.addEventListener('focus',function(){cloudLastActive=Date.now()});
   document.addEventListener('visibilitychange',function(){cloudLastActive=Date.now()});
-  scriptUrl=DEFAULT_SCRIPT_URL;if(!validScriptUrl(scriptUrl))scriptUrl='';
+  var rememberedScriptUrl='';
+  try{rememberedScriptUrl=localStorage.getItem(CLOUD_URL_KEY)||''}catch(e){}
+  scriptUrl=validScriptUrl(rememberedScriptUrl)?rememberedScriptUrl:DEFAULT_SCRIPT_URL;
+  if(!validScriptUrl(scriptUrl))scriptUrl='';
   updateCloudUI();
 
   el('cardStyle').addEventListener('change',function(){state.sites[current].cardStyle=this.value;updatePreview();scheduleSave()});
