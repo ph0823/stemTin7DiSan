@@ -355,6 +355,12 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
 #teacherDialog .teacher-box{width:96%;max-width:1160px;max-height:92vh;padding:16px;overflow:auto;box-sizing:border-box}#teacherDialog .teacher-dialog-heading{margin:0 0 12px;padding-bottom:9px;border-bottom:1px solid #dce7ee;position:sticky;top:-16px;background:white;z-index:5;padding-top:8px}#teacherDialog h2{font-size:20px}.gv-head-actions,.gv-toolbar,.gv-filter{display:flex;align-items:center;flex-wrap:wrap}.gv-head-actions button,.gv-filter>*{margin:2px 5px 2px 0}.gv-toolbar{justify-content:space-between;margin-bottom:8px}.gv-filter label{font-size:12px;font-weight:bold}.gv-filter input,.gv-filter select{width:auto;max-width:180px;min-height:34px}.gv-filter input{width:170px}.gv-list,.gv-detail{min-width:0;border:1px solid #dbe6ed;border-radius:10px;padding:12px;background:#fff}#teacherDialog .teacher-grid{display:grid;grid-template-columns:minmax(220px,30%) minmax(0,1fr);grid-gap:12px;align-items:start}.gv-list h3,.gv-detail h3{margin:0 0 10px;font-size:16px}.gv-native-select{position:absolute!important;width:1px!important;height:1px!important;opacity:0;pointer-events:none}.gv-cards{max-height:51vh;overflow:auto}.gv-card{display:block;width:100%;text-align:left;margin:0 0 6px;padding:9px;background:#f7fafc;border:1px solid #dbe6ed;border-radius:8px;white-space:normal}.gv-card.active{background:#e6f3fc;border-color:#17649a}.gv-card strong{display:block;font-size:14px;overflow-wrap:anywhere}.gv-card small{display:block;color:#516b7d;margin-top:4px;font-size:11px}.gv-track{height:5px;background:#dce8ef;border-radius:5px;overflow:hidden;margin-top:6px}.gv-fill{height:100%;background:#258c70;border-radius:5px}.gv-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-gap:6px;margin:8px 0 12px}.gv-meta div{background:#f4f8fb;padding:7px 9px;border-radius:6px;font-size:12px}.gv-meta small{display:block;color:#567184;font-size:11px;margin-bottom:3px}.gv-tabs{display:flex;border-bottom:1px solid #dbe6ed;margin-bottom:12px}.gv-tabs button{flex:1;border:0;border-bottom:3px solid transparent;border-radius:0;background:white;padding:10px 4px;font-weight:bold}.gv-tabs button.active{color:#145578;border-bottom-color:#17649a;background:#edf6fc}.gv-stages{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-gap:6px;margin-bottom:12px}.gv-stage{background:#f2f7fa;padding:9px;border-radius:8px;font-size:12px}.gv-stage b{display:block;margin-top:5px;font-size:16px}.gv-site{border-bottom:1px solid #e3ebf0;padding:8px 0}.gv-site summary{cursor:pointer;font-weight:bold;font-size:13px}.gv-site p{white-space:pre-wrap;overflow-wrap:anywhere;margin:6px 0;font-size:13px}.gv-extra{margin-top:12px;border-top:1px solid #e3ebf0;padding-top:8px;font-size:12px}.gv-extra summary{cursor:pointer}.gv-status:not(:empty){position:sticky;bottom:0;background:#edf5fa;padding:9px!important;border-radius:7px;z-index:3}.gv-status:empty{display:none}.v4-teacher-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-gap:6px;margin:8px 0 12px}.v4-teacher-summary span{margin:0;padding:10px;background:#f0f6fa;font-size:12px}.v4-teacher-summary strong{display:block;font-size:23px;margin-top:4px}.teacher-peer-section{margin-top:0;padding-top:0;border:0}.gv-list #teacherListHint{font-size:11px}.gv-detail textarea{min-height:56px}#teacherConnection{margin:6px 0 10px}#teacherConnection:not([open]){padding:4px 8px}@media(max-width:700px){#teacherDialog .teacher-grid{grid-template-columns:1fr}.gv-cards{max-height:220px}.gv-meta{grid-template-columns:1fr 1fr}.v4-teacher-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.gv-stages{grid-template-columns:repeat(2,minmax(0,1fr))}} 
 
 .gv-rubric-row{display:grid;grid-template-columns:minmax(0,1fr) 110px;grid-gap:10px;padding:9px 0;border-bottom:1px solid #dbe6ed}.gv-rubric-row p{font-size:12px;margin:4px 0;color:#456477}.gv-rubric-row label{font-size:14px}.gv-rubric-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}.gv-rubric-head strong{font-size:24px;color:#145578}.gv-summary-note{font-size:12px;color:#50677b;margin:-5px 0 9px}.gv-evidence{border:1px solid #dbe6ed;border-radius:8px;padding:10px;margin-top:8px}.gv-evidence p{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;margin:5px 0}.gv-evidence summary{font-weight:bold;cursor:pointer}.gv-rubric-row select{min-height:38px}.gv-tabs button{font-size:13px}@media(max-width:550px){.gv-tabs button{font-size:11px}.gv-rubric-row{grid-template-columns:minmax(0,1fr) 85px}}
+/* V4.3: full student name, no redundant rename button */
+.toolbar .student-fields #group{width:320px;max-width:100%;min-width:210px;font-size:14px}
+.toolbar .student-fields #klass{width:65px}
+#groupDialog #newGroup,#cloudDialog #cloudGroup{width:100%;font-size:16px;min-height:40px}
+@media(max-width:750px){.toolbar .student-fields #group{width:260px;min-width:0;max-width:100%}}
+@media(max-width:480px){.toolbar .student-fields{width:100%;display:grid;grid-template-columns:105px minmax(0,1fr);grid-gap:5px;align-items:center}.toolbar .student-fields #group{width:100%;min-width:0}.toolbar .student-fields #klass{width:80px}}
 </style>
 </head>
 <body class="needs-profile">
@@ -367,9 +373,9 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   <div class="toolbar">
     <div class="student-fields">
       <label for="group">Học sinh / Nhóm</label>
-      <input id="group" placeholder="Chưa chọn tên" readonly>
+      <input id="group" placeholder="Chưa chọn tên" readonly title="Tên học sinh hoặc nhóm">
       <label for="klass">Lớp</label>
-      <input id="klass" placeholder="Lớp" readonly><button type="button" id="switchGroup">Đổi tên bài</button>
+      <input id="klass" placeholder="Lớp" readonly>
     </div>
     <div class="toolbar-actions">
       <span id="autosaveHint" class="save-hint" role="status">Bài được tự lưu</span>
@@ -379,7 +385,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
       <button id="save" class="primary" type="button">Lưu bài</button>
       <details class="tools-more">
         <summary>Tùy chọn</summary>
-        <div class="tools-menu"><button id="helpBtn" type="button" aria-haspopup="dialog">Hướng dẫn</button>
+        <div class="tools-menu"><button id="switchProfile" type="button">Mở bài khác</button><button id="helpBtn" type="button" aria-haspopup="dialog">Hướng dẫn</button>
           <button id="export" type="button">Tải bài về máy</button>
           <button id="importBtn" type="button">Mở bài từ tệp</button>
           <button id="print" type="button">In sản phẩm</button>
@@ -2660,8 +2666,9 @@ function rubricTotal_(x){if(!Array.isArray(x)||x.length!==6)return null;var n=0;
   el('groupNewMode').addEventListener('click',function(){choosePickerMode('new')});
   el('groupExistingMode').addEventListener('click',function(){choosePickerMode('existing')});
 
-  el('switchGroup').addEventListener('click',openGroups);
+
   function closeTeacher(){if(gvDirty||gvSaving||rubricDirty||rubricSaving){teacherStatus('Hãy lưu hoặc bỏ thay đổi trước khi đóng.');return}closeBridgeDialog('teacherDialog');el('teacherBtn').focus()}
+  el('switchProfile').addEventListener('click',function(){var menu=this.closest('details');if(menu)menu.open=false;openGroups()});
   el('cloudBtn').addEventListener('click',cloudOpen);
   el('cloudClose').addEventListener('click',function(){closeBridgeDialog('cloudDialog')});
   el('saveScriptUrl').addEventListener('click',function(){
