@@ -7,7 +7,24 @@
  * IMPORTANT: 4-character access codes are convenient, not high-security identity.
  * Never store personal sensitive data. Change the default teacher password.
  */
-var APP_VERSION = 3;
+var APP_VERSION = 4;
+function stemProgress_(d){
+ if(!d||!d.sites||!['nga','cu','giong'].every(function(k){return d.sites[k]&&typeof d.sites[k]==='object'}))return null;
+ var ids=['nga','cu','giong'],v=d.visited||{},m=d.mapAnswers||{},c=d.checks||{},sn=d.snapshots||{},a=sn.before,b=sn.after;
+ function t(x){return String(x||'').trim()}
+ function words(x){return t(x)?t(x).split(/\s+/).length:0}
+ function order(x){return typeof x==='string'&&x.split(',').sort().join(',')==='cu,giong,nga'}
+ function ok(x){return !!(x&&x.sites)}
+ var diff=ok(a)&&ok(b)&&(ids.some(function(k){var x=a.sites[k]||{},y=b.sites[k]||{};if(typeof x==='string')x={desc:x};if(typeof y==='string')y={desc:y};return ['desc','source','image','imageSource','license','cardStyle'].some(function(f){return t(x[f])!==t(y[f])})})||['order','mode','reason','sketch','message','compareText','estimate'].some(function(f){return t(a[f])!==t(b[f])}));
+ var stages=[[m.prediction==='giong'&&m.line==='order'].concat(ids.map(function(k){var x=d.sites[k];return v[k]===true&&words(x.desc)>=25&&words(x.desc)<=80&&!!t(x.source)})),[order(d.order)&&order(d.compareOrder)&&d.order!==d.compareOrder&&t(d.compareText).length>=8,t(d.reason).length>=12,t(d.message).length>=12],[ok(a),t(d.issues).length>=5&&t(d.fix).length>=5,['peer0','peer1','peer2'].some(function(k){return c[k]===true}),diff],[!!t(d.selfAssessment),ok(a)&&ok(b)]].map(function(x){return {done:x.filter(Boolean).length,total:x.length}});
+ var done=stages.reduce(function(n,x){return n+x.done},0),total=13;
+ var started=done>0||ids.some(function(k){var x=d.sites[k];return v[k]===true||['desc','source','image','imageSource','license'].some(function(f){return !!t(x[f])})})||!!(m.prediction||m.line)||['reason','compareText','message','sketch','tester','issues','fix','recheck','selfAssessment'].some(function(f){return !!t(d[f])})||Object.keys(c).some(function(k){return c[k]===true})||ok(a)||ok(b)||(order(d.order)&&d.order!=='nga,cu,giong')||(order(d.compareOrder)&&d.compareOrder!=='cu,nga,giong')||d.preferredRoute==='B';
+ return {done:done,total:total,percent:Math.round(done*100/total),stages:stages,started:started};
+}
+var RUBRIC_VERSION='KHBD-2026-11-25',RUBRIC_NAME='Danh_gia_STEM7',RUBRIC_COLS=['groupId','klass','group','assessmentJSON'];
+function rubricTotal_(x){if(!Array.isArray(x)||x.length!==6)return null;var n=0;for(var i=0;i<6;i++){var v=x[i];if(typeof v!=='number'||!isFinite(v)||v<0||v>(i<4?2:1)||(i<4?v%1!==0:v*2%1!==0))return null;n+=v}return n}
+function rubricIndex_(ss){var sh=ss.getSheetByName(RUBRIC_NAME),out=Object.create(null);if(sh&&sh.getLastRow()>1)sh.getRange(2,1,sh.getLastRow()-1,4).getValues().forEach(function(r,i){try{var a=JSON.parse(String(r[3]));if(a.version===RUBRIC_VERSION&&rubricTotal_(a.scores)!==null)out[String(r[0])]={row:i+2,assessment:a}}catch(e){}});return out}
+function teacherRecord_(v,full,index){var out=publicRecord_(v,full);try{out.progress=stemProgress_(JSON.parse(String(v[4]||'{}')))}catch(e){out.progress=null}var a=index[String(v[0])];out.rubric=a?a.assessment:null;if(!full&&out.rubric){var r=out.rubric;out.rubric={version:r.version,total:r.total,sourceRevision:r.sourceRevision,revision:r.revision,updatedAt:r.updatedAt}}return out}
 var SHEET_NAME = 'Nhom_STEM7';
 var AUDIT_NAME = 'Lich_su_chinh_sua';
 var FEEDBACK_NAME = 'Gop_y_cheo_STEM7';
@@ -26,6 +43,7 @@ function setup(){
   ensureSheet_(ss,SHEET_NAME,COLS);
   ensureSheet_(ss,AUDIT_NAME,['time','klass','group','actor','action','revision','oldPayload','newPayload','note']);
   ensureSheet_(ss,FEEDBACK_NAME,FEEDBACK_COLS);
+  ensureSheet_(ss,RUBRIC_NAME,RUBRIC_COLS);
   Logger.log('Bảng tính: '+ss.getUrl());
   Logger.log('Mật khẩu giáo viên ban đầu: 22112026. Đổi ngay sau khi đăng nhập.');
 }
@@ -212,12 +230,12 @@ function handle_(q){
   }
   if(action==='teacherList'){
     requireSession_(q.token,'teacher');
-    return {groups:all_(sh).map(function(r){return publicRecord_(r,false)})};
+    var index=rubricIndex_(ss);return {rubricSupported:true,groups:all_(sh).map(function(r){return teacherRecord_(r,false,index)})};
   }
   if(action==='teacherGet'){
     requireSession_(q.token,'teacher');
     var t=rowOf_(sh,klass,group);if(!t)throw Error('Không tìm thấy nhóm');
-    return {record:publicRecord_(t.v,true)};
+    return {rubricSupported:true,record:teacherRecord_(t.v,true,rubricIndex_(ss))};
   }
 
   if(action==='peerList'||action==='peerGet'||action==='peerSend'||action==='peerInbox'){
@@ -309,6 +327,17 @@ function handle_(q){
       sh.getRange(row,1,1,COLS.length).setValues([v]);
       return {record:publicRecord_(v,action==='studentSave')};
     }
+    if(action==='teacherRubricSave'){
+      requireSession_(q.token,'teacher');
+      var total=rubricTotal_(q.scores);
+      if(q.version!==RUBRIC_VERSION||total===null)throw Error('Rubric hoặc mức điểm không hợp lệ.');
+      var ix=rubricIndex_(ss),old=ix[String(v[0])],rev=old?Number(old.assessment.revision||0):0;
+      if(Number(q.rubricRevision)!==rev||Number(q.sourceRevision)!==Number(v[10]||0))return {conflict:true};
+      var a={version:RUBRIC_VERSION,scores:q.scores.slice(),total:total,note:clean_(q.note,1000),sourceRevision:Number(v[10]||0),revision:rev+1,updatedAt:time_()};
+      var sheet=ensureSheet_(ss,RUBRIC_NAME,RUBRIC_COLS),cells=[String(v[0]),safeCell_(v[1]),safeCell_(v[2]),JSON.stringify(a)];
+      if(old)sheet.getRange(old.row,1,1,4).setValues([cells]);else sheet.appendRow(cells);
+      return {assessment:a};
+    }
     if(action==='teacherSave'){
       requireSession_(q.token,'teacher');
       var rev=Number(q.revision||0);if(rev!==Number(v[10]||0))return {conflict:true,record:publicRecord_(v,true)};
@@ -316,7 +345,7 @@ function handle_(q){
       v[4]=replacement;v[8]=nowT;v[10]=rev+1;v[11]=nowT;v[12]=safeCell_(note);v[13]='Giáo viên';
       writeAudit_(ss,klass,group,'Giáo viên','Chỉnh sửa',v[10],previous,replacement,note);
       sh.getRange(row,1,1,COLS.length).setValues([v]);
-      return {record:publicRecord_(v,true)};
+      return {rubricSupported:true,record:teacherRecord_(v,true,rubricIndex_(ss))};
     }
     if(action==='teacherRotateCode'){
       requireSession_(q.token,'teacher');var newCode=pin_();v[3]=digest_(newCode);v[14]=Number(v[14]||1)+1;
