@@ -728,7 +728,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
           <div id="teacherFeedbackList" role="status"></div>
           <label for="teacherFeedbackText">Nhận xét của giáo viên gửi cho nhóm</label>
           <div id="gvFeedbackQuick" class="gv-quick-area"></div><textarea id="teacherFeedbackText" maxlength="500" rows="2" placeholder="Nêu điểm làm tốt và điểm cần cải thiện."></textarea>
-          <button id="teacherFeedbackSend" type="button" class="primary">Gửi nhận xét cho nhóm</button>
+          <button id="teacherFeedbackSend" type="button" class="primary">Gửi nhận xét</button><button id="gvFeedbackDiscard" type="button">Bỏ nhận xét chưa gửi</button>
           <p id="teacherFeedbackStatus" class="muted" role="status"></p>
         </section><section id="gvRubric" class="hidden"><div class="gv-rubric-head"><h3>Rubric KHBD · 10 điểm</h3><strong id="gvRubricTotal">— / 10</strong></div><p class="muted">Chấm theo minh chứng, không quy đổi tiến độ thành điểm.</p><div id="gvRubricRows"></div><div id="gvRubricQuick" class="gv-quick-area"></div><label for="gvRubricNote">Nhận xét đánh giá (không bắt buộc)</label><textarea id="gvRubricNote" maxlength="1000" rows="3"></textarea><div class="gv-assess-status"><label for="gvRubricMode">Kết quả đánh giá</label><select id="gvRubricMode"><option value="draft">Lưu nháp – chưa gửi</option><option value="revision">Gửi điểm – yêu cầu chỉnh sửa</option><option value="final">Gửi điểm – xác nhận kết quả</option></select></div><p id="gvRubricStatus" class="muted" role="status"></p><div class="actions"><button id="gvRubricPrev" type="button">Bài trước</button><button id="gvRubricSave" type="button" class="primary">Lưu điểm</button><button id="gvRubricNext" type="button" class="primary">Lưu và chấm tiếp</button><button id="gvRubricDiscard" type="button">Bỏ thay đổi</button></div><details class="gv-history"><summary>Lịch sử đánh giá</summary><div id="gvRubricHistory"></div></details></section><details class="gv-extra"><summary>Quản lý mã bài</summary><p class="muted">Chỉ cấp mã mới khi học sinh mất mã. Mã cũ sẽ không còn hiệu lực.</p><button id="teacherRotate" type="button">Cấp mã nhóm mới</button></details></div></div></div>
         <details class="teacher-password-change"><summary>Đổi mật khẩu giáo viên</summary>
@@ -1936,14 +1936,14 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     });
   }
   function teacherFeedbackSend(){
-    if(!teacherRecord){teacherFeedbackStatus('Chọn nhóm cần nhận xét.');return}
+    if(!teacherRecord||feedbackSending||gvLoading){teacherFeedbackStatus('Chọn bài cần nhận xét.');return}
     var comment=clean(el('teacherFeedbackText').value),record=teacherRecord;
     if(comment.length<12||comment.length>500){teacherFeedbackStatus('Nhận xét cần từ 12 đến 500 ký tự.');return}
-    var button=el('teacherFeedbackSend');button.disabled=true;teacherFeedbackStatus('Đang gửi nhận xét…');
+    var button=el('teacherFeedbackSend'),token=teacherToken;feedbackSending=true;button.disabled=true;el('teacherFeedbackText').disabled=true;el('gvFeedbackQuick').querySelectorAll('button').forEach(function(b){b.disabled=true});teacherFeedbackStatus('Đang gửi nhận xét…');
     cloudCall({action:'teacherFeedbackSend',token:teacherToken,klass:record.klass,group:record.group,comment:comment},function(err){
-      button.disabled=false;
+      feedbackSending=false;button.disabled=false;el('teacherFeedbackText').disabled=false;el('gvFeedbackQuick').querySelectorAll('button').forEach(function(b){b.disabled=false});if(token!==teacherToken||record!==teacherRecord)return;
       if(err){teacherFeedbackStatus('Không gửi được: '+err);return}
-      el('teacherFeedbackText').value='';teacherFeedbackStatus('Đã gửi nhận xét cho nhóm.');
+      el('teacherFeedbackText').value='';renderQuick('gvFeedbackQuick','teacherFeedbackText',false);teacherFeedbackStatus('Đã gửi nhận xét cho học sinh.');
       teacherFeedbackLoad();
     });
   }
@@ -1961,7 +1961,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   el('peerInboxBtn').addEventListener('click',function(){peerInboxFetch(true)});
   el('peerInboxClose').addEventListener('click',function(){el('peerInboxPanel').classList.add('hidden')});
   el('teacherFeedbackRefresh').addEventListener('click',teacherFeedbackLoad);
-  el('teacherFeedbackSend').addEventListener('click',teacherFeedbackSend);
+  el('teacherFeedbackSend').addEventListener('click',teacherFeedbackSend);el('gvFeedbackDiscard').addEventListener('click',function(){if(feedbackSending)return;el('teacherFeedbackText').value='';renderQuick('gvFeedbackQuick','teacherFeedbackText',false);teacherFeedbackStatus('')});
   window.setInterval(function(){if(cloudSession&&!document.hidden)peerInboxFetch(false)},60000);
 
   var teacherNeedsPasswordChange=false,teacherLoginBusy=false,teacherListBusy=false;
@@ -1974,7 +1974,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     el('teacherWorkspace').classList.toggle('hidden',!authenticated||mustChange);
   }
   function teacherSignOut(){
-    if(gvDirty||gvSaving||rubricDirty||rubricSaving){teacherStatus('Hãy lưu hoặc bỏ thay đổi trước khi đăng xuất.');return}hydrateToken++;hydrating=false;gvCache=Object.create(null);gvLoadSeq++;gvLoading=false;el('gvDetailBody').classList.add('hidden');el('gvCards').textContent='';removeStoredSession(TEACHER_SESSION_KEY);teacherSessionUntil=0;teacherRemember=false;teacherToken='';teacherRecord=null;teacherNeedsPasswordChange=false;teacherLoginBusy=false;teacherListBusy=false;
+    if(gvDirty||gvSaving||rubricDirty||rubricSaving||feedbackSending||clean(el('teacherFeedbackText').value)){teacherStatus('Hãy lưu hoặc bỏ thay đổi trước khi đăng xuất.');return}hydrateToken++;hydrating=false;gvCache=Object.create(null);gvLoadSeq++;gvLoading=false;el('gvDetailBody').classList.add('hidden');el('gvCards').textContent='';removeStoredSession(TEACHER_SESSION_KEY);teacherSessionUntil=0;teacherRemember=false;teacherToken='';teacherRecord=null;teacherNeedsPasswordChange=false;teacherLoginBusy=false;teacherListBusy=false;
     teacherGroupsData=[];el('v4TeacherSummary').textContent='';
     el('teacherFeedbackList').innerHTML='';el('teacherFeedbackText').value='';teacherFeedbackStatus('');
     el('teacherPassword').value='';el('teacherSetupPassword').value='';el('teacherSetupConfirm').value='';
@@ -2005,7 +2005,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
       teacherListBusy=false;el('teacherRefresh').disabled=false;
       if(teacherToken!==previousToken)return;
       if(err){
-        if(/hết hạn|đăng nhập lại|không có quyền/i.test(err)){if(!gvDirty&&!rubricDirty&&!rubricSaving)expireTeacherSession();else teacherStatus('Phiên hết hạn. Hãy sao chép nội dung đang sửa trước khi đăng nhập lại.');return}
+        if(/hết hạn|đăng nhập lại|không có quyền/i.test(err)){if(!gvDirty&&!rubricDirty&&!rubricSaving&&!feedbackSending&&!clean(el('teacherFeedbackText').value))expireTeacherSession();else teacherStatus('Phiên hết hạn. Hãy sao chép nội dung đang sửa trước khi đăng nhập lại.');return}
         teacherStatus('Không tải được danh sách nhóm: '+err);
         el('teacherListHint').textContent='Không tải được dữ liệu. Nhấn “Tải danh sách nhóm” để thử lại.';
         return;
@@ -2015,11 +2015,11 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
         el('teacherListHint').textContent='Dữ liệu danh sách nhóm chưa hợp lệ.';
         return;
       }
-      teacherGroupsData=res.groups.slice().sort(function(a,b){return String(a.klass).localeCompare(String(b.klass),'vi',{numeric:true})||String(a.group).localeCompare(String(b.group),'vi',{numeric:true})});
+      var previousGroups=teacherGroupsData;teacherGroupsData=res.groups.map(function(g){var old=previousGroups.find(function(x){return String(x.id)===String(g.id)});if(!old)return g;if(Number(old.revision)>Number(g.revision)){g.revision=old.revision;g.progress=old.progress;g.updatedAt=old.updatedAt}if(old.rubric&&(!g.rubric||Number(old.rubric.revision)>Number(g.rubric.revision)))g.rubric=old.rubric;return g}).sort(function(a,b){return String(a.klass).localeCompare(String(b.klass),'vi',{numeric:true})||String(a.group).localeCompare(String(b.group),'vi',{numeric:true})});
       rubricSupported=res.rubricSupported===true;assessmentWorkflow=res.assessmentWorkflow===true;
       teacherGroupsData.forEach(function(g){var c=gvCache[String(g.id)];if(gvProgress(g)===null&&c&&c.revision===Number(g.revision))g.progress=c.progress});hydrateProgress();
       gvRenderList();
-      if(teacherRecord){var currentIndex=teacherGroupsData.findIndex(function(g){return g.id===teacherRecord.id});if(currentIndex>=0){el('teacherGroups').value=String(currentIndex);gvMarkSelected();if(!background)teacherStatus('');return}}
+      if(teacherRecord){var currentIndex=teacherGroupsData.findIndex(function(g){return g.id===teacherRecord.id});if(currentIndex>=0){el('teacherGroups').value=String(currentIndex);gvMarkSelected();var latest=teacherGroupsData[currentIndex],changed=Number(latest.revision)>Number(teacherRecord.revision)||Number(latest.rubric&&latest.rubric.revision||0)>Number(teacherRecord.rubric&&teacherRecord.rubric.revision||0);if(changed&&!gvLoading&&!gvSaving&&!rubricSaving&&!gvDirty&&!rubricDirty&&!feedbackSending&&!clean(el('teacherFeedbackText').value)){teacherStatus('Bài hoặc đánh giá có cập nhật. Chọn tải bài mới nhất trước khi chấm.');if(gvTabName==='rubric')el('gvRubricStatus').textContent='Có dữ liệu mới. Mở lại bài trước khi lưu đánh giá.';}else if(!background)teacherStatus('');return}}
       if(!teacherGroupsData.length){teacherRecord=null;el('gvDetailBody').classList.add('hidden');el('teacherGroupTitle').textContent='Chưa có bài làm';teacherStatus('');return}
       if(!teacherRecord&&!background){var first=el('gvCards').querySelector('button');if(first)first.click()}
       if(!background)teacherStatus('');
@@ -2042,7 +2042,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     ['message','reason','compareText','sketch','issues','fix','recheck'].forEach(function(k){var m={message:'teacherMessage',reason:'teacherReason',compareText:'teacherCompare',sketch:'teacherSketch',issues:'teacherIssues',fix:'teacherFix',recheck:'teacherRecheck'};el(m[k]).value=teacherRecord.data[k]||''});
   }
   var gvTabName='overview',gvDirty=false,gvLoading=false,gvSaving=false,gvLoadSeq=0;
-var rubricSupported=false,assessmentWorkflow=false,rubricDirty=false,rubricSaving=false,gvCache=Object.create(null),hydrateToken=0,hydrating=false;
+var rubricSupported=false,assessmentWorkflow=false,rubricDirty=false,rubricSaving=false,feedbackSending=false,gvCache=Object.create(null),hydrateToken=0,hydrating=false;
 var RUBRIC_VERSION='KHBD-2026-11-25';
 function stemProgress_(d){
  if(!d||!d.sites||!['nga','cu','giong'].every(function(k){return d.sites[k]&&typeof d.sites[k]==='object'}))return null;
@@ -2060,7 +2060,7 @@ function stemProgress_(d){
 
 function rubricTotal_(x){if(!Array.isArray(x)||x.length!==6)return null;var n=0;for(var i=0;i<6;i++){var v=x[i];if(typeof v!=='number'||!isFinite(v)||v<0||v>(i<4?2:1)||(i<4?v%1!==0:v*2%1!==0))return null;n+=v}return n}
   function gvDate(x){if(!x)return '—';var d=new Date(x);if(isNaN(d.getTime()))return '—';return d.toLocaleString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false})}
-  function gvTab(name){if((rubricDirty||rubricSaving)&&name!=='rubric'){teacherStatus('Hãy lưu điểm hoặc bỏ thay đổi trước khi chuyển tab.');return}if(gvDirty&&name!=='edit'){teacherStatus('Hãy lưu chỉnh sửa hoặc bỏ thay đổi trước khi chuyển tab.');return}gvTabName=name;['overview','edit','feedback','rubric'].forEach(function(k){el('gv'+k.charAt(0).toUpperCase()+k.slice(1)).classList.toggle('hidden',k!==name)});document.querySelectorAll('[data-gv-tab]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-gv-tab')===name)});if(name==='feedback'&&teacherRecord){renderQuick('gvFeedbackQuick','teacherFeedbackText',false);teacherFeedbackLoad()}}
+  function gvTab(name){if(name!=='feedback'&&(feedbackSending||clean(el('teacherFeedbackText').value))){teacherStatus('Hãy gửi hoặc bỏ nhận xét trước khi chuyển tab.');return}if((rubricDirty||rubricSaving)&&name!=='rubric'){teacherStatus('Hãy lưu điểm hoặc bỏ thay đổi trước khi chuyển tab.');return}if(gvDirty&&name!=='edit'){teacherStatus('Hãy lưu chỉnh sửa hoặc bỏ thay đổi trước khi chuyển tab.');return}gvTabName=name;['overview','edit','feedback','rubric'].forEach(function(k){el('gv'+k.charAt(0).toUpperCase()+k.slice(1)).classList.toggle('hidden',k!==name)});document.querySelectorAll('[data-gv-tab]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-gv-tab')===name)});if(name==='feedback'&&teacherRecord){renderQuick('gvFeedbackQuick','teacherFeedbackText',false);teacherFeedbackLoad()}}
   function gvProgress(g){return g&&g.progress&&typeof g.progress.percent==='number'?Math.max(0,Math.min(100,g.progress.percent)):null}
   function gvState(g){var p=gvProgress(g);return p===null?'unknown':p===100?'done':(p>0||g.progress.started)?'started':'new'}
   function gradeCurrent(g){return !!(g.rubric&&g.rubric.version===RUBRIC_VERSION&&typeof g.rubric.total==='number'&&Number(g.rubric.sourceRevision)===Number(g.revision))}
@@ -2172,12 +2172,12 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     });
     el('gvRubricNote').value=a&&a.note||'';el('gvRubricNote').disabled=!rubricSupported;
     el('gvRubricMode').value=assessmentWorkflow&&a&&['revision','final'].indexOf(a.status)>=0?a.status:'draft';el('gvRubricMode').disabled=!assessmentWorkflow;
-    rubricDirty=false;renderQuick('gvRubricQuick','gvRubricNote',true);renderHistory();
+    rubricDirty=false;renderQuick('gvRubricQuick','gvRubricNote',true);el('gvRubricQuick').querySelectorAll('button').forEach(function(b){b.disabled=!rubricSupported});renderHistory();
     el('gvRubricStatus').textContent=!rubricSupported?'Cần Apps Script V5 để lưu đánh giá.':!assessmentWorkflow?'Máy chủ V4: chỉ lưu nháp, chưa hỗ trợ gửi hoặc lịch sử.':a?(gradeCurrent(teacherRecord)?assessmentLabel(teacherRecord)+' · '+gvDate(a.updatedAt):'Bài đã thay đổi. Kiểm tra và đánh giá lại.'):'Chưa có điểm đánh giá.';
     rubricUpdate();
   }
   function navigateAssessment(direction){
-    if(!teacherRecord||rubricDirty||rubricSaving||gvDirty||gvSaving||gvLoading)return;
+    if(!teacherRecord||rubricDirty||rubricSaving||gvDirty||gvSaving||gvLoading||feedbackSending||clean(el('teacherFeedbackText').value)){teacherStatus('Hãy gửi hoặc bỏ nhận xét chưa lưu trước khi chuyển bài.');return}
     var all=gvVisible(false),at=all.findIndex(function(g){return String(g.id)===String(teacherRecord.id)}),target=null;
     if(direction<0){if(at>0)target=all[at-1]}
     else{var next=all.slice(at+1).concat(all.slice(0,Math.max(at,0)));target=next.find(function(g){return String(g.id)!==String(teacherRecord.id)&&assessmentState(g)!=='final'})||null}
@@ -2185,11 +2185,11 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     var idx=teacherGroupsData.indexOf(target),sel=el('teacherGroups');if(!Array.prototype.some.call(sel.options,function(o){return o.value===String(idx)})){var o=document.createElement('option');o.value=String(idx);sel.appendChild(o)}sel.value=String(idx);teacherLoadGroup('rubric');
   }
   function saveRubric(next){
-    if(!teacherRecord||!rubricSupported||rubricSaving||gvLoading||gvSaving||gvDirty)return;
+    if(!teacherRecord||!rubricSupported||rubricSaving||gvLoading||gvSaving||gvDirty||feedbackSending)return;
     var scores=rubricValues(),mode=assessmentWorkflow?el('gvRubricMode').value:'draft',note=clean(el('gvRubricNote').value);
     if(rubricTotal_(scores)===null||(mode==='revision'&&!note))return;
     if(next&&!rubricDirty&&gradeCurrent(teacherRecord)){navigateAssessment(1);return}
-    var rec=teacherRecord,token=teacherToken;rubricSaving=true;rubricUpdate();el('gvRubricStatus').textContent='Đang lưu đánh giá…';
+    var rec=teacherRecord,token=teacherToken,latest=teacherGroupsData.find(function(g){return String(g.id)===String(rec.id)});if(latest&&(Number(latest.revision)>Number(rec.revision)||Number(latest.rubric&&latest.rubric.revision||0)>Number(rec.rubric&&rec.rubric.revision||0))){el('gvRubricStatus').textContent='Có dữ liệu mới. Ghi lại điểm đang nhập, bỏ thay đổi và tải bài mới nhất.';return}rubricSaving=true;rubricUpdate();el('gvRubricStatus').textContent='Đang lưu đánh giá…';
     el('gvRubricNote').disabled=true;el('gvRubricMode').disabled=true;el('gvRubricDiscard').disabled=true;el('gvRubricQuick').querySelectorAll('button').forEach(function(b){b.disabled=true});
     cloudCall({action:'teacherRubricSave',token:token,klass:rec.klass,group:rec.group,version:RUBRIC_VERSION,scores:scores,note:note,status:mode,sourceRevision:Number(rec.revision),rubricRevision:rec.rubric?Number(rec.rubric.revision):0},function(err,res){
       rubricSaving=false;if(token!==teacherToken||teacherRecord!==rec)return;
@@ -2239,7 +2239,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
       sub.textContent=String(g.klass).toUpperCase()+' · '+labels[gvState(g)]+(p===null?'':' · '+g.progress.done+'/'+g.progress.total+' ('+p+'%)')+' · '+Math.floor(Number(g.seconds||0)/60)+' phút';b.appendChild(sub);
       if(p!==null){var track=document.createElement('div'),fill=document.createElement('div');track.className='gv-track';fill.className='gv-fill';fill.style.width=p+'%';track.appendChild(fill);b.appendChild(track)}
       if(rubricSupported){var grade=document.createElement('small');grade.textContent=(g.rubric?'Điểm: '+String(g.rubric.total).replace('.',',')+'/10 · ':'')+assessmentLabel(g);b.appendChild(grade)}
-      b.addEventListener('click',function(){if(gvSaving||gvDirty||rubricDirty||rubricSaving){teacherStatus('Hãy lưu hoặc bỏ thay đổi trước khi chuyển bài.');return}sel.value=String(i);teacherLoadGroup()});root.appendChild(b);
+      b.addEventListener('click',function(){if(gvSaving||gvDirty||rubricDirty||rubricSaving||feedbackSending||clean(el('teacherFeedbackText').value)){teacherStatus('Hãy lưu, gửi hoặc bỏ nhận xét chưa lưu trước khi chuyển bài.');return}sel.value=String(i);teacherLoadGroup()});root.appendChild(b);
     });
     el('teacherListHint').textContent=visible.length+'/'+scope.length+' bài · Tự cập nhật mỗi 30 giây';if(!visible.length)root.textContent='Không có bài phù hợp.';gvMarkSelected();
   }
@@ -2257,7 +2257,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     var root=el('gvSiteOverview');root.textContent='';ids.forEach(function(id){var v=d.sites[id],box=document.createElement('details'),head=document.createElement('summary'),p=document.createElement('p'),source=document.createElement('p');box.className='gv-site';head.textContent=referenceSites[id].name+' · '+countWords(v.desc)+' từ';p.textContent=v.desc||'Chưa viết lời giới thiệu.';source.textContent='Nguồn: '+(v.source||'Chưa ghi');box.appendChild(head);box.appendChild(p);box.appendChild(source);root.appendChild(box)});el('gvDetailBody').classList.remove('hidden');gvMarkSelected()
   }
   function teacherLoadGroup(openTab){
-    var index=Number(el('teacherGroups').value),item=teacherGroupsData[index];if(!item||gvDirty||gvSaving||rubricDirty||rubricSaving)return;
+    var index=el('teacherGroups').value===''?-1:Number(el('teacherGroups').value),item=teacherGroupsData[index];if(!item||gvDirty||gvSaving||rubricDirty||rubricSaving||feedbackSending||clean(el('teacherFeedbackText').value))return;
     var seq=++gvLoadSeq,token=teacherToken;gvLoading=true;el('gvDetailBody').classList.add('hidden');teacherStatus('Đang tải bài…');
     cloudCall({action:'teacherGet',token:teacherToken,klass:item.klass,group:item.group},function(err,res){
       if(seq!==gvLoadSeq||token!==teacherToken)return;gvLoading=false;
@@ -2760,7 +2760,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   el('groupExistingMode').addEventListener('click',function(){choosePickerMode('existing')});
 
 
-  function closeTeacher(){if(gvDirty||gvSaving||rubricDirty||rubricSaving){teacherStatus('Hãy lưu hoặc bỏ thay đổi trước khi đóng.');return}closeBridgeDialog('teacherDialog');el('teacherBtn').focus()}
+  function closeTeacher(){if(gvDirty||gvSaving||rubricDirty||rubricSaving||feedbackSending||clean(el('teacherFeedbackText').value)){teacherStatus('Hãy lưu hoặc bỏ thay đổi trước khi đóng.');return}closeBridgeDialog('teacherDialog');el('teacherBtn').focus()}
   el('switchProfile').addEventListener('click',function(){var menu=this.closest('details');if(menu)menu.open=false;openGroups('existing')});
   el('cloudBtn').addEventListener('click',cloudOpen);
   el('studentAssessmentBtn').addEventListener('click',function(){el('studentAssessmentDialog').classList.remove('hidden');loadStudentAssessment()});el('studentAssessmentReload').addEventListener('click',loadStudentAssessment);el('studentAssessmentClose').addEventListener('click',function(){studentAssessmentSeq++;el('studentAssessmentContent').textContent='';closeBridgeDialog('studentAssessmentDialog')});
@@ -2838,7 +2838,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   el('gvClass').addEventListener('change',gvRenderList);el('gvSearch').addEventListener('input',gvRenderList);el('gvState').addEventListener('change',gvRenderList);
   el('gvRubricNote').addEventListener('input',function(){rubricDirty=true;rubricUpdate()});el('gvRubricSave').addEventListener('click',function(){saveRubric(false)});el('gvRubricNext').addEventListener('click',function(){saveRubric(true)});el('gvRubricPrev').addEventListener('click',function(){navigateAssessment(-1)});el('gvRubricMode').addEventListener('change',function(){rubricDirty=true;rubricUpdate()});el('gvRubricDiscard').addEventListener('click',function(){if(!rubricSaving)rubricRender()});el('gvExportScores').addEventListener('click',exportRubricCSV);
   document.querySelectorAll('[data-gv-tab]').forEach(function(b){b.addEventListener('click',function(){gvTab(b.getAttribute('data-gv-tab'))})});
-  el('gvEditOpen').addEventListener('click',function(){gvTab('edit')});el('gvReload').addEventListener('click',function(){if(gvDirty||gvSaving||rubricDirty||rubricSaving){teacherStatus('Hãy lưu hoặc bỏ thay đổi trước.');return}var i=teacherGroupsData.findIndex(function(g){return teacherRecord&&g.id===teacherRecord.id});if(i>=0){var sel=el('teacherGroups');if(!Array.prototype.some.call(sel.options,function(o){return o.value===String(i)})){var o=document.createElement('option');o.value=String(i);sel.appendChild(o)}sel.value=String(i);teacherLoadGroup()}});
+  el('gvEditOpen').addEventListener('click',function(){gvTab('edit')});el('gvReload').addEventListener('click',function(){if(gvDirty||gvSaving||rubricDirty||rubricSaving||feedbackSending||clean(el('teacherFeedbackText').value)){teacherStatus('Hãy lưu hoặc bỏ thay đổi trước.');return}var i=teacherGroupsData.findIndex(function(g){return teacherRecord&&g.id===teacherRecord.id});if(i>=0){var sel=el('teacherGroups');if(!Array.prototype.some.call(sel.options,function(o){return o.value===String(i)})){var o=document.createElement('option');o.value=String(i);sel.appendChild(o)}sel.value=String(i);teacherLoadGroup()}});
   el('gvDiscard').addEventListener('click',function(){if(gvSaving||gvLoading||!teacherRecord)return;if(!gvDirty){gvTab('overview');return}gvDirty=false;el('gvReload').click()});
   el('gvEdit').addEventListener('input',function(){gvDirty=true});el('gvEdit').addEventListener('change',function(e){if(e.target.id!=='teacherSite')gvDirty=true});
   el('teacherGroups').addEventListener('change',function(){teacherLoadGroup()});
