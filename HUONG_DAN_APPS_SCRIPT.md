@@ -55,3 +55,13 @@ Chú ý: Cần người dùng thực hiện cấp quyền và triển khai Web A
 - **BẮT BUỘC:** Thay toàn bộ Code.gs hiện tại bằng nội dung mới nhất của AppsScript_STEM7.gs, rồi vào **Triển khai → Quản lý lượt triển khai → Chỉnh sửa → Phiên bản mới → Triển khai**. Chỉ cập nhật GitHub Pages không thay đổi Apps Script đã triển khai ở URL /exec.
 - Sau triển khai, mở https://ph0823.github.io/stemTin7DiSan/ bằng Ctrl+F5. Kiểm tra không còn lỗi target origin, thử Lưu trực tuyến → Kiểm tra kết nối. Khi kết nối thành công sẽ không xuất hiện thông báo thành công; chỉ thấy cảnh báo khi có lỗi.
 - Nếu vẫn báo lỗi hoặc không phản hồi, kiểm tra quyền Web App là Anyone, chạy lại setup() (không xóa Sheet cũ), và kiểm tra URL đúng /exec.
+
+
+## Nâng cấp V4.4 – Đánh giá và phản hồi học tập (Apps Script V5)
+
+- Với hệ thống đã cài: sao lưu bảng tính, thay mã Code.gs bằng AppsScript_STEM7.gs mới, giữ nguyên Script Properties và ID bảng tính; chạy setup() để bảo đảm các sheet tồn tại. Không xóa dữ liệu, không tạo Web App mới.
+- Triển khai phiên bản mới trên lượt triển khai đang dùng, giữ URL /exec hiện tại. Kiểm tra kết nối trong Giáo viên phải báo Server V5. HTML V4.4 vẫn dùng được với V4 ở chế độ lưu nháp, nhưng chưa gửi điểm/lịch sử; V3 chỉ đọc tiến độ, không chấm trực tuyến.
+- Rubric KHBD 10 điểm: chọn đủ 6 tiêu chí, chọn Lưu nháp / Gửi điểm – yêu cầu chỉnh sửa / Gửi điểm – xác nhận kết quả. Yêu cầu chỉnh sửa phải có nhận xét. Chọn Lưu và chấm tiếp để chuyển sang bài tiếp theo chưa xác nhận.
+- Sheet Danh_gia_STEM7 lưu từng lần chấm theo dòng mới, giữ các dòng V4 cũ như bản nháp; không thay đổi payload hoặc revision bài học sinh. Bản đã gửi gần nhất vẫn hiển thị cho học sinh khi giáo viên tạo bản nháp mới. Nếu bài thay đổi, kết quả cũ được đánh dấu cần kiểm tra lại.
+- Học sinh mở Kết quả đánh giá trên thanh công cụ khi đã đăng nhập bài trực tuyến; chỉ xem kết quả đã gửi của bài mình, không xem bản nháp hoặc điểm bạn khác. Nhận xét riêng trong tab Nhận xét vẫn sử dụng sheet Gop_y_cheo_STEM7.
+- Kiểm thử trên bài mẫu: lưu nháp (HS không thấy), gửi yêu cầu sửa (HS thấy điểm và nhận xét), sửa bài và lưu (GV thấy cần chấm lại), xác nhận lần hai, xem lịch sử, xuất CSV. Kiểm tra bằng Chrome 75 và trong Google Sites trước khi sử dụng chính thức. Không dùng dữ liệu thật để thử nghiệm xung đột.
