@@ -7,7 +7,7 @@
  * IMPORTANT: 4-character access codes are convenient, not high-security identity.
  * Never store personal sensitive data. Change the default teacher password.
  */
-var APP_VERSION = 4;
+var APP_VERSION = 5;
 function stemProgress_(d){
  if(!d||!d.sites||!['nga','cu','giong'].every(function(k){return d.sites[k]&&typeof d.sites[k]==='object'}))return null;
  var ids=['nga','cu','giong'],v=d.visited||{},m=d.mapAnswers||{},c=d.checks||{},sn=d.snapshots||{},a=sn.before,b=sn.after;
@@ -23,8 +23,36 @@ function stemProgress_(d){
 }
 var RUBRIC_VERSION='KHBD-2026-11-25',RUBRIC_NAME='Danh_gia_STEM7',RUBRIC_COLS=['groupId','klass','group','assessmentJSON'];
 function rubricTotal_(x){if(!Array.isArray(x)||x.length!==6)return null;var n=0;for(var i=0;i<6;i++){var v=x[i];if(typeof v!=='number'||!isFinite(v)||v<0||v>(i<4?2:1)||(i<4?v%1!==0:v*2%1!==0))return null;n+=v}return n}
-function rubricIndex_(ss){var sh=ss.getSheetByName(RUBRIC_NAME),out=Object.create(null);if(sh&&sh.getLastRow()>1)sh.getRange(2,1,sh.getLastRow()-1,4).getValues().forEach(function(r,i){try{var a=JSON.parse(String(r[3]));if(a.version===RUBRIC_VERSION&&rubricTotal_(a.scores)!==null)out[String(r[0])]={row:i+2,assessment:a}}catch(e){}});return out}
-function teacherRecord_(v,full,index){var out=publicRecord_(v,full);try{out.progress=stemProgress_(JSON.parse(String(v[4]||'{}')))}catch(e){out.progress=null}var a=index[String(v[0])];out.rubric=a?a.assessment:null;if(!full&&out.rubric){var r=out.rubric;out.rubric={version:r.version,total:r.total,sourceRevision:r.sourceRevision,revision:r.revision,updatedAt:r.updatedAt}}return out}
+/* V5: append-only assessment history; existing V4 rows remain valid drafts. */
+function rubricStatus_(a){return a&&['draft','revision','final'].indexOf(a.status)>=0?a.status:'draft'}
+function rubricIndex_(ss){
+  var sh=ss.getSheetByName(RUBRIC_NAME),out=Object.create(null);
+  if(sh&&sh.getLastRow()>1)sh.getRange(2,1,sh.getLastRow()-1,4).getValues().forEach(function(r,i){
+    try{
+      var a=JSON.parse(String(r[3])),total=rubricTotal_(a.scores);
+      if(a.version!==RUBRIC_VERSION||total===null)return;
+      a.total=total;a.status=rubricStatus_(a);
+      var id=String(r[0]),item=out[id]||(out[id]={history:[],published:null,assessment:null});
+      item.history.push(a);
+      if(!item.assessment||Number(a.revision)>=Number(item.assessment.revision)){item.row=i+2;item.assessment=a}
+      if(a.status!=='draft'&&(!item.published||Number(a.revision)>=Number(item.published.revision)))item.published=a;
+    }catch(e){}
+  });
+  Object.keys(out).forEach(function(id){out[id].history.sort(function(a,b){return Number(b.revision)-Number(a.revision)})});
+  return out;
+}
+function studentAssessment_(ss,v){
+  var item=rubricIndex_(ss)[String(v[0])],a=item&&item.published;
+  if(!a)return null;
+  return {version:a.version,scores:a.scores.slice(),total:a.total,note:a.note||'',status:a.status,sourceRevision:a.sourceRevision,revision:a.revision,updatedAt:a.updatedAt,changedSince:Number(v[10]||0)!==Number(a.sourceRevision)};
+}
+function teacherRecord_(v,full,index){
+  var out=publicRecord_(v,full);
+  try{out.progress=stemProgress_(JSON.parse(String(v[4]||'{}')))}catch(e){out.progress=null}
+  var item=index[String(v[0])];out.rubric=item?item.assessment:null;
+  if(full){out.rubricHistory=item?item.history.slice(0,50):[];out.rubricHistoryCount=item?item.history.length:0}
+  return out;
+}
 var SHEET_NAME = 'Nhom_STEM7';
 var AUDIT_NAME = 'Lich_su_chinh_sua';
 var FEEDBACK_NAME = 'Gop_y_cheo_STEM7';
@@ -230,12 +258,12 @@ function handle_(q){
   }
   if(action==='teacherList'){
     requireSession_(q.token,'teacher');
-    var index=rubricIndex_(ss);return {rubricSupported:true,groups:all_(sh).map(function(r){return teacherRecord_(r,false,index)})};
+    var index=rubricIndex_(ss);return {rubricSupported:true,assessmentWorkflow:true,groups:all_(sh).map(function(r){return teacherRecord_(r,false,index)})};
   }
   if(action==='teacherGet'){
     requireSession_(q.token,'teacher');
     var t=rowOf_(sh,klass,group);if(!t)throw Error('Không tìm thấy nhóm');
-    return {rubricSupported:true,record:teacherRecord_(t.v,true,rubricIndex_(ss))};
+    return {rubricSupported:true,assessmentWorkflow:true,record:teacherRecord_(t.v,true,rubricIndex_(ss))};
   }
 
   if(action==='peerList'||action==='peerGet'||action==='peerSend'||action==='peerInbox'){
@@ -302,6 +330,11 @@ function handle_(q){
     }
     if(!entry)throw Error('Chưa có nhóm trên máy chủ');
     var row=entry.row,v=entry.v;
+    if(action==='studentAssessment'){
+      var auth=requireSession_(q.token,'student',v[0]);
+      if(Number(auth.codeVersion||1)!==Number(v[14]||1))throw Error('Phiên bài đã hết hạn, hãy đăng nhập lại.');
+      return {assessment:studentAssessment_(ss,v)};
+    }
     if(action==='studentGet'){
       var session=requireSession_(q.token,'student',v[0]);
       if(Number(session.codeVersion||1)!==Number(v[14]||1))throw Error('Phiên cũ đã bị vô hiệu hóa khi đổi mã nhóm');
@@ -329,14 +362,16 @@ function handle_(q){
     }
     if(action==='teacherRubricSave'){
       requireSession_(q.token,'teacher');
-      var total=rubricTotal_(q.scores);
-      if(q.version!==RUBRIC_VERSION||total===null)throw Error('Rubric hoặc mức điểm không hợp lệ.');
+      var total=rubricTotal_(q.scores),status=q.status===undefined?'draft':String(q.status);
+      if(q.version!==RUBRIC_VERSION||total===null||['draft','revision','final'].indexOf(status)<0)throw Error('Rubric hoặc mức điểm không hợp lệ.');
+      var note=clean_(q.note,1000);
+      if(status==='revision'&&!note)throw Error('Hãy ghi rõ nội dung học sinh cần chỉnh sửa.');
       var ix=rubricIndex_(ss),old=ix[String(v[0])],rev=old?Number(old.assessment.revision||0):0;
       if(Number(q.rubricRevision)!==rev||Number(q.sourceRevision)!==Number(v[10]||0))return {conflict:true};
-      var a={version:RUBRIC_VERSION,scores:q.scores.slice(),total:total,note:clean_(q.note,1000),sourceRevision:Number(v[10]||0),revision:rev+1,updatedAt:time_()};
+      var a={version:RUBRIC_VERSION,scores:q.scores.slice(),total:total,note:note,status:status,sourceRevision:Number(v[10]||0),revision:rev+1,updatedAt:time_()};
       var sheet=ensureSheet_(ss,RUBRIC_NAME,RUBRIC_COLS),cells=[String(v[0]),safeCell_(v[1]),safeCell_(v[2]),JSON.stringify(a)];
-      if(old)sheet.getRange(old.row,1,1,4).setValues([cells]);else sheet.appendRow(cells);
-      return {assessment:a};
+      sheet.appendRow(cells);
+      return {assessment:a,history:[a].concat(old?old.history:[]).slice(0,50),historyCount:1+(old?old.history.length:0)};
     }
     if(action==='teacherSave'){
       requireSession_(q.token,'teacher');
@@ -345,7 +380,7 @@ function handle_(q){
       v[4]=replacement;v[8]=nowT;v[10]=rev+1;v[11]=nowT;v[12]=safeCell_(note);v[13]='Giáo viên';
       writeAudit_(ss,klass,group,'Giáo viên','Chỉnh sửa',v[10],previous,replacement,note);
       sh.getRange(row,1,1,COLS.length).setValues([v]);
-      return {rubricSupported:true,record:teacherRecord_(v,true,rubricIndex_(ss))};
+      return {rubricSupported:true,assessmentWorkflow:true,record:teacherRecord_(v,true,rubricIndex_(ss))};
     }
     if(action==='teacherRotateCode'){
       requireSession_(q.token,'teacher');var newCode=pin_();v[3]=digest_(newCode);v[14]=Number(v[14]||1)+1;
