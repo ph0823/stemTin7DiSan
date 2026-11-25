@@ -360,7 +360,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
 .toolbar .student-fields #klass{width:65px}
 #groupDialog #newGroup,#cloudDialog #cloudGroup{width:100%;font-size:16px;min-height:40px}
 @media(max-width:750px){.toolbar .student-fields #group{width:260px;min-width:0;max-width:100%}}
-@media(max-width:480px){.toolbar .student-fields{width:100%;display:grid;grid-template-columns:105px minmax(0,1fr);grid-gap:5px;align-items:center}.toolbar .student-fields #group{width:100%;min-width:0}.toolbar .student-fields #klass{width:80px}}
+@media(max-width:480px){.toolbar .student-fields{width:100%;display:grid;grid-template-columns:68px minmax(0,1fr);grid-gap:5px;align-items:center}.toolbar .student-fields #group{width:100%;min-width:0}.toolbar .student-fields #klass{width:80px}}
 </style>
 </head>
 <body class="needs-profile">
@@ -372,20 +372,20 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
 <div class="wrap">
   <div class="toolbar">
     <div class="student-fields">
-      <label for="group">Học sinh / Nhóm</label>
-      <input id="group" placeholder="Chưa chọn tên" readonly title="Tên học sinh hoặc nhóm">
+      <label for="group">Học sinh</label>
+      <input id="group" placeholder="Nhập tên em" readonly title="Họ và tên học sinh">
       <label for="klass">Lớp</label>
       <input id="klass" placeholder="Lớp" readonly>
     </div>
     <div class="toolbar-actions">
       <span id="autosaveHint" class="save-hint" role="status">Bài được tự lưu</span>
       
-      <button id="cloudBtn" type="button">Bài của em/nhóm em</button>
+      <button id="cloudBtn" type="button">Bài của em</button>
       <button id="teacherBtn" type="button">Giáo viên</button>
       <button id="save" class="primary" type="button">Lưu bài</button>
       <details class="tools-more">
         <summary>Tùy chọn</summary>
-        <div class="tools-menu"><button id="switchProfile" type="button">Mở bài khác</button><button id="helpBtn" type="button" aria-haspopup="dialog">Hướng dẫn</button>
+        <div class="tools-menu"><button id="switchProfile" type="button">Mở bài đã làm</button><button id="helpBtn" type="button" aria-haspopup="dialog">Hướng dẫn</button>
           <button id="export" type="button">Tải bài về máy</button>
           <button id="importBtn" type="button">Mở bài từ tệp</button>
           <button id="print" type="button">In sản phẩm</button>
@@ -418,7 +418,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
         <button type="button" id="promptCreate" class="primary">Tạo bài lần đầu</button>
         <button type="button" id="promptSelect">Mở bài đã làm</button>
       </div>
-      <p class="welcome-hint">Em có thể làm một mình hoặc cùng nhóm. Nếu đã có bài trên máy này, hãy chọn “Mở bài đã làm”.</p>
+      <p class="welcome-hint">Nếu đã có bài trên máy này, chọn “Mở bài đã làm”. Bài gần nhất sẽ tự mở khi em quay lại.</p>
     </div>
   </section>
   <div class="learning-mode-bar is-collapsed" id="learningModeBar"><div class="mode-summary"><strong>Chế độ:</strong> <span id="modeDescription" class="muted">Cơ bản · 45 phút</span><button type="button" id="modeCollapseBtn" class="collapse-control" aria-expanded="false" aria-controls="modeSwitch">Đổi chế độ ▾</button><button type="button" id="compactPresetBtn" class="collapse-control" aria-pressed="false">Gọn cho TV</button></div><div class="mode-switch" id="modeSwitch" role="group" aria-label="Chế độ học tập"><button type="button" id="basicModeBtn" class="active" aria-pressed="true">Cơ bản · 45 phút</button><button type="button" id="advancedModeBtn" aria-pressed="false">Mở rộng</button></div></div>
@@ -636,12 +636,12 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   </div>
   <div id="cloudDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="cloudTitle">
     <div class="reset-box cloud-box">
-      <h2 id="cloudTitle">Bài của em / nhóm em</h2>
+      <h2 id="cloudTitle">Bài của em</h2>
       <p class="muted">Nếu làm trên máy khác, em hãy nhập mã 4 ký tự của bài mình để mở lại. Không chia sẻ mã với người khác.</p>
       
       <div id="cloudConnectPanel">
         <label for="cloudClass">Lớp</label><input id="cloudClass" maxlength="30" placeholder="7A1">
-        <label for="cloudGroup">Tên học sinh hoặc nhóm</label><input id="cloudGroup" maxlength="50" placeholder="Nhóm 1">
+        <label for="cloudGroup">Họ và tên học sinh</label><input id="cloudGroup" maxlength="50" placeholder="Nhập tên em">
         <label for="cloudCode">Mã bài (4 ký tự, dùng khi mở trên máy khác)</label><input id="cloudCode" maxlength="4" autocomplete="off" placeholder="AB23">
         <div class="actions"><button id="createCloud" type="button">Thử tạo bài trực tuyến</button><button id="openCloud" class="primary" type="button">Mở bài đã tạo</button></div>
       </div>
@@ -651,7 +651,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
         <div class="actions"><button id="cloudSaveNow" class="primary" type="button">Lưu bài</button><button id="cloudReload" type="button">Tải bài mới nhất</button><button id="cloudLogout" type="button">Đổi bài đang mở</button></div>
       </div>
       <p id="cloudStatus" role="status" class="muted"></p>
-      <div class="actions"><button id="cloudClose" type="button">Đóng</button></div>
+      <div class="actions"><button id="openLocalProfile" type="button">Mở bài đã làm trên máy này</button><button id="cloudClose" type="button">Đóng</button></div>
     </div>
   </div>
 
@@ -741,21 +741,21 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   <div id="groupDialog" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="groupTitle">
     <div class="reset-box student-picker">
       <h3 id="groupTitle">Bắt đầu bài làm</h3>
-      <p class="muted" id="groupIntro">Nếu làm một mình, nhập tên học sinh. Nếu làm cùng bạn, nhập tên nhóm.</p>
+      <p class="muted" id="groupIntro">Nhập lớp và họ tên của em để bắt đầu.</p>
       <div class="group-mode-switch" role="group" aria-label="Chọn cách mở bài">
         <button type="button" id="groupNewMode" class="active">Tạo bài lần đầu</button>
-        <button type="button" id="groupExistingMode">Mở bài đã có</button>
+        <button type="button" id="groupExistingMode">Mở bài đã làm</button>
       </div>
       <div id="groupNewPanel">
         <label for="newClass">Lớp của em</label>
         <input id="newClass" maxlength="30" placeholder="Ví dụ: 7A1">
-        <label for="newGroup">Tên học sinh hoặc nhóm</label>
-        <input id="newGroup" maxlength="50" placeholder="Ví dụ: Nguyễn An hoặc Nhóm 1">
-        <p class="muted">Mỗi học sinh hoặc nhóm sử dụng một tên riêng để lưu bài. Không nhập tên của bạn khác.</p>
+        <label for="newGroup">Họ và tên học sinh</label>
+        <input id="newGroup" maxlength="50" placeholder="Nhập tên em" autocomplete="name">
+        <p class="muted">Mỗi học sinh sử dụng họ tên của mình để lưu bài.</p>
       </div>
       <div id="groupExistingPanel" class="hidden">
         <label for="savedGroups">Chọn tên đã tạo trên máy này</label>
-        <select id="savedGroups"><option value="">— Chọn tên học sinh hoặc nhóm —</option></select>
+        <select id="savedGroups"><option value="">— Chọn tên em —</option></select>
         <p id="savedGroupsHint" class="muted">Nếu không thấy tên, hãy kiểm tra lại máy đã sử dụng hoặc mở bài trực tuyến bằng mã của mình.</p>
       </div>
       <p id="groupPickerStatus" role="status" class="group-picker-status"></p>
@@ -837,15 +837,15 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     el('groupExistingMode').classList.toggle('active',pickerMode==='existing');
     el('groupNewMode').setAttribute('aria-pressed',String(pickerMode==='new'));
     el('groupExistingMode').setAttribute('aria-pressed',String(pickerMode==='existing'));
-    el('groupTitle').textContent=pickerMode==='new'?'Tạo bài lần đầu':'Mở bài đã có';
-    el('groupIntro').textContent=pickerMode==='new'?'Em làm một mình thì ghi tên học sinh; làm cùng bạn thì ghi tên nhóm.':'Chọn tên học sinh hoặc nhóm đã làm bài trên máy này.';
+    el('groupTitle').textContent=pickerMode==='new'?'Tạo bài lần đầu':'Mở bài đã làm';
+    el('groupIntro').textContent=pickerMode==='new'?'Nhập lớp và họ tên của em.':'Chọn tên em để tiếp tục bài đã lưu trên máy này.';
     el('groupYes').textContent=pickerMode==='new'?'Tạo và bắt đầu':'Mở bài đã lưu';
     pickerMessage('');
     if(pickerMode==='new')el('newClass').focus();else el('savedGroups').focus();
   }
   function openGroups(mode){
     var sel=el('savedGroups');sel.innerHTML='';
-    var placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='— Chọn học sinh hoặc nhóm —';sel.appendChild(placeholder);
+    var placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='— Chọn tên em —';sel.appendChild(placeholder);
     var count=0;
     try{
       var records=[];
@@ -861,7 +861,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
         option.textContent=item.klass+' · '+item.group;sel.appendChild(option);count++;
       });
     }catch(e){pickerMessage('Chưa đọc được danh sách đã lưu trên máy.')}
-    el('savedGroupsHint').textContent=count?'Chọn đúng tên của em hoặc nhóm em, sau đó nhấn “Mở bài đã lưu”.':'Chưa có bài trên máy này. Em có thể tạo bài lần đầu hoặc mở bài trực tuyến bằng mã riêng.';
+    el('savedGroupsHint').textContent=count?'Chọn đúng tên em, sau đó nhấn “Mở bài đã lưu”.':'Chưa có bài trên máy này. Em có thể tạo bài lần đầu hoặc mở bài trực tuyến bằng mã riêng.';
     el('newClass').value=state.klass||'';el('newGroup').value='';
     sel.value='';el('groupDialog').classList.remove('hidden');
     choosePickerMode(mode==='new'||mode==='existing'?mode:(count?'existing':'new'));
@@ -879,7 +879,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
       }catch(e){pickerMessage('Không mở được bài đã chọn. Hãy kiểm tra lại bản lưu.');return}
     }else{
       klass=clean(el('newClass').value);group=clean(el('newGroup').value);
-      if(!klass||!group){pickerMessage('Em hãy nhập lớp và tên học sinh hoặc nhóm.');return}
+      if(!klass||!group){pickerMessage('Em hãy nhập lớp và họ tên của mình.');return}
       if(klass.length>30||group.length>50){pickerMessage('Tên lớp hoặc tên học sinh/nhóm quá dài.');return}
       nextKey=groupKey(klass,group);
       if(localStorage.getItem(nextKey)){
@@ -1531,7 +1531,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     if(ok){el('cloudSessionName').textContent='Đang lưu trực tuyến: '+cloudSession.klass+' / '+cloudSession.group;
       el('cloudTimes').textContent='Lần đầu: '+(cloudSession.firstAt||'—')+' · Cập nhật: '+(cloudSession.updatedAt||'—')+' · Thời gian học: '+Math.floor((cloudSession.seconds||0)/60)+' phút';
     }
-    el('cloudBtn').textContent=ok?'Bài: '+cloudSession.group:'Bài của em/nhóm em';
+    el('cloudBtn').textContent='Bài của em';
   }
   function persistCloudSession(){
     if(cloudSession){
@@ -2502,7 +2502,7 @@ function rubricTotal_(x){if(!Array.isArray(x)||x.length!==6)return null;var n=0;
   function reportText(){
     var lines = [
       'HÀNH TRÌNH DI SẢN SỐ – BÁO CÁO STEM TIN HỌC 7',
-      'Học sinh / Nhóm: ' + state.group + ' | Lớp: ' + state.klass,
+      'Học sinh: ' + state.group + ' | Lớp: ' + state.klass,
       ''
     ];
     ids.forEach(function(id, i){
@@ -2668,9 +2668,10 @@ function rubricTotal_(x){if(!Array.isArray(x)||x.length!==6)return null;var n=0;
 
 
   function closeTeacher(){if(gvDirty||gvSaving||rubricDirty||rubricSaving){teacherStatus('Hãy lưu hoặc bỏ thay đổi trước khi đóng.');return}closeBridgeDialog('teacherDialog');el('teacherBtn').focus()}
-  el('switchProfile').addEventListener('click',function(){var menu=this.closest('details');if(menu)menu.open=false;openGroups()});
+  el('switchProfile').addEventListener('click',function(){var menu=this.closest('details');if(menu)menu.open=false;openGroups('existing')});
   el('cloudBtn').addEventListener('click',cloudOpen);
   el('cloudClose').addEventListener('click',function(){closeBridgeDialog('cloudDialog')});
+  el('openLocalProfile').addEventListener('click',function(){closeBridgeDialog('cloudDialog');openGroups('existing')});
   el('saveScriptUrl').addEventListener('click',function(){
     var url=clean(el('scriptUrl').value);
     if(!validScriptUrl(url)){el('teacherConnectionResult').textContent='Địa chỉ Web App không hợp lệ.';return}
