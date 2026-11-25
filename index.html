@@ -2058,9 +2058,9 @@ function rubricTotal_(x){if(!Array.isArray(x)||x.length!==6)return null;var n=0;
   function gradeCurrent(g){return !!(g.rubric&&g.rubric.version===RUBRIC_VERSION&&typeof g.rubric.total==='number'&&Number(g.rubric.sourceRevision)===Number(g.revision))}
   function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch').value).toLowerCase(),f=filter?el('gvState').value:'';return teacherGroupsData.filter(function(g){return (!cls||String(g.klass).toUpperCase()===cls)&&(!search||String(g.group).toLowerCase().indexOf(search)>=0)&&(!f||(f==='ungraded'?!gradeCurrent(g):gvState(g)===f))})}
   function rememberProgress(rec){
-    if(!rec||!rec.id)return;var p=stemProgress_(rec.data);if(!p)return;
+    if(!rec||!rec.id)return;var p=rec.progress&&Array.isArray(rec.progress.stages)&&rec.progress.total===13?rec.progress:stemProgress_(rec.data);if(!p)return;
     rec.progress=p;gvCache[String(rec.id)]={revision:Number(rec.revision),progress:p};
-    teacherGroupsData.forEach(function(g){if(String(g.id)===String(rec.id)&&Number(g.revision)===Number(rec.revision)){g.progress=p;if(rec.rubric!==undefined)g.rubric=rec.rubric}});
+    teacherGroupsData.forEach(function(g){if(String(g.id)===String(rec.id)&&Number(g.revision)<=Number(rec.revision)){g.revision=rec.revision;g.progress=p;if(rec.rubric!==undefined)g.rubric=rec.rubric;if(rec.updatedAt)g.updatedAt=rec.updatedAt;if(rec.seconds!==undefined)g.seconds=rec.seconds}});
   }
   function hydrateProgress(){
     if(hydrating||rubricSupported||!teacherToken)return;
@@ -2091,7 +2091,7 @@ function rubricTotal_(x){if(!Array.isArray(x)||x.length!==6)return null;var n=0;
     var a=rubricValues(),total=rubricTotal_(a);
     el('gvRubricTotal').textContent=total===null?'— / 10':String(total).replace('.',',')+' / 10';
     a.forEach(function(v,i){el('gvLevel'+i).textContent=v===null?'Chưa chọn mức':criteria[i][v===(i<4?2:1)?1:v===0?3:2]});
-    el('gvRubricSave').disabled=!rubricSupported||rubricSaving||total===null||!rubricDirty;
+    var stale=teacherRecord&&teacherRecord.rubric&&!gradeCurrent(teacherRecord);el('gvRubricSave').disabled=!rubricSupported||rubricSaving||total===null||(!rubricDirty&&!stale);el('gvRubricSave').textContent=stale&&!rubricDirty?'Xác nhận lại điểm':'Lưu điểm trực tuyến';
     if(rubricDirty&&!rubricSaving)el('gvRubricStatus').textContent=a.filter(function(x){return x!==null}).length+'/6 tiêu chí đã chọn · Chưa lưu'+(!rubricSupported?' · Cần Apps Script V4':'');
   }
   function rubricRender(){
@@ -2163,7 +2163,7 @@ function rubricTotal_(x){if(!Array.isArray(x)||x.length!==6)return null;var n=0;
     cloudCall({action:'teacherGet',token:teacherToken,klass:item.klass,group:item.group},function(err,res){
       if(seq!==gvLoadSeq||token!==teacherToken)return;gvLoading=false;
       if(err||!res||!res.record){if(teacherRecord)el('gvDetailBody').classList.remove('hidden');gvMarkSelected();teacherStatus(err||'Không tải được bài.');return}
-      teacherRecord=res.record;teacherRecord.data=normalizeData(res.record.data);gvDirty=false;rubricDirty=false;if(res.rubricSupported===true)rubricSupported=true;
+      teacherRecord=res.record;teacherRecord.progress=teacherRecord.progress||stemProgress_(teacherRecord.data);teacherRecord.data=normalizeData(res.record.data);gvDirty=false;rubricDirty=false;if(res.rubricSupported===true)rubricSupported=true;
       teacherCurrentSite='nga';el('teacherGroupTitle').textContent=item.klass+' / '+item.group;
       el('teacherNote').value=teacherRecord.teacherNote||'';
       teacherDisplaySite();gvRenderDetail();gvTab('overview');teacherStatus('');
@@ -2176,7 +2176,7 @@ function rubricTotal_(x){if(!Array.isArray(x)||x.length!==6)return null;var n=0;
       gvSaving=false;el('teacherSave').disabled=false;if(saveToken!==teacherToken||!teacherRecord||teacherRecord.id!==saveId)return;
       if(err||!res){teacherStatus(err||'Không lưu được.');return}
       if(res.conflict){gvDirty=true;teacherStatus('Bài vừa được sửa trên máy khác. Sao chép nội dung cần giữ, rồi chọn Bỏ chỉnh sửa chưa lưu để tải bản mới.');return}
-      teacherRecord=res.record;teacherRecord.data=normalizeData(res.record.data);
+      teacherRecord=res.record;teacherRecord.progress=teacherRecord.progress||stemProgress_(teacherRecord.data);teacherRecord.data=normalizeData(res.record.data);
       gvDirty=false;teacherStatus('Đã lưu chỉnh sửa.');
       teacherDisplaySite();gvRenderDetail();
     });
