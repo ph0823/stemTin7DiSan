@@ -363,6 +363,9 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
 @media(max-width:480px){.toolbar .student-fields{width:100%;display:grid;grid-template-columns:68px minmax(0,1fr);grid-gap:5px;align-items:center}.toolbar .student-fields #group{width:100%;min-width:0}.toolbar .student-fields #klass{width:80px}}
 /* V4.4 assessment */
 .gv-rubric-row{grid-template-columns:minmax(0,1fr) 180px;align-items:start}.gv-score-buttons{display:flex;justify-content:flex-end;flex-wrap:wrap}.gv-score-buttons button{min-width:44px;margin:2px;padding:7px 10px;font-weight:bold}.gv-score-buttons button.active,.gv-quick.active{background:#17649a;color:white;border-color:#17649a}.gv-rubric-row details{font-size:12px;margin:5px 0}.gv-rubric-row details summary{cursor:pointer;color:#17649a;font-weight:bold}.gv-rubric-row details p{white-space:pre-wrap;overflow-wrap:anywhere}.gv-quick-area{padding:9px;background:#f4f8fb;border-radius:8px;margin:9px 0}.gv-quick{font-size:12px;margin:3px;padding:6px 9px}.gv-quick-area h4{margin:7px 0 3px}.gv-eval-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-gap:6px;margin:6px 0 10px}.gv-eval-summary div{background:#f2f7fa;padding:8px;border-radius:7px;font-size:12px}.gv-eval-summary strong{display:block;font-size:19px;color:#145578}.gv-assess-status{margin:8px 0}.gv-assess-status select{max-width:300px}.gv-history{margin:10px 0}.gv-history p{white-space:pre-wrap;overflow-wrap:anywhere;margin:4px 0}.gv-history details{border-bottom:1px solid #dbe6ed;padding:6px}.gv-history summary{cursor:pointer}.student-assess{max-width:620px;max-height:88vh;overflow:auto}.student-assess p{white-space:pre-wrap;overflow-wrap:anywhere}.student-assess table{width:100%;border-collapse:collapse}.student-assess td{border-bottom:1px solid #dbe6ed;padding:6px}.student-assess td:last-child{text-align:right;white-space:nowrap}@media(max-width:650px){.gv-rubric-row{grid-template-columns:1fr}.gv-score-buttons{justify-content:flex-start}.gv-eval-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* V4.4 Demo sandbox */
+.demo-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:#fff4dd;border:1px solid #dbb96d;border-radius:8px;padding:8px 12px;margin:8px 0;color:#654a19}.demo-banner small{display:block;font-size:12px;margin-top:3px}.demo-actions{display:flex;flex-wrap:wrap;gap:5px}.demo-active #cloudBtn,.demo-active #studentAssessmentBtn,.demo-active #teacherBtn,.demo-active #switchProfile,.demo-active #importBtn,.demo-active #restoreBackup,.demo-active #exportBackup,.demo-active #export,.demo-active #syncPanel{display:none!important}.demo-active #group{color:#654a19;font-weight:bold}.demo-active #peerNotice,.demo-active #peerTabNew,.demo-active #peerInboxCount{display:none!important}
+@media print{.demo-banner{display:none!important}}
 </style>
 </head>
 <body class="needs-profile">
@@ -398,6 +401,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     </div>
   </div>
 
+  <div id="demoBanner" class="demo-banner hidden" role="region" aria-label="Chế độ trình diễn"><div><strong>DEMO · Giáo viên trình diễn</strong><small>Bài mẫu, không ghi vào bảng điểm học sinh.</small></div><div class="demo-actions"><button id="demoBlank" type="button">Bài trống</button><button id="demoSample" type="button">Bài mẫu</button><button id="demoExit" type="button" class="primary">Về giáo viên</button></div></div>
   <div id="syncPanel" class="sync-panel hidden" role="status" aria-live="polite">
     <span id="syncMessage">Bài được giữ trên máy.</span>
     <button id="retrySync" type="button" class="hidden">Thử lại</button>
@@ -698,7 +702,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
         <div class="actions"><button id="teacherSetupSubmit" class="primary" type="button">Lưu mật khẩu và xem bài</button><button id="teacherSetupCancel" type="button">Đăng xuất</button></div>
       </div>
       <div id="teacherWorkspace" class="hidden">
-        <div class="gv-toolbar"><div class="gv-filter"><label for="gvClass">Lớp</label><select id="gvClass"><option value="">Tất cả</option></select><label for="gvSearch">Tìm tên</label><input id="gvSearch" placeholder="Học sinh / nhóm"><label for="gvState">Trạng thái</label><select id="gvState"><option value="">Tất cả</option><option value="new">Mới tạo</option><option value="started">Đang làm</option><option value="done">Đủ nhiệm vụ</option><option value="unknown">Chưa xác minh</option><option value="ungraded">Chưa chấm / cần chấm lại</option><option value="draft">Chấm nháp</option><option value="revision">Cần chỉnh sửa</option><option value="final">Đã xác nhận</option><option value="stale">Bài đã thay đổi</option></select></div><div class="gv-head-actions"><button id="teacherRefresh" type="button">Làm mới</button><button id="gvExportScores" type="button">Xuất điểm CSV</button><button id="teacherLogout" type="button">Đăng xuất</button></div></div>
+        <div class="gv-toolbar"><div class="gv-filter"><label for="gvClass">Lớp</label><select id="gvClass"><option value="">Tất cả</option></select><label for="gvSearch">Tìm tên</label><input id="gvSearch" placeholder="Học sinh / nhóm"><label for="gvState">Trạng thái</label><select id="gvState"><option value="">Tất cả</option><option value="new">Mới tạo</option><option value="started">Đang làm</option><option value="done">Đủ nhiệm vụ</option><option value="unknown">Chưa xác minh</option><option value="ungraded">Chưa chấm / cần chấm lại</option><option value="draft">Chấm nháp</option><option value="revision">Cần chỉnh sửa</option><option value="final">Đã xác nhận</option><option value="stale">Bài đã thay đổi</option></select></div><div class="gv-head-actions"><button id="teacherDemo" type="button" class="primary">Demo cho học sinh</button><button id="teacherRefresh" type="button">Làm mới</button><button id="gvExportScores" type="button">Xuất điểm CSV</button><button id="teacherLogout" type="button">Đăng xuất</button></div></div>
         <div id="v4TeacherSummary" class="v4-teacher-summary" aria-live="polite"></div><p id="gvSummaryNote" class="gv-summary-note"></p><div id="gvEvalSummary" class="gv-eval-summary"></div><div class="teacher-grid">
           <aside class="gv-list"><h3>Danh sách bài làm</h3><select id="teacherGroups" size="9" class="gv-native-select" aria-label="Danh sách bài làm"></select><div id="gvCards" class="gv-cards"></div><p id="teacherListHint" class="muted"></p></aside>
           <div class="gv-detail"><h3 id="teacherGroupTitle">Chọn bài để xem</h3><div id="gvDetailBody" class="hidden"><div id="teacherMeta" class="gv-meta"></div><div class="gv-tabs" role="group" aria-label="Nội dung quản lý"><button type="button" data-gv-tab="overview" class="active">Sản phẩm</button><button type="button" data-gv-tab="rubric">Đánh giá</button><button type="button" data-gv-tab="feedback">Nhận xét</button><button type="button" data-gv-tab="edit">Chỉnh sửa</button></div><section id="gvOverview"><div id="gvStages" class="gv-stages"></div><div id="gvSiteOverview"></div><div id="gvEvidence"></div><div class="actions"><button id="gvReload" type="button">Tải bài mới nhất</button><button id="gvEditOpen" class="primary" type="button">Chỉnh sửa bài</button></div></section><section id="gvEdit" class="hidden">
@@ -800,6 +804,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   var PROFILE_PREFIX=KEY+'_group_';
   var ACTIVE_KEY=KEY+'_selected';
   var activeKey=KEY;
+  var demoActive=false,demoReturn=null;
   function groupKey(klass,group){return PROFILE_PREFIX+encodeURIComponent(String(klass).toLowerCase())+'_'+encodeURIComponent(String(group).toLowerCase())}
   var BACKUP_PREFIX=KEY+'_backup_';
   var backupSerial=0;
@@ -819,6 +824,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     return true;
   }
   function safeBackup(reason){
+    if(demoActive)return true;
     if(!hasProfile())return true;
     try{
       var prefix=BACKUP_PREFIX+encodeURIComponent(state.klass)+'_'+encodeURIComponent(state.group)+'_';
@@ -846,6 +852,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     if(pickerMode==='new')el('newClass').focus();else el('savedGroups').focus();
   }
   function openGroups(mode){
+    if(demoActive){setStatus('Đang trình diễn. Chọn Về giáo viên để mở bài thật.');return}
     var sel=el('savedGroups');sel.innerHTML='';
     var placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='— Chọn tên em —';sel.appendChild(placeholder);
     var count=0;
@@ -869,6 +876,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     choosePickerMode(mode==='new'||mode==='existing'?mode:(count?'existing':'new'));
   }
   function changeGroup(){
+    if(demoActive)return;
     var klass='',group='',nextKey='',next=null;
     if(pickerMode==='existing'){
       nextKey=el('savedGroups').value;
@@ -1340,6 +1348,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     else cloudOpen();
   }
   function syncStatusForLocal(){
+    if(demoActive){el('syncPanel').classList.add('hidden');el('autosaveHint').textContent='Bài demo tạm thời';return}
     if(!hasProfile())return;
     if(creationBusy){syncDisplay('warning','Bài đã lưu trên máy. Đang tạo bài trên Google Sheets…',false);return}
     if(cloudConflict){syncDisplay('warning','Bài trên máy và Google Sheets khác nhau. Không tự ghi đè. Mở “Bài của em/nhóm em” để kiểm tra.',false);return}
@@ -1399,6 +1408,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   /* F5 có thể xảy ra giữa lúc server đã tạo bài và trình duyệt chưa nhận
      mã. requestKey được giữ lại để lần sau nhận lại CÙNG một bài, không thêm dòng. */
   function autoRegisterCloud(){
+    if(demoActive)return;
     if(!hasProfile())return;
     if(cloudSession){if(!cloudConflict)cloudSave(true);return}
     if(creationBusy)return;
@@ -1496,6 +1506,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
   function teacherStatus(msg){el('teacherStatus').textContent=msg}
   function closeBridgeDialog(which){el(which).classList.add('hidden')}
   function cloudCall(data,callback){
+    if(demoActive){callback('Chế độ demo không gửi dữ liệu lên máy chủ.');return}
     if(!validScriptUrl(scriptUrl)){connectionError('Chưa cài đặt kết nối.');callback('Chưa cài đặt kết nối.');return}
     var id=cloudId(),frame=document.createElement('iframe'),form=document.createElement('form'),payload=document.createElement('input');
     frame.style.display='none';frame.name='stem7_frame_'+id;frame.setAttribute('title','Kết nối Apps Script');
@@ -1577,7 +1588,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     setTimeout(function(){peerInboxFetch(false)},450);
     closeBridgeDialog('groupDialog');
   }
-  function cloudOpen(){el('cloudDialog').classList.remove('hidden');el('scriptUrl').value=scriptUrl;
+  function cloudOpen(){if(demoActive){setStatus('Đây là bài demo, không cần tài khoản.');return}el('cloudDialog').classList.remove('hidden');el('scriptUrl').value=scriptUrl;
     el('cloudClass').value=state.klass||'';el('cloudGroup').value=state.group||'';updateCloudUI();}
   function cloudCreate(){
     var klass=clean(el('cloudClass').value),group=clean(el('cloudGroup').value);
@@ -1622,6 +1633,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     });
   }
   function cloudSave(manual){
+    if(demoActive){if(manual)setStatus('Bài demo được giữ trong phiên trình diễn.');return}
     if(!cloudSession||!hasProfile())return;
     clearTimeout(remoteSaveTimer);cloudFirstPending=0;
     if(cloudConflict){
@@ -1686,6 +1698,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     });
   }
   function verifyCloudOnResume(){
+    if(demoActive)return;
     if(!cloudSession||!hasProfile())return;
     var targetKey=activeKey,token=cloudSession.token,klass=cloudSession.klass,group=cloudSession.group;
     syncDisplay('warning','Đang kiểm tra bản bài trên Google Sheets sau khi mở lại trang…',false);
@@ -1784,6 +1797,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     peerStatus('Đang xem bài nhóm '+record.group+'. Chỉ được gửi góp ý; không thể thay đổi bài này.');
   }
   function peerOpen(){
+    if(demoActive){demoPeer(false);return}
     if(!cloudSession){setStatus('Hãy vào “Bài của nhóm” và mở bài trực tuyến trước khi góp ý chéo.');cloudOpen();return}
     peerCurrentTarget='';
     el('peerReadOnly').innerHTML='';el('peerMap').classList.add('hidden');el('peerComposer').classList.add('hidden');
@@ -1843,6 +1857,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     return 'stem7_feedback_seen_'+encodeURIComponent(cloudSession?cloudSession.klass+'|'+cloudSession.group:'');
   }
   function peerInboxFetch(show){
+    if(demoActive){if(show)demoPeer(true);return}
     if(!cloudSession){
       if(show)setStatus('Hãy mở bài trực tuyến để xem góp ý dành cho nhóm em.');
       return;
@@ -1985,6 +2000,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     teacherStatus('');showTeacherPanels();focusTeacherInput('teacherPassword');
   }
   function teacherOpen(){
+    if(demoActive){exitDemo();return}
     el('teacherDialog').classList.remove('hidden');el('scriptUrl').value=scriptUrl;
     if(!teacherToken)restoreTeacherSession();
     if(teacherToken&&teacherSessionUntil<=Date.now()){expireTeacherSession();return}
@@ -2289,6 +2305,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
 
   var saveTimer = null, dirty = false;
   function save(silent){
+    if(demoActive){dirty=false;el('autosaveHint').textContent='Bài demo tạm thời';if(!silent)setStatus('Đã giữ bài demo trong phiên này. Không gửi lên hệ thống.');return true}
     if(!hasProfile()){updateProfileUI();return false}
     try {
       localStorage.setItem(activeKey, JSON.stringify(state));
@@ -2305,6 +2322,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     }
   }
   function scheduleSave(){
+    if(demoActive){dirty=false;updateLesson();syncStatusForLocal();return}
     if(!hasProfile()){updateProfileUI();return}
     dirty = true;
     if (el('autosaveHint')) el('autosaveHint').textContent = 'Đang lưu…';
@@ -2320,7 +2338,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   window.addEventListener('pagehide', saveIfNeeded);
   document.addEventListener('visibilitychange',function(){if(document.hidden&&cloudSession&&!cloudConflict&&!remoteBusy&&syncConfirmedJSON!==JSON.stringify(state))cloudSave(false)});
   window.setInterval(function(){
-    if(document.hidden)return;
+    if(document.hidden||demoActive)return;
     if(teacherToken&&!teacherNeedsPasswordChange&&!el('teacherDialog').classList.contains('hidden'))teacherList(true);
     if(!hasProfile()||navigator.onLine===false||remoteBusy||creationBusy||cloudConflict)return;
     if(cloudSession&&syncConfirmedJSON!==JSON.stringify(state)){
@@ -2329,6 +2347,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     }else if(!cloudSession&&checkedServerVersion>=0&&!/đã có bài|đã tồn tại|không ghi đè|hết hạn/i.test(syncIssue))autoRegisterCloud();
   },30000);
   window.addEventListener('online',function(){
+    if(demoActive)return;
     if(!hasProfile())return;
     syncIssue='';
     if(cloudSession){
@@ -2462,7 +2481,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     el('modeDescription').textContent=isBasic()?'Cơ bản · Làm bài trong 45 phút':'Mở rộng · Thêm công cụ';
     el('descLabel').textContent=isBasic()?'Em hãy viết lời giới thiệu của em/nhóm em về di tích này (25–50 từ)':'Em hãy viết lời giới thiệu của em/nhóm em về di tích này (50–80 từ)';
     if(isBasic()&&activeTab==='explore'&&hasProfile())toggleEditor(true);
-    if(!initial){try{localStorage.setItem(UI_MODE_KEY,uiMode)}catch(e){}}
+    if(!initial&&!demoActive){try{localStorage.setItem(UI_MODE_KEY,uiMode)}catch(e){}}
     updateWordCount(state.sites[current].desc);
     if(activeTab==='report')updateSummary();
     updateLesson();
@@ -2784,6 +2803,60 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   el('cloudSaveNow').addEventListener('click',function(){cloudSave(true)});
   el('cloudReload').addEventListener('click',cloudReload);
   el('cloudLogout').addEventListener('click',function(){cloudSession=null;cloudConflict=false;clearTimeout(remoteSaveTimer);persistCloudSession();el('peerInboxCount').textContent='';el('peerTabNew').textContent='';el('peerNotice').classList.add('hidden');el('peerInboxPanel').classList.add('hidden');cloudStatus('Đã ngắt phiên trực tuyến. Bài cục bộ vẫn được giữ nguyên.')});
+  /* Demo state never uses a real profile key or cloud session. */
+  function demoData(sample){
+    var d=JSON.parse(JSON.stringify(base));d.group='Bài trình diễn';d.klass='DEMO';
+    if(!sample)return d;
+    var cards={
+      nga:['Ngã Ba Giồng gắn với phong trào đấu tranh cách mạng và Nam Kỳ khởi nghĩa. Khu tưởng niệm giúp người xem hiểu truyền thống yêu nước, tưởng nhớ những người đã hi sinh.','Hội LHPN Thành phố Hồ Chí Minh – tư liệu Ngã Ba Giồng'],
+      cu:['Địa đạo Củ Chi là hệ thống đường hầm gắn với lịch sử kháng chiến. Di tích thể hiện sự sáng tạo, tinh thần kiên cường của quân dân địa phương và nhắc nhở chúng ta trân trọng hòa bình.','Cổng thông tin du lịch TP.HCM – Địa đạo Củ Chi'],
+      giong:['Giồng Cá Vồ là di tích khảo cổ ở Cần Giờ, nổi bật với các phát hiện mộ chum và hiện vật. Những chứng cứ này giúp tìm hiểu đời sống, phong tục và văn hóa của cư dân cổ.','Viện Hàn lâm Khoa học xã hội Việt Nam – tư liệu khảo cổ vùng ngập mặn Đông Nam Bộ']
+    };
+    ids.forEach(function(k){d.sites[k].desc=cards[k][0];d.sites[k].source=cards[k][1];d.visited[k]=true});
+    d.mapAnswers={prediction:'giong',line:'order'};d.order='nga,cu,giong';d.compareOrder='giong,nga,cu';d.preferredRoute='A';
+    d.compareText='A giới thiệu hai di tích lịch sử trước, B bắt đầu với khảo cổ. A phù hợp khi giới thiệu theo chủ đề lịch sử.';
+    d.reason='Em chọn A vì muốn giới thiệu hai di tích lịch sử trước rồi tìm hiểu đời sống cư dân cổ.';
+    d.message='Tôn trọng di tích, không làm hư hại hiện vật và chia sẻ thông tin có nguồn.';
+    d.sketch='Bản đồ ba điểm, mỗi điểm có một thẻ thông tin.';
+    return d;
+  }
+  function demoPeer(inbox){
+    var root=el('peerInboxEntries');root.textContent='';
+    var p=document.createElement('p');p.textContent=inbox?'Góp ý minh họa: Em hãy bổ sung một hành động bảo tồn cụ thể vào thẻ Giồng Cá Vồ.':'Bài bạn minh họa: hãy kiểm tra nội dung, nguồn và lí do chọn hành trình. Góp ý trong demo không được gửi cho học sinh thật.';
+    root.appendChild(p);el('peerInboxPanel').classList.remove('hidden');
+    if(inbox){var b=document.createElement('button');b.type='button';b.textContent='Dùng góp ý mẫu';b.addEventListener('click',function(){state.issues='Cần bổ sung hành động bảo tồn cụ thể.';el('issues').value=state.issues;updateLesson();setStatus('Đã đưa góp ý minh họa vào bài demo.')});root.appendChild(b)}
+    else{var label=document.createElement('label');label.textContent='Nhập góp ý thử';var input=document.createElement('textarea');input.rows=2;input.maxLength=300;input.placeholder='Một góp ý cụ thể…';var send=document.createElement('button');send.type='button';send.textContent='Gửi thử';send.addEventListener('click',function(){if(!clean(input.value))return;setStatus('Đã mô phỏng gửi góp ý. Không gửi lên hệ thống.');input.value=''});root.appendChild(label);root.appendChild(input);root.appendChild(send)}
+  }
+  function resetDemo(sample){
+    if(!demoActive)return;
+    state=normalizeData(demoData(sample));current='nga';designStep=1;dirty=false;
+    el('peerInboxPanel').classList.add('hidden');el('peerInboxEntries').textContent='';
+    refresh();setDesignStep(1);updateProfileUI();tab('explore');toggleEditor(true);setStatus('');
+  }
+  function startDemo(){
+    if(!teacherToken||teacherNeedsPasswordChange||teacherSessionUntil<=Date.now()){teacherStatus('Hãy đăng nhập giáo viên trước khi trình diễn.');return}
+    if(gvDirty||gvSaving||gvLoading||rubricDirty||rubricSaving||feedbackSending||clean(el('teacherFeedbackText').value)){teacherStatus('Hãy lưu hoặc bỏ thay đổi trước khi trình diễn.');return}
+    if(remoteBusy||creationBusy||Object.keys(cloudRequests).length){teacherStatus('Đang xử lý dữ liệu. Hãy mở demo sau khi lưu xong.');return}
+    clearTimeout(saveTimer);if(hasProfile()&&!save(true)){teacherStatus('Chưa lưu được bài đang mở trên máy.');return}
+    if(cloudSession&&!cloudConflict&&syncConfirmedJSON!==JSON.stringify(state)){cloudSave(true);teacherStatus('Bài đang mở chưa đồng bộ. Hãy mở demo sau khi có xác nhận lưu.');return}
+    clearTimeout(remoteSaveTimer);
+    demoReturn={state:state,activeKey:activeKey,cloudSession:cloudSession,dirty:dirty,current:current,designStep:designStep,activeTab:activeTab,editOpen:editOpen,uiMode:uiMode,compact:JSON.parse(JSON.stringify(compactPrefs)),syncIssue:syncIssue,syncConfirmedJSON:syncConfirmedJSON,syncSafeCode:syncSafeCode,cloudConflict:cloudConflict,remotePending:remotePending,cloudFirstPending:cloudFirstPending};
+    demoActive=true;cloudSession=null;activeKey=KEY+'_demo_memory_only';syncIssue='';syncConfirmedJSON='';syncSafeCode='';cloudConflict=false;remotePending=false;cloudFirstPending=0;
+    document.body.classList.add('demo-active');el('demoBanner').classList.remove('hidden');closeBridgeDialog('teacherDialog');el('save').textContent='Lưu thử';
+    resetDemo(false);setStudyMode('basic',true);window.scrollTo(0,0);
+  }
+  function exitDemo(){
+    if(!demoActive||!demoReturn)return;
+    clearTimeout(saveTimer);clearTimeout(remoteSaveTimer);
+    var b=demoReturn;demoReturn=null;demoActive=false;
+    state=b.state;activeKey=b.activeKey;cloudSession=b.cloudSession;dirty=b.dirty;current=b.current;designStep=b.designStep;syncIssue=b.syncIssue;syncConfirmedJSON=b.syncConfirmedJSON;syncSafeCode=b.syncSafeCode;cloudConflict=b.cloudConflict;remotePending=b.remotePending;cloudFirstPending=b.cloudFirstPending;cloudLastActive=Date.now();
+    document.body.classList.remove('demo-active');el('demoBanner').classList.add('hidden');el('save').textContent='Lưu bài';el('peerInboxPanel').classList.add('hidden');el('peerInboxEntries').textContent='';
+    refresh();setDesignStep(b.designStep);setStudyMode(b.uiMode,true);Object.keys(b.compact).forEach(function(k){applyCompactPanel(k,b.compact[k],false)});updateCloudUI();updateProfileUI();tab(b.activeTab);toggleEditor(b.editOpen);setStatus('');teacherOpen();
+  }
+  el('teacherDemo').addEventListener('click',startDemo);
+  el('demoBlank').addEventListener('click',function(){resetDemo(false)});
+  el('demoSample').addEventListener('click',function(){resetDemo(true)});
+  el('demoExit').addEventListener('click',exitDemo);
   el('teacherBtn').addEventListener('click',teacherOpen);
   el('teacherClose').addEventListener('click',closeTeacher);
   function teacherLogin(){
@@ -2865,7 +2938,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   function openHelp(){
     var teacherDialogOpen=!el('teacherDialog').classList.contains('hidden');
     helpFromTeacher=teacherDialogOpen;
-    var teacherMode=teacherDialogOpen||!!teacherToken;
+    var teacherMode=!demoActive&&(teacherDialogOpen||!!teacherToken);
     el('studentHelp').classList.toggle('hidden',teacherMode);
     el('teacherHelp').classList.toggle('hidden',!teacherMode);
     el('helpTitle').textContent=teacherMode?'Hướng dẫn dành cho giáo viên':'Hướng dẫn học sinh – Hành trình di sản số';
@@ -2925,6 +2998,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   });
 
   el('save').addEventListener('click', function(){
+    if(demoActive){save(false);return}
     clearTimeout(saveTimer);
     if(!save(false))return;
     if(cloudSession)cloudSave(true);
@@ -2946,10 +3020,11 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   el('importBtn').addEventListener('click', function(){if(!hasProfile()){openGroups();return}el('importFile').click()});
   el('importFile').addEventListener('change',function(){
     var file=this.files&&this.files[0];this.value='';
-    if(!file)return;if(!hasProfile()){openGroups();return}
+    if(demoActive)return;if(!file)return;if(!hasProfile()){openGroups();return}
     if(file.size>800000){setStatus('Tệp JSON vượt quá 800 KB.');return}
     var reader=new FileReader();
     reader.onload=function(){
+      if(demoActive)return;
       try{
         var obj=JSON.parse(reader.result);
         if(obj.version!==undefined&&obj.version!==1)throw Error('Phiên bản JSON chưa hỗ trợ');
@@ -3007,6 +3082,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   el('reset').addEventListener('click',function(){if(!hasProfile()){openGroups();return}el('resetDialog').classList.remove('hidden');el('resetNo').focus()});
   el('resetNo').addEventListener('click',function(){el('resetDialog').classList.add('hidden')});
   el('resetYes').addEventListener('click',function(){
+    if(demoActive){resetDemo(false);el('resetDialog').classList.add('hidden');return}
     if(!safeBackup('Trước khôi phục mẫu'))return;
     var before=state,candidate=normalizeData(base);candidate.klass=before.klass;candidate.group=before.group;
     state=candidate;
@@ -3070,7 +3146,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     button.textContent=collapsed?x.closed:x.open;
     if(which==='photo')button.setAttribute('aria-pressed',String(collapsed));
     else button.setAttribute('aria-expanded',String(!collapsed));
-    if(savePref){try{localStorage.setItem(COMPACT_PREF_KEY,JSON.stringify(compactPrefs))}catch(e){}}
+    if(savePref&&!demoActive){try{localStorage.setItem(COMPACT_PREF_KEY,JSON.stringify(compactPrefs))}catch(e){}}
     if(el('compactPresetBtn')){
       var tvCompact=compactPrefs.lesson&&compactPrefs.mode&&compactPrefs.photo;
       el('compactPresetBtn').textContent=tvCompact?'Mở các thẻ':'Gọn cho TV';
