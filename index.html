@@ -764,7 +764,7 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
           <div id="gvFeedbackQuick" class="gv-quick-area"></div><textarea id="teacherFeedbackText" maxlength="500" rows="2" placeholder="Nêu điểm làm tốt và điểm cần cải thiện."></textarea>
           <button id="teacherFeedbackSend" type="button" class="primary">Gửi nhận xét</button><button id="gvFeedbackDiscard" type="button">Bỏ nhận xét chưa gửi</button>
           <p id="teacherFeedbackStatus" class="muted" role="status"></p>
-        </section><section id="gvRubric" class="hidden"><div class="gv-rubric-head"><h3>Rubric KHBD · 10 điểm</h3><strong id="gvRubricTotal">— / 10</strong></div><p class="muted">Chấm theo minh chứng, không quy đổi tiến độ thành điểm.</p><div id="gvRubricRows"></div><div id="gvRubricQuick" class="gv-quick-area"></div><label for="gvRubricNote">Nhận xét đánh giá (không bắt buộc)</label><textarea id="gvRubricNote" maxlength="1000" rows="3"></textarea><div class="gv-assess-status"><label for="gvRubricMode">Kết quả đánh giá</label><select id="gvRubricMode"><option value="draft">Lưu nháp – chưa gửi</option><option value="revision">Gửi điểm – yêu cầu chỉnh sửa</option><option value="final">Gửi điểm – xác nhận kết quả</option></select></div><p id="gvRubricStatus" class="muted" role="status"></p><div class="actions"><button id="gvRubricPrev" type="button">Bài trước</button><button id="gvRubricSave" type="button" class="primary">Lưu điểm</button><button id="gvRubricNext" type="button" class="primary">Lưu và chấm tiếp</button><button id="gvRubricDiscard" type="button">Bỏ thay đổi</button></div><details class="gv-history"><summary>Lịch sử đánh giá</summary><div id="gvRubricHistory"></div></details></section><details class="gv-extra"><summary>Quản lý mã bài</summary><p class="muted">Chỉ cấp mã mới khi học sinh mất mã. Mã cũ sẽ không còn hiệu lực.</p><button id="teacherRotate" type="button">Cấp mã nhóm mới</button></details></div></div></div>
+        </section><section id="gvRubric" class="hidden"><div class="gv-rubric-head"><h3>Rubric KHBD · 10 điểm</h3><strong id="gvRubricTotal">— / 10</strong></div><p class="muted">Chấm theo minh chứng, không quy đổi tiến độ thành điểm.</p><div id="gvRubricRows"></div><div id="gvRubricQuick" class="gv-quick-area"></div><label for="gvRubricNote">Nhận xét đánh giá (không bắt buộc)</label><textarea id="gvRubricNote" maxlength="1000" rows="3"></textarea><div class="gv-assess-status"><label for="gvRubricMode">Kết quả đánh giá</label><select id="gvRubricMode"><option value="draft">Lưu nháp – chưa gửi</option><option value="revision">Gửi điểm – yêu cầu chỉnh sửa</option><option value="final">Gửi điểm – xác nhận kết quả</option></select></div><p id="gvRubricStatus" class="muted" role="status"></p><div class="actions"><button id="gvRubricPrev" type="button">Bài trước</button><button id="gvRubricSave" type="button" class="primary">Lưu điểm</button><button id="gvRubricNext" type="button" class="primary">Lưu và chấm tiếp</button><button id="gvRubricDiscard" type="button">Bỏ thay đổi</button></div><details class="gv-history"><summary>Lịch sử đánh giá</summary><div id="gvRubricHistory"></div></details></section><details class="gv-extra"><summary>Quản lý mã bài</summary><p class="muted">Chỉ cấp mã mới khi học sinh mất mã. Mã cũ sẽ không còn hiệu lực.</p><button id="teacherRotate" type="button">Cấp mã nhóm mới</button></details><details class="gv-extra"><summary>Xóa bài học sinh</summary><p class="muted">Xóa vĩnh viễn bài đang chọn, điểm, nhận xét và lịch sử liên quan. Không thể hoàn tác.</p><button id="teacherDelete" type="button" style="color:#a11b1b;border-color:#bd7777">Xóa bài đang chọn</button><div id="teacherDeleteConfirm" class="hidden" role="group" aria-label="Xác nhận xóa bài" style="margin-top:10px;padding:12px;border:1px solid #bd7777;border-radius:8px"><p id="teacherDeleteLabel"></p><p>Nhập <strong>XOA</strong> để xác nhận.</p><input id="teacherDeletePhrase" autocomplete="off" placeholder="XOA" maxlength="3" style="max-width:120px"><div class="actions"><button id="teacherDeleteApply" type="button" disabled style="color:#a11b1b;border-color:#bd7777">Xác nhận xóa</button><button id="teacherDeleteCancel" type="button">Hủy</button></div></div></details></div></div></div>
         <details class="teacher-password-change"><summary>Đổi mật khẩu giáo viên</summary>
           <label for="teacherNewPassword">Đổi mật khẩu giáo viên (đúng 8 ký tự)</label><input id="teacherNewPassword" type="password" maxlength="8" autocomplete="new-password">
           <button id="teacherChangePassword" type="button">Đổi mật khẩu</button>
@@ -2305,7 +2305,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   }
   function teacherLoadGroup(openTab){
     var index=el('teacherGroups').value===''?-1:Number(el('teacherGroups').value),item=teacherGroupsData[index];if(!item||gvDirty||gvSaving||rubricDirty||rubricSaving||feedbackSending||clean(el('teacherFeedbackText').value))return;
-    var seq=++gvLoadSeq,token=teacherToken;gvLoading=true;el('gvDetailBody').classList.add('hidden');teacherStatus('Đang tải bài…');
+    teacherDeleteReset();var seq=++gvLoadSeq,token=teacherToken;gvLoading=true;el('gvDetailBody').classList.add('hidden');teacherStatus('Đang tải bài…');
     cloudCall({action:'teacherGet',token:teacherToken,klass:item.klass,group:item.group},function(err,res){
       if(seq!==gvLoadSeq||token!==teacherToken)return;gvLoading=false;
       if(err||!res||!res.record){if(teacherRecord)el('gvDetailBody').classList.remove('hidden');gvMarkSelected();teacherStatus(err||'Không tải được bài.');return}
@@ -2325,6 +2325,45 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
       teacherRecord=res.record;teacherRecord.progress=teacherRecord.progress||stemProgress_(teacherRecord.data);teacherRecord.data=normalizeData(res.record.data);
       gvDirty=false;teacherStatus('Đã lưu chỉnh sửa.');
       teacherDisplaySite();gvRenderDetail();
+    });
+  }
+  var teacherDeleteBusy=false;
+  function teacherDeleteReset(){
+    el('teacherDeleteConfirm').classList.add('hidden');
+    el('teacherDeletePhrase').value='';
+    el('teacherDeleteApply').disabled=true;
+  }
+  function teacherDeleteStart(){
+    if(!teacherRecord||teacherDeleteBusy){teacherStatus('Hãy chọn bài cần xóa.');return}
+    if(gvLoading||gvSaving||gvDirty||rubricDirty||rubricSaving||feedbackSending||clean(el('teacherFeedbackText').value)){
+      teacherStatus('Hãy lưu hoặc bỏ các thay đổi trước khi xóa bài.');return;
+    }
+    el('teacherDeleteLabel').textContent='Xóa vĩnh viễn bài của '+teacherRecord.group+' · '+teacherRecord.klass+'?';
+    el('teacherDeleteConfirm').classList.remove('hidden');
+    el('teacherDeletePhrase').value='';el('teacherDeleteApply').disabled=true;
+    el('teacherDeletePhrase').focus();
+  }
+  function teacherDeleteApply(){
+    if(teacherDeleteBusy||!teacherRecord||el('teacherDeletePhrase').value.trim().toUpperCase()!=='XOA')return;
+    var record=teacherRecord,token=teacherToken;
+    teacherDeleteBusy=true;el('teacherDeleteApply').disabled=true;el('teacherDelete').disabled=true;
+    teacherStatus('Đang xóa bài và dữ liệu liên quan…');
+    cloudCall({action:'teacherDelete',token:token,klass:record.klass,group:record.group,recordId:record.id,revision:record.revision},function(err,res){
+      teacherDeleteBusy=false;el('teacherDelete').disabled=false;
+      if(token!==teacherToken)return;
+      if(err||!res||res.deleted!==true){
+        teacherStatus('Chưa xóa được bài: '+(err||'Máy chủ chưa xác nhận.'));return;
+      }
+      teacherDeleteReset();
+      gvLoadSeq++;hydrateToken++;hydrating=false;gvLoading=false;
+      delete gvCache[String(record.id)];
+      teacherRecord=null;gvDirty=false;rubricDirty=false;
+      el('gvDetailBody').classList.add('hidden');el('teacherGroupTitle').textContent='Chọn bài để xem';
+      el('teacherFeedbackList').textContent='';el('teacherFeedbackText').value='';
+      teacherGroupsData=teacherGroupsData.filter(function(g){return String(g.id)!==String(record.id)});
+      gvRenderList();teacherStatus('Đã xóa vĩnh viễn bài '+record.group+' · '+record.klass+'.');
+      // Tải danh sách thật từ máy chủ để bảo đảm trạng thái khớp sau khi xóa.
+      teacherList(true);
     });
   }
   function teacherRotate(){
@@ -2948,6 +2987,12 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   el('teacherSite').addEventListener('change',function(){teacherCapture();teacherCurrentSite=this.value;teacherDisplaySite()});
   el('teacherSave').addEventListener('click',teacherSave);
   el('teacherRotate').addEventListener('click',teacherRotate);
+  el('teacherDelete').addEventListener('click',teacherDeleteStart);
+  el('teacherDeleteCancel').addEventListener('click',teacherDeleteReset);
+  el('teacherDeletePhrase').addEventListener('input',function(){
+    el('teacherDeleteApply').disabled=teacherDeleteBusy||this.value.trim().toUpperCase()!=='XOA';
+  });
+  el('teacherDeleteApply').addEventListener('click',teacherDeleteApply);
   el('teacherChangePassword').addEventListener('click',function(){teacherChangePassword(el('teacherNewPassword').value,false)});
   enterToSubmit('teacherNewPassword','teacherChangePassword');
     window.setInterval(function(){if(cloudSession)cloudHeartbeat()},50000);
