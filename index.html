@@ -1736,7 +1736,7 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
     cloudCall({action:'studentGet',klass:klass,group:group,token:token},function(err,res){
       if(!cloudSession||cloudSession.token!==token||activeKey!==targetKey)return;
       if(err){
-        if(/hết hạn|đăng nhập lại|mã nhóm chưa đúng|không có quyền/i.test(err)){removeStoredSession(STUDENT_KEEP_KEY);removeStoredSession(STUDENT_SESSION_KEY);cloudSession=null;studentSessionToken='';studentSessionUntil=0;updateCloudUI();syncIssue='Phiên hết hạn. Hãy mở lại bài bằng mã của em.';syncStatusForLocal();return}
+        if(/hết hạn|đăng nhập lại|mã nhóm chưa đúng|không có quyền|chưa có nhóm trên máy chủ|giáo viên xóa|giáo viên xoá/i.test(err)){removeStoredSession(STUDENT_KEEP_KEY);removeStoredSession(STUDENT_SESSION_KEY);cloudSession=null;studentSessionToken='';studentSessionUntil=0;updateCloudUI();syncIssue='Phiên hết hạn. Hãy mở lại bài bằng mã của em.';syncStatusForLocal();return}
         syncIssue='Chưa kiểm tra được Google Sheets. Bài vẫn còn trên máy. '+err;
         syncStatusForLocal();return;
       }
@@ -2414,7 +2414,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     if(cloudSession&&syncConfirmedJSON!==JSON.stringify(state)){
       if(/hết hạn|đăng nhập lại/i.test(syncIssue))return;
       verifyCloudOnResume();
-    }else if(!cloudSession&&checkedServerVersion>=0&&!/đã có bài|đã tồn tại|không ghi đè|hết hạn/i.test(syncIssue))autoRegisterCloud();
+    }else if(!cloudSession&&checkedServerVersion>=0&&!/đã có bài|đã tồn tại|không ghi đè|hết hạn|giáo viên xóa|giáo viên xoá/i.test(syncIssue))autoRegisterCloud();
   },30000);
   window.addEventListener('online',function(){
     if(demoActive)return;
