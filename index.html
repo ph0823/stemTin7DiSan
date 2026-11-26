@@ -366,6 +366,35 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
 /* V4.4 Demo sandbox */
 .demo-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:#fff4dd;border:1px solid #dbb96d;border-radius:8px;padding:8px 12px;margin:8px 0;color:#654a19}.demo-banner small{display:block;font-size:12px;margin-top:3px}.demo-actions{display:flex;flex-wrap:wrap;gap:5px}.demo-active #cloudBtn,.demo-active #studentAssessmentBtn,.demo-active #teacherBtn,.demo-active #switchProfile,.demo-active #importBtn,.demo-active #restoreBackup,.demo-active #exportBackup,.demo-active #export,.demo-active #syncPanel{display:none!important}.demo-active #group{color:#654a19;font-weight:bold}.demo-active #peerNotice,.demo-active #peerTabNew,.demo-active #peerInboxCount{display:none!important}
 @media print{.demo-banner{display:none!important}}
+/* Shared student and demo editor: one task, one writing panel. */
+.map-head-actions{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+.demo-banner{padding:4px 9px;margin:4px 0;background:#f5f8fb;border-color:#d8e3ec;color:#34536b;min-height:34px}
+.demo-banner strong{font-size:12px}.demo-actions button{font-size:12px;padding:5px 9px;min-height:30px}
+.demo-active .toolbar .student-fields,.demo-active #learningModeBar{display:none!important}
+.demo-active .toolbar{justify-content:flex-end;padding:4px 8px}
+.demo-active #autosaveHint{display:none!important}
+body.mode-basic #siteTaskLine,body.mode-basic #lessonPanel{display:none!important}
+body.mode-basic .site-quick button{min-height:92px;border-radius:9px}
+body.mode-basic .v4-thumb{height:64px}
+body.mode-basic .site-quick button.active{border:2px solid #17649a;background:#eaf4fc}
+body.mode-basic .edit-bar{margin:12px 0 7px}
+body.mode-basic .edit-bar strong{font-size:17px;color:#174e71}
+body.mode-basic #editToggle{display:none}
+body.mode-basic #editFields.hidden{display:block!important}
+#editFields{background:#fff;border:1px solid #d6e4ee;border-radius:10px;padding:12px}
+.writing-reference{background:#eef5fa;border-radius:7px;padding:8px 10px;margin-bottom:12px}
+.writing-reference summary{cursor:pointer;font-weight:bold;color:#175b83;font-size:13px}
+.writing-reference p{font-size:14px;line-height:1.5;margin:8px 0}
+.writing-reference a{font-size:12px}
+#cardStyleOptions{margin:0 0 8px}
+body.mode-basic #desc{min-height:145px;padding:10px;font-size:15px;border-color:#b5cbdc;line-height:1.55}
+body.mode-basic #source{min-height:40px;padding:8px 10px;font-size:14px}
+#desc:focus,#source:focus{outline:2px solid #82b9e2;outline-offset:1px}
+body.mode-basic .preview-head{margin-top:10px}
+body.mode-basic #explore>.actions{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
+@media(max-width:950px){body.mode-basic .map-shell .map{height:320px;min-height:260px}}
+@media(max-width:560px){#editFields{padding:8px}body.mode-basic .v4-thumb{height:44px}body.mode-basic .site-quick button{min-height:75px}}
 </style>
 </head>
 <body class="needs-profile">
@@ -401,7 +430,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     </div>
   </div>
 
-  <div id="demoBanner" class="demo-banner hidden" role="region" aria-label="Chế độ trình diễn"><div><strong>DEMO · Giáo viên trình diễn</strong><small>Bài mẫu, không ghi vào bảng điểm học sinh.</small></div><div class="demo-actions"><button id="demoBlank" type="button">Bài trống</button><button id="demoSample" type="button">Bài mẫu</button><button id="demoExit" type="button" class="primary">Về giáo viên</button></div></div>
+  <div id="demoBanner" class="demo-banner hidden" role="region" aria-label="Chế độ trình diễn"><strong>Demo</strong><div class="demo-actions"><button id="demoBlank" type="button">Bài trống</button><button id="demoSample" type="button">Bài mẫu</button><button id="demoExit" type="button" class="primary">Về giáo viên</button></div></div>
   <div id="syncPanel" class="sync-panel hidden" role="status" aria-live="polite">
     <span id="syncMessage">Bài được giữ trên máy.</span>
     <button id="retrySync" type="button" class="hidden">Thử lại</button>
@@ -437,7 +466,7 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
         </nav><div id="v4Badges" class="v4-badges" aria-label="Huy hiệu học tập"></div></section><div class="layout" id="workArea">
     <section class="map-column">
       <div class="map-shell" id="mapShell">
-        <div class="compact-card-head"><strong>Bản đồ 3 di tích</strong><button type="button" id="mapCollapseBtn" class="collapse-control" aria-expanded="true" aria-controls="map">Thu gọn bản đồ ▴</button></div>
+        <div class="compact-card-head"><strong>Bản đồ 3 di tích</strong><div class="map-head-actions"><button type="button" id="fitMapQuick" class="collapse-control">Xem cả 3</button><button type="button" id="mapCollapseBtn" class="collapse-control" aria-expanded="true" aria-controls="map">Thu gọn ▴</button></div></div>
       <div class="map real-map" id="map" aria-label="Bản đồ địa lý tương tác ba di tích">
         <div id="leafletMap" aria-label="Bản đồ OpenStreetMap; có thể kéo và thu phóng"></div>
         <details class="map-controls map-controls-fold" id="mapControls">
@@ -449,13 +478,13 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
       </div>
       </div>
       <details class="map-challenge" id="mapChallenge">
-        <summary>Thử thách đọc bản đồ <span class="map-challenge-sub">2 câu · Quan sát và kiểm chứng</span></summary>
-        <div class="map-challenge-body"><p class="muted">Em hãy quan sát bản đồ, chọn câu trả lời rồi nhấn “Kiểm tra”. Kết quả không tính điểm.</p>
+        <summary>Thử thách đọc bản đồ <span class="map-challenge-sub">2 câu</span></summary>
+        <div class="map-challenge-body"><p class="muted">Quan sát bản đồ và trả lời hai câu hỏi.</p>
           <label for="mapPrediction"><strong>Câu 1.</strong> Em hãy quan sát và chọn di tích nằm xa nhất về phía Nam.</label>
           <div class="map-challenge-row"><select id="mapPrediction"><option value="">Chọn đáp án</option><option value="nga">Ngã Ba Giồng</option><option value="cu">Địa đạo Củ Chi</option><option value="giong">Giồng Cá Vồ</option></select><button id="mapCheckPrediction" type="button">Kiểm tra</button></div>
           <p id="mapPredictionFeedback" class="map-feedback" role="status"></p>
           <label for="mapLineAnswer"><strong>Câu 2.</strong> Theo em, đường nét đứt nối ba điểm trên bản đồ có ý nghĩa gì?</label>
-          <div class="map-challenge-row"><select id="mapLineAnswer"><option value="">Chọn đáp án</option><option value="road">Đường giao thông thực tế</option><option value="order">Thứ tự khám phá do nhóm chọn</option><option value="distance">Khoảng cách chính xác giữa các điểm</option></select><button id="mapCheckLine" type="button">Kiểm tra</button></div>
+          <div class="map-challenge-row"><select id="mapLineAnswer"><option value="">Chọn đáp án</option><option value="road">Đường giao thông thực tế</option><option value="order">Thứ tự khám phá em chọn</option><option value="distance">Khoảng cách chính xác giữa các điểm</option></select><button id="mapCheckLine" type="button">Kiểm tra</button></div>
           <p id="mapLineFeedback" class="map-feedback" role="status"></p>
           <p class="muted">Gợi ý: chọn “Xem cả 3” để quan sát. Vị trí là điểm tham khảo, không phải lối vào thực tế.</p>
         </div>
@@ -494,9 +523,10 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
           <div class="edit-bar"><strong id="writingTitle">Viết lời giới thiệu</strong><button id="editToggle" type="button" aria-expanded="true" aria-controls="editFields">Thu gọn phần viết ▴</button></div>
 
           <div id="editFields">
+            <details id="writingReference" class="writing-reference"><summary>Đọc tư liệu di tích</summary><p id="writingReferenceText"></p><a id="writingReferenceLink" target="_blank" rel="noopener noreferrer">Xem nguồn tư liệu</a></details>
             <div class="field">
               <details class="card-style-options" id="cardStyleOptions"><summary>Đổi cách trình bày thẻ</summary><label for="cardStyle">Kiểu thẻ</label><select id="cardStyle"><option value="stack">Ảnh trên – chữ dưới</option><option value="side">Ảnh trái – chữ phải</option><option value="compact">Thẻ tóm tắt</option></select></details><label for="desc" id="descLabel">Em hãy viết lời giới thiệu của em/nhóm em về di tích này (25–50 từ)</label>
-              <textarea id="desc" rows="4" maxlength="1000"></textarea>
+              <textarea id="desc" rows="4" maxlength="1000" placeholder="Em hãy giới thiệu đặc điểm và giá trị tiêu biểu của di tích bằng lời của mình."></textarea>
               <div id="wordCount" class="word-count" aria-live="polite"></div><div class="v4-word-track"><div id="v4WordFill" class="v4-word-fill"></div></div>
             </div>
             <div class="field advanced-only">
@@ -504,8 +534,8 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
               <input id="image" type="url" placeholder="https://...">
             </div>
             <div class="field">
-              <label for="source">Em đã sử dụng nguồn thông tin nào?</label>
-              <input id="source" placeholder="Ví dụ: Tư liệu giáo viên cung cấp"><div class="advanced-only"><label for="license">Tác giả và quyền sử dụng hình</label><input id="license" maxlength="300" placeholder="Nguồn · giấy phép/cho phép"><label for="imageSource">Link nguồn hình ảnh</label><input id="imageSource" type="url" placeholder="https://..."></div>
+              <label for="source">Nguồn thông tin</label>
+              <input id="source" placeholder="Tên tài liệu hoặc địa chỉ trang web"><div class="advanced-only"><label for="license">Tác giả và quyền sử dụng hình</label><input id="license" maxlength="300" placeholder="Nguồn · giấy phép/cho phép"><label for="imageSource">Link nguồn hình ảnh</label><input id="imageSource" type="url" placeholder="https://..."></div>
             </div>
           </div>
 
@@ -513,8 +543,8 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
           <div class="preview is-collapsed photo-collapsed" id="preview"></div>
 
           <div class="actions">
-            <button id="maps" class="primary" type="button">Xem vị trí trên bản đồ</button>
-            <button id="next" type="button">Di tích tiếp theo</button>
+            <button id="maps" type="button">Google Maps</button>
+            <button id="next" class="primary" type="button">Di tích tiếp theo →</button>
           </div>
         </div>
 
@@ -1205,7 +1235,8 @@ body.mode-basic .site-quick button,.site-quick button{padding:0 0 6px;min-height
     updateRoute();
     realMap.fitBounds(mapBounds, { padding: [36, 36] });
 
-    el('fitMap').addEventListener('click',function(){realMap.fitBounds(mapBounds,{padding:[36,36]})});
+    el('fitMap').addEventListener('click',function(){realMap.closePopup();realMap.fitBounds(mapBounds,{padding:[36,36]})});
+    el('fitMapQuick').addEventListener('click',function(){realMap.closePopup();realMap.fitBounds(mapBounds,{padding:[36,36]})});
     el('focusMap').addEventListener('click',function(){selectMarker(current,true)});
     el('toggleRoute').addEventListener('click',function(){state.showRoute=!(state.showRoute!==false);updateRouteToggle();scheduleSave()});
 
@@ -2479,7 +2510,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     el('basicModeBtn').setAttribute('aria-pressed',String(isBasic()));
     el('advancedModeBtn').setAttribute('aria-pressed',String(!isBasic()));
     el('modeDescription').textContent=isBasic()?'Cơ bản · Làm bài trong 45 phút':'Mở rộng · Thêm công cụ';
-    el('descLabel').textContent=isBasic()?'Em hãy viết lời giới thiệu của em/nhóm em về di tích này (25–50 từ)':'Em hãy viết lời giới thiệu của em/nhóm em về di tích này (50–80 từ)';
+    el('descLabel').textContent=isBasic()?'Lời giới thiệu (25–50 từ)':'Lời giới thiệu (50–80 từ)';
     if(isBasic()&&activeTab==='explore'&&hasProfile())toggleEditor(true);
     if(!initial&&!demoActive){try{localStorage.setItem(UI_MODE_KEY,uiMode)}catch(e){}}
     updateWordCount(state.sites[current].desc);
@@ -2511,10 +2542,10 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     function updateWordCount(descText){
     var words=countWords(descText),lower=isBasic()?25:50,upper=isBasic()?50:80;
     var label=words+' từ',wc=el('wordCount'),ok=words>=lower&&words<=80;
-    if(!words)label+=' · Hãy viết '+lower+'–'+upper+' từ';
-    else if(words<lower)label+=' · Cần thêm '+(lower-words)+' từ';
-    else if(words>upper)label+=' · Đã có nội dung, nên viết gọn nếu còn thời gian';
-    else label+=' · Đạt yêu cầu';
+    if(!words)label+=' / '+lower+'–'+upper+' từ';
+    else if(words<lower)label+=' · Thêm '+(lower-words)+' từ';
+    else if(words>upper)label+=' · Nên viết gọn';
+    else label+=' · Đạt độ dài';
     var fill=el('v4WordFill');fill.style.width=Math.min(100,Math.round(words/lower*100))+'%';fill.className='v4-word-fill '+(words>upper?'over':ok?'ok':'');
     wc.textContent=label;wc.className='word-count '+(ok?'ok':'warn');
   }
@@ -2531,19 +2562,16 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     function node(tag,parent,value,cls){var x=document.createElement(tag);if(value!==null)x.textContent=value||'';if(cls)x.className=cls;parent.appendChild(x);return x}
     node('h3',box,referenceSites[current].name);
     node('div',box,referenceSites[current].location,'muted');
-    var ref=node('div',box,null,'reference-box'),details=node('details',ref,null);
-    node('summary',details,'Đọc tư liệu tham khảo');
-    node('p',details,referenceSites[current].desc);
-    var source=node('a',details,'Nguồn tham khảo');source.href=heritageGeo[current].ref;source.target='_blank';source.rel='noopener noreferrer';
+
     var product=node('div',box,null,'student-preview '+(site.cardStyle||state.cardStyle||'stack'));
     var image=node('div',product,null,'student-image');image.appendChild(makePhoto(current,true));image.appendChild(makeCredit(current));
-    var content=node('div',product,null,'student-writing');node('h4',content,'Bài làm của em/nhóm em');node('p',content,clean(site.desc)||'Em chưa viết lời giới thiệu.');
+    var content=node('div',product,null,'student-writing');node('h4',content,'Lời giới thiệu');node('p',content,clean(site.desc)||'Em chưa viết lời giới thiệu.');
     if(site.source)node('p',content,'Nguồn thông tin: '+site.source,'muted');
     if(site.image&&!clean(site.license))node('p',content,'Chưa ghi tác giả hoặc quyền sử dụng ảnh.','source-warning');
-    node('p',content,photoSourceState(site),'muted');
+    if(site.image)node('p',content,photoSourceState(site),'muted');
     if(site.image&&!safeURL(site.image))node('p',content,'Hình ảnh chưa mở được. Hãy kiểm tra link.','source-warning');
     if(/^https?:/i.test(clean(site.source))&&!safeURL(site.source))node('p',content,'Link nguồn chưa hợp lệ.','source-warning');
-    node('p',box,'Tọa độ tham khảo: '+heritageGeo[current].precision,'muted');
+
     updateWordCount(site.desc);el('cardStyle').value=site.cardStyle||state.cardStyle||'stack';
   }
 
@@ -2568,7 +2596,8 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     var site = state.sites[current];
     ['desc','image','source','license','imageSource'].forEach(function(k){el(k).value=site[k]||''});
     var siteName=referenceSites[current].name,hasWriting=!!clean(site.desc),hasSource=!!clean(site.source);
-    el('writingTitle').textContent='Viết về '+siteName;
+    el('writingTitle').textContent=siteName;
+    el('writingReferenceText').textContent=referenceSites[current].desc;el('writingReferenceLink').href=heritageGeo[current].ref;el('writingReference').open=false;
     el('previewHeading').textContent='Xem thẻ '+siteName;
     el('siteTaskLine').textContent=!hasWriting?
       'Viết lời giới thiệu và ghi nguồn thông tin.':
@@ -2832,6 +2861,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     state=normalizeData(demoData(sample));current='nga';designStep=1;dirty=false;
     el('peerInboxPanel').classList.add('hidden');el('peerInboxEntries').textContent='';
     refresh();setDesignStep(1);updateProfileUI();tab('explore');toggleEditor(true);setStatus('');
+    if(realMap&&mapBounds.length)setTimeout(function(){if(demoActive){realMap.closePopup();realMap.invalidateSize({pan:false});realMap.fitBounds(mapBounds,{padding:[36,36]})}},350);
   }
   function startDemo(){
     if(!teacherToken||teacherNeedsPasswordChange||teacherSessionUntil<=Date.now()){teacherStatus('Hãy đăng nhập giáo viên trước khi trình diễn.');return}
@@ -2843,7 +2873,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     demoReturn={state:state,activeKey:activeKey,cloudSession:cloudSession,dirty:dirty,current:current,designStep:designStep,activeTab:activeTab,editOpen:editOpen,uiMode:uiMode,compact:JSON.parse(JSON.stringify(compactPrefs)),syncIssue:syncIssue,syncConfirmedJSON:syncConfirmedJSON,syncSafeCode:syncSafeCode,cloudConflict:cloudConflict,remotePending:remotePending,cloudFirstPending:cloudFirstPending};
     demoActive=true;cloudSession=null;activeKey=KEY+'_demo_memory_only';syncIssue='';syncConfirmedJSON='';syncSafeCode='';cloudConflict=false;remotePending=false;cloudFirstPending=0;
     document.body.classList.add('demo-active');el('demoBanner').classList.remove('hidden');closeBridgeDialog('teacherDialog');el('save').textContent='Lưu thử';
-    resetDemo(false);setStudyMode('basic',true);window.scrollTo(0,0);
+    resetDemo(false);setStudyMode('basic',true);applyCompactPanel('map',false,false);applyCompactPanel('preview',true,false);applyCompactPanel('photo',false,false);window.scrollTo(0,0);
   }
   function exitDemo(){
     if(!demoActive||!demoReturn)return;
