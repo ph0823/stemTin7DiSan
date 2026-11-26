@@ -56,6 +56,7 @@ function teacherRecord_(v,full,index){
 var SHEET_NAME = 'Nhom_STEM7';
 var AUDIT_NAME = 'Lich_su_chinh_sua';
 var FEEDBACK_NAME = 'Gop_y_cheo_STEM7';
+var DELETED_NAME = 'Bai_da_xoa_STEM7';
 var FEEDBACK_COLS = ['id','klass','targetGroup','authorGroup','role','checks','comment','status','createdAt','moderatedAt'];
 var COLS = ['id','klass','group','accessHash','payload','createdAt','firstAt','lastAt','updatedAt','seconds','revision','teacherEditedAt','teacherNote','lastEditor','codeVersion','studentEditedAt','createRequestHash'];
 var PIN_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -72,6 +73,7 @@ function setup(){
   ensureSheet_(ss,AUDIT_NAME,['time','klass','group','actor','action','revision','oldPayload','newPayload','note']);
   ensureSheet_(ss,FEEDBACK_NAME,FEEDBACK_COLS);
   ensureSheet_(ss,RUBRIC_NAME,RUBRIC_COLS);
+  ensureSheet_(ss,DELETED_NAME,['time','klass','group','recordId','revision','actor']);
   Logger.log('Bảng tính: '+ss.getUrl());
   Logger.log('Mật khẩu giáo viên ban đầu: 22112026. Đổi ngay sau khi đăng nhập.');
 }
@@ -94,6 +96,18 @@ function clean_(x,max){return String(x===undefined||x===null?'':x).trim().slice(
 function key_(klass,group){return clean_(klass,30).toUpperCase()+'|'+clean_(group,50).toUpperCase()}
 function sheet_(){return env_().ss.getSheetByName(SHEET_NAME)}
 function all_(sh){return sh.getLastRow()>1?sh.getRange(2,1,sh.getLastRow()-1,COLS.length).getValues():[]}
+function deletedGroup_(ss,klass,group){
+  var sheet=ss.getSheetByName(DELETED_NAME);
+  if(!sheet||sheet.getLastRow()<2)return false;
+  var rows=sheet.getRange(2,2,sheet.getLastRow()-1,2).getValues(),target=key_(klass,group);
+  return rows.some(function(r){return key_(r[0],r[1])===target});
+}
+function deleteMatchingRows_(sheet,matcher){
+  if(!sheet||sheet.getLastRow()<2)return 0;
+  var rows=sheet.getRange(2,1,sheet.getLastRow()-1,sheet.getLastColumn()).getValues(),count=0;
+  for(var i=rows.length-1;i>=0;i--)if(matcher(rows[i])){sheet.deleteRow(i+2);count++}
+  return count;
+}
 function rowOf_(sh,klass,group){
   var rows=all_(sh),search=key_(klass,group);
   for(var i=0;i<rows.length;i++)if(key_(rows[i][1],rows[i][2])===search)return {row:i+2,v:rows[i]};
@@ -310,6 +324,7 @@ function handle_(q){
     var entry=rowOf_(sh,klass,group);
     if(action==='createGroup'){
       assertName_(klass,group);
+      if(deletedGroup_(ss,klass,group))throw Error('Bài này đã được giáo viên xóa. Em hãy liên hệ giáo viên trước khi tạo bài mới.');
       /* Máy khách cũ vẫn được hỗ trợ, nhưng yêu cầu mới dùng requestKey
          để thử lại sau khi mất kết nối mà không tạo thêm dòng. */
       var reqHash=q.requestKey?createKey_(q.requestKey):'';
@@ -327,6 +342,24 @@ function handle_(q){
       var id=Utilities.getUuid(),v=[id,klass,group,digest_(pin),data,now,now,now,now,0,1,'','','Học sinh',1,now,reqHash];
       sh.appendRow(v);
       return {code:pin,reused:false,token:authToken_('student',id,{codeVersion:1}),record:publicRecord_(v,true)};
+    }
+    if(action==='teacherDelete'){
+      requireSession_(q.token,'teacher');
+      if(!entry)throw Error('Bài không còn tồn tại. Hãy tải lại danh sách.');
+      if(clean_(q.recordId,100)!==String(entry.v[0]))throw Error('Thông tin bài đã thay đổi. Hãy tải lại trước khi xóa.');
+      if(Number(q.revision)!==Number(entry.v[10]||0))throw Error('Bài vừa được cập nhật. Hãy tải lại trước khi xóa.');
+      var recordId=String(entry.v[0]),targetKey=key_(klass,group);
+      // Đánh dấu trước để bản lưu offline không thể tạo lại bài vừa xóa.
+      var deletedSheet=ensureSheet_(ss,DELETED_NAME,['time','klass','group','recordId','revision','actor']);
+      if(!deletedGroup_(ss,klass,group))deletedSheet.appendRow([new Date(),klass,group,recordId,entry.v[10],'Giáo viên']);
+      var removedRubric=deleteMatchingRows_(ss.getSheetByName(RUBRIC_NAME),function(r){return String(r[0])===recordId});
+      var removedFeedback=deleteMatchingRows_(ss.getSheetByName(FEEDBACK_NAME),function(r){
+        return key_(r[1],r[2])===targetKey||(key_(r[1],'')===key_(klass,'')&&key_(r[3],klass)===key_(group,klass));
+      });
+      // Lịch sử chứa cả bản bài cũ: xóa lịch sử của bài để không lưu sót nội dung.
+      var removedAudit=deleteMatchingRows_(ss.getSheetByName(AUDIT_NAME),function(r){return key_(r[1],r[2])===targetKey});
+      sh.deleteRow(entry.row);
+      return {deleted:true,recordId:recordId,rubricRows:removedRubric,feedbackRows:removedFeedback,auditRows:removedAudit};
     }
     if(!entry)throw Error('Chưa có nhóm trên máy chủ');
     var row=entry.row,v=entry.v;
