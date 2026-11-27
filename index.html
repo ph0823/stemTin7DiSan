@@ -463,7 +463,7 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
           <button data-tab="design" type="button"><span class="step-number">2</span><span><strong>Thiết kế</strong><small>Chọn hành trình</small></span><span class="step-check"></span></button>
           <button data-tab="test" type="button"><span class="step-number">3</span><span><strong>Kiểm thử</strong><small>Góp ý, sửa bài</small></span><span class="peer-tab-new" id="peerTabNew" aria-label="Góp ý mới"></span><span class="step-check"></span></button>
           <button data-tab="report" type="button"><span class="step-number">4</span><span><strong>Báo cáo</strong><small>Giới thiệu kết quả</small></span><span class="step-check"></span></button>
-        </nav><div id="v4Badges" class="v4-badges" aria-label="Huy hiệu học tập"></div></section><div class="layout" id="workArea">
+        </nav><details id="completionPanel" style="margin:8px 0"><summary id="completionHeading">Nhiệm vụ còn thiếu</summary><div id="completionList" style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0"></div></details><div id="v4Badges" class="v4-badges" aria-label="Huy hiệu học tập"></div></section><div class="layout" id="workArea">
     <section class="map-column">
       <div class="map-shell" id="mapShell">
         <div class="compact-card-head"><strong>Bản đồ 3 di tích</strong><div class="map-head-actions"><button type="button" id="fitMapQuick" class="collapse-control">Xem cả 3</button><button type="button" id="mapCollapseBtn" class="collapse-control" aria-expanded="true" aria-controls="map">Thu gọn ▴</button></div></div>
@@ -589,7 +589,7 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
           <div id="peerInboxPanel" class="peer-inbox hidden"><strong>Nhận xét từ các nhóm khác và giáo viên</strong><div id="peerInboxEntries"></div><button id="peerInboxClose" type="button">Đóng</button></div>
           <p class="muted">Em hãy mở bài của bạn/nhóm khác trong lớp, đọc và gửi một góp ý lịch sự. Không cần đổi máy.</p>
           <div class="panel-stem"><h4>Lưu bài trước và sau khi sửa</h4><p class="muted">Bấm “Lưu bài trước khi sửa”, đọc góp ý, sửa bài rồi bấm “Lưu bài sau khi sửa”.</p><div class="actions"><button type="button" id="captureBefore">Lưu bài trước khi sửa</button><button type="button" id="captureAfter">Lưu bài sau khi sửa</button></div><div id="snapshotCompare"></div></div><details class="advanced-only"><summary>Bảng kiểm chi tiết</summary><div id="checks"></div></details>
-          <details class="feedback-work" id="feedbackWork"><summary>Ghi góp ý và phần đã sửa</summary>
+          <details class="feedback-work" id="feedbackWork" open><summary>Ghi góp ý và phần đã sửa</summary>
           <p class="muted">Em hãy ghi góp ý đã nhận và điều em/nhóm em đã chỉnh sửa.</p>
           <div class="field"><label for="tester">Bạn hoặc nhóm đã góp ý</label><input id="tester" placeholder="Ví dụ: Nhóm 2"></div>
           <div class="guided-feedback"><strong>Em hãy đánh dấu những điều đã kiểm tra:</strong><div class="quick-test-checks">
@@ -733,9 +733,9 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
       </div>
       <div id="teacherWorkspace" class="hidden">
         <div class="gv-toolbar"><div class="gv-filter"><label for="gvClass">Lớp</label><select id="gvClass"><option value="">Tất cả</option></select><label for="gvSearch">Tìm tên</label><input id="gvSearch" placeholder="Học sinh / nhóm"><label for="gvState">Trạng thái</label><select id="gvState"><option value="">Tất cả</option><option value="new">Mới tạo</option><option value="started">Đang làm</option><option value="done">Đủ nhiệm vụ</option><option value="unknown">Chưa xác minh</option><option value="ungraded">Chưa chấm / cần chấm lại</option><option value="draft">Chấm nháp</option><option value="revision">Cần chỉnh sửa</option><option value="final">Đã xác nhận</option><option value="stale">Bài đã thay đổi</option></select></div><div class="gv-head-actions"><button id="teacherDemo" type="button" class="primary">Demo cho học sinh</button><button id="teacherRefresh" type="button">Làm mới</button><button id="gvExportScores" type="button">Xuất điểm CSV</button><button id="teacherLogout" type="button">Đăng xuất</button></div></div>
-        <div id="v4TeacherSummary" class="v4-teacher-summary" aria-live="polite"></div><p id="gvSummaryNote" class="gv-summary-note"></p><div id="gvEvalSummary" class="gv-eval-summary"></div><div class="teacher-grid">
+        <div id="v4TeacherSummary" class="v4-teacher-summary" aria-live="polite"></div><p id="gvSummaryNote" class="gv-summary-note"></p><div id="gvEvalSummary" class="gv-eval-summary"></div><details id="gvMissingSummary" style="margin:8px 0"><summary>Nhiệm vụ nhiều học sinh còn thiếu</summary><div id="gvMissingCounts"></div></details><div class="teacher-grid">
           <aside class="gv-list"><h3>Danh sách bài làm</h3><select id="teacherGroups" size="9" class="gv-native-select" aria-label="Danh sách bài làm"></select><div id="gvCards" class="gv-cards"></div><p id="teacherListHint" class="muted"></p></aside>
-          <div class="gv-detail"><h3 id="teacherGroupTitle">Chọn bài để xem</h3><div id="gvDetailBody" class="hidden"><div id="teacherMeta" class="gv-meta"></div><div class="gv-tabs" role="group" aria-label="Nội dung quản lý"><button type="button" data-gv-tab="overview" class="active">Sản phẩm</button><button type="button" data-gv-tab="rubric">Đánh giá</button><button type="button" data-gv-tab="feedback">Nhận xét</button><button type="button" data-gv-tab="edit">Chỉnh sửa</button></div><section id="gvOverview"><div id="gvStages" class="gv-stages"></div><div id="gvSiteOverview"></div><div id="gvEvidence"></div><div class="actions"><button id="gvReload" type="button">Tải bài mới nhất</button><button id="gvEditOpen" class="primary" type="button">Chỉnh sửa bài</button></div></section><section id="gvEdit" class="hidden">
+          <div class="gv-detail"><h3 id="teacherGroupTitle">Chọn bài để xem</h3><div id="gvDetailBody" class="hidden"><div id="teacherMeta" class="gv-meta"></div><div class="gv-tabs" role="group" aria-label="Nội dung quản lý"><button type="button" data-gv-tab="overview" class="active">Sản phẩm</button><button type="button" data-gv-tab="rubric">Đánh giá</button><button type="button" data-gv-tab="feedback">Nhận xét</button><button type="button" data-gv-tab="edit">Chỉnh sửa</button></div><section id="gvOverview"><div id="gvStages" class="gv-stages"></div><div id="gvMissingDetail" style="margin:8px 0"></div><div id="gvSiteOverview"></div><div id="gvEvidence"></div><div class="actions"><button id="gvReload" type="button">Tải bài mới nhất</button><button id="gvEditOpen" class="primary" type="button">Chỉnh sửa bài</button></div></section><section id="gvEdit" class="hidden">
             <label for="teacherSite">Di tích cần chỉnh sửa</label><select id="teacherSite"><option value="nga">Ngã Ba Giồng</option><option value="cu">Địa đạo Củ Chi</option><option value="giong">Giồng Cá Vồ</option></select>
             <label for="teacherDesc">Lời giới thiệu của nhóm</label><textarea id="teacherDesc" rows="5"></textarea>
             <label for="teacherSource">Nguồn thông tin</label><input id="teacherSource">
@@ -1301,7 +1301,8 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
     if(!hasProfile()){openGroups();return}
     if(!safeBackup('Trước lưu minh chứng'))return;
     var sites={};ids.forEach(function(id){var v=state.sites[id];sites[id]={desc:v.desc||'',source:v.source||'',image:v.image||'',imageSource:v.imageSource||'',license:v.license||'',cardStyle:v.cardStyle||'stack'}});
-    if(which==='before')state.snapshots.after=null;
+    if(which==='before'&&state.snapshots.before){setStatus('Bản trước khi sửa đã được lưu. Em hãy giữ bản này và lưu bản sau khi cải tiến.');return}
+    if(which==='after'&&!state.snapshots.before){setStatus('Em cần lưu bài trước khi sửa trước.');return}
     state.snapshots[which]={date:new Date().toLocaleString('vi-VN'),sites:sites,reason:state.reason||'',sketch:state.sketch||'',message:state.message||'',compareText:state.compareText||'',estimate:state.estimate||'',mode:state.mode,order:state.order};
     scheduleSave();renderSnapshots();setStatus('Đã lưu phiên bản '+(which==='before'?'1':'2')+'.');
   }
@@ -2093,16 +2094,27 @@ var rubricSupported=false,assessmentWorkflow=false,rubricDirty=false,rubricSavin
 var RUBRIC_VERSION='KHBD-2026-11-25';
 function stemProgress_(d){
  if(!d||!d.sites||!['nga','cu','giong'].every(function(k){return d.sites[k]&&typeof d.sites[k]==='object'}))return null;
- var ids=['nga','cu','giong'],v=d.visited||{},m=d.mapAnswers||{},c=d.checks||{},sn=d.snapshots||{},a=sn.before,b=sn.after;
+ var ids=['nga','cu','giong'],names=['Ngã Ba Giồng','Địa đạo Củ Chi','Giồng Cá Vồ'],m=d.mapAnswers||{},c=d.checks||{},sn=d.snapshots||{},a=sn.before,b=sn.after;
  function t(x){return String(x||'').trim()}
  function words(x){return t(x)?t(x).split(/\s+/).length:0}
  function order(x){return typeof x==='string'&&x.split(',').sort().join(',')==='cu,giong,nga'}
- function ok(x){return !!(x&&x.sites)}
- var diff=ok(a)&&ok(b)&&(ids.some(function(k){var x=a.sites[k]||{},y=b.sites[k]||{};if(typeof x==='string')x={desc:x};if(typeof y==='string')y={desc:y};return ['desc','source','image','imageSource','license','cardStyle'].some(function(f){return t(x[f])!==t(y[f])})})||['order','mode','reason','sketch','message','compareText','estimate'].some(function(f){return t(a[f])!==t(b[f])}));
- var stages=[[m.prediction==='giong'&&m.line==='order'].concat(ids.map(function(k){var x=d.sites[k];return v[k]===true&&words(x.desc)>=25&&words(x.desc)<=80&&!!t(x.source)})),[order(d.order)&&order(d.compareOrder)&&d.order!==d.compareOrder&&t(d.compareText).length>=8,t(d.reason).length>=12,t(d.message).length>=12],[ok(a),t(d.issues).length>=5&&t(d.fix).length>=5,['peer0','peer1','peer2'].some(function(k){return c[k]===true}),diff],[!!t(d.selfAssessment),ok(a)&&ok(b)]].map(function(x){return {done:x.filter(Boolean).length,total:x.length}});
- var done=stages.reduce(function(n,x){return n+x.done},0),total=13;
- var started=done>0||ids.some(function(k){var x=d.sites[k];return v[k]===true||['desc','source','image','imageSource','license'].some(function(f){return !!t(x[f])})})||!!(m.prediction||m.line)||['reason','compareText','message','sketch','tester','issues','fix','recheck','selfAssessment'].some(function(f){return !!t(d[f])})||Object.keys(c).some(function(k){return c[k]===true})||ok(a)||ok(b)||(order(d.order)&&d.order!=='nga,cu,giong')||(order(d.compareOrder)&&d.compareOrder!=='cu,nga,giong')||d.preferredRoute==='B';
- return {done:done,total:total,percent:Math.round(done*100/total),stages:stages,started:started};
+ function ok(x){return !!(x&&x.sites&&ids.every(function(k){return x.sites[k]&&typeof x.sites[k]==='object'}))}
+ function task(id,passed,label,hint){return {id:id,ok:!!passed,label:label,hint:hint||label}}
+ var diff=ok(a)&&ok(b)&&(ids.some(function(k){var x=a.sites[k],y=b.sites[k];return ['desc','source','image','imageSource','license','cardStyle'].some(function(f){return t(x[f])!==t(y[f])})})||['order','mode','reason','sketch','message','compareText','estimate'].some(function(f){return t(a[f])!==t(b[f])}));
+ var cards=ids.map(function(k,i){var x=d.sites[k],w=words(x.desc),source=!!t(x.source),missing=[];if(w<25)missing.push('viết thêm '+(25-w)+' từ');if(!source)missing.push('ghi nguồn');return task(k,w>=25&&source,names[i],names[i]+': '+missing.join(', '))});
+ var comparison=order(d.order)&&order(d.compareOrder)&&d.order!==d.compareOrder&&t(d.compareText).length>=8;
+ var reason=t(d.reason).length>=12,message=t(d.message).length>=12;
+ var checked=['peer0','peer1','peer2','0','1','2','3','4','5'].some(function(k){return c[k]===true});
+ var groups=[
+ [task('map',m.prediction==='giong'&&m.line==='order','Trả lời đúng hai câu hỏi bản đồ',m.prediction!=='giong'?'Trả lời câu 1 về vị trí di tích':'Trả lời câu 2 về đường nét đứt')].concat(cards),
+ [task('compare',comparison,'So sánh hai phương án A/B',!order(d.order)||!order(d.compareOrder)||d.order===d.compareOrder?'Chọn hai thứ tự khác nhau':'Viết câu so sánh hai phương án (ít nhất 8 ký tự)'),task('reason',reason,'Giải thích lí do lựa chọn','Viết lí do chọn hành trình (ít nhất 12 ký tự)'),task('message',message,'Viết thông điệp bảo tồn','Viết thông điệp bảo tồn (ít nhất 12 ký tự)')],
+ [task('before',ok(a),'Lưu bài trước khi sửa'),task('issues',t(d.issues).length>=5,'Ghi góp ý đã nhận','Ghi góp ý đã nhận (ít nhất 5 ký tự)'),task('check',checked,'Đánh dấu tiêu chí kiểm thử','Đánh dấu ít nhất một tiêu chí đã kiểm tra'),task('after',ok(a)&&ok(b)&&diff&&t(d.fix).length>=5,'Cải tiến và lưu bài sau khi sửa',!ok(a)?'Lưu bài trước khi sửa':!ok(b)?'Sửa sản phẩm, ghi phần đã sửa và lưu bài sau khi sửa':!diff?'Hai bản giống nhau: sửa ít nhất một nội dung rồi lưu bản sau': 'Ghi phần đã sửa (ít nhất 5 ký tự)')],
+ [task('self',!!t(d.selfAssessment),'Tự đánh giá sản phẩm','Chọn mức tự đánh giá sản phẩm'),task('report',cards.every(function(x){return x.ok})&&order(d.order)&&reason&&t(d.fix).length>=5,'Chuẩn bị nội dung báo cáo','Chuẩn bị đủ ba thẻ, lí do chọn hành trình và điều đã sửa')]
+ ];
+ var stages=groups.map(function(x){return {done:x.filter(function(v){return v.ok}).length,total:x.length,items:x}});
+ var done=stages.reduce(function(n,x){return n+x.done},0),total=stages.reduce(function(n,x){return n+x.total},0);
+ var started=done>0||ids.some(function(k){var x=d.sites[k];return ['desc','source','image','imageSource','license'].some(function(f){return !!t(x[f])})||(d.visited||{})[k]===true})||!!(m.prediction||m.line)||['reason','compareText','message','sketch','tester','issues','fix','recheck','selfAssessment'].some(function(f){return !!t(d[f])})||Object.keys(c).some(function(k){return c[k]===true})||ok(a)||ok(b);
+ return {version:2,done:done,total:total,percent:Math.round(done*100/total),stages:stages,started:started};
 }
 
 function rubricTotal_(x){if(!Array.isArray(x)||x.length!==6)return null;var n=0;for(var i=0;i<6;i++){var v=x[i];if(typeof v!=='number'||!isFinite(v)||v<0||v>(i<4?2:1)||(i<4?v%1!==0:v*2%1!==0))return null;n+=v}return n}
@@ -2115,7 +2127,7 @@ function rubricTotal_(x){if(!Array.isArray(x)||x.length!==6)return null;var n=0;
 function assessmentLabel(g){return {ungraded:'Chưa chấm',stale:'Cần chấm lại',draft:'Chấm nháp',revision:'Cần chỉnh sửa',final:'Đã xác nhận'}[assessmentState(g)]}
 function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch').value).toLowerCase(),f=filter?el('gvState').value:'';return teacherGroupsData.filter(function(g){return (!cls||String(g.klass).toUpperCase()===cls)&&(!search||String(g.group).toLowerCase().indexOf(search)>=0)&&(!f||(f==='ungraded'?!gradeCurrent(g):['draft','revision','final','stale'].indexOf(f)>=0?assessmentState(g)===f:gvState(g)===f))})}
   function rememberProgress(rec){
-    if(!rec||!rec.id)return;var p=rec.progress&&Array.isArray(rec.progress.stages)&&rec.progress.total===13?rec.progress:stemProgress_(rec.data);if(!p)return;
+    if(!rec||!rec.id)return;var p=stemProgress_(rec.data)||rec.progress;if(!p)return;
     rec.progress=p;gvCache[String(rec.id)]={revision:Number(rec.revision),progress:p};
     teacherGroupsData.forEach(function(g){if(String(g.id)===String(rec.id)&&Number(g.revision)<=Number(rec.revision)){g.revision=rec.revision;g.progress=p;if(rec.rubric!==undefined)g.rubric=rec.rubric;if(rec.updatedAt)g.updatedAt=rec.updatedAt;if(rec.seconds!==undefined)g.seconds=rec.seconds}});
   }
@@ -2276,6 +2288,11 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   function gvRenderList(){
     var cls=el('gvClass'),prior=cls.value,classes=[];teacherGroupsData.forEach(function(g){var k=String(g.klass||'').toUpperCase();if(classes.indexOf(k)<0)classes.push(k)});cls.textContent='';var all=document.createElement('option');all.value='';all.textContent='Tất cả';cls.appendChild(all);classes.forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=k;cls.appendChild(o)});cls.value=classes.indexOf(prior)>=0?prior:'';
     var scope=gvVisible(false),visible=gvVisible(true),counts={new:0,started:0,done:0,unknown:0};renderEvalSummary(scope);scope.forEach(function(g){counts[gvState(g)]++});
+    var missingRoot=el('gvMissingCounts'),countsByTask=Object.create(null),known=0;missingRoot.textContent='';
+    scope.forEach(function(g){if(!g.progress||g.progress.version!==2)return;known++;g.progress.stages.forEach(function(st){st.items.forEach(function(t){if(!t.ok){var v=countsByTask[t.id]||(countsByTask[t.id]={label:t.label,n:0});v.n++}})})});
+    Object.keys(countsByTask).sort(function(a,b){return countsByTask[b].n-countsByTask[a].n}).forEach(function(k){var p=document.createElement('p');p.style.margin='4px 0';p.textContent=countsByTask[k].label+': '+countsByTask[k].n+'/'+known+' bài';missingRoot.appendChild(p)});
+    if(!missingRoot.children.length)missingRoot.textContent=known?'Không còn nhiệm vụ thiếu.':'Chưa có dữ liệu tiến độ chi tiết. Cần cập nhật Apps Script.';
+    if(known<scope.length){var note=document.createElement('p');note.textContent='Chưa đối chiếu '+(scope.length-known)+' bài.';missingRoot.appendChild(note)}
     var summary=el('v4TeacherSummary');summary.textContent='';[['Đã tạo bài',scope.length],['Mới tạo',counts.new],['Đang làm',counts.started],['Đủ nhiệm vụ',counts.done],['Chưa xác minh',counts.unknown]].forEach(function(x){var a=document.createElement('span'),b=document.createElement('strong');a.textContent=x[0];b.textContent=x[1];a.appendChild(b);summary.appendChild(a)});
     el('gvSummaryNote').textContent=(hydrating?'Đang đối chiếu bài đã lưu… · ':'')+'Theo lớp/tên đang lọc · '+(rubricSupported?'Đã chấm '+scope.filter(gradeCurrent).length+'/'+scope.length+' · ':'')+'13 nhiệm vụ cơ bản, không phải điểm.';
     var root=el('gvCards'),sel=el('teacherGroups');root.textContent='';sel.textContent='';
@@ -2295,6 +2312,8 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     rememberProgress(rec);
     var stages=el('gvStages');stages.textContent='';
     (rec.progress&&rec.progress.stages||[]).forEach(function(m,i){var box=document.createElement('div'),b=document.createElement('b');box.className='gv-stage';box.textContent=['Khám phá','Thiết kế','Kiểm thử','Báo cáo'][i];b.textContent=m.done+'/'+m.total;box.appendChild(b);stages.appendChild(box)});
+    var missing=el('gvMissingDetail');missing.textContent='';var progress=rec.progress;
+    if(progress&&progress.version===2){var title=document.createElement('strong');title.textContent='Tiến độ '+progress.done+'/'+progress.total+' · '+progress.percent+'%';missing.appendChild(title);progress.stages.forEach(function(st){st.items.filter(function(x){return !x.ok}).forEach(function(x){var p=document.createElement('p');p.style.margin='4px 0';p.textContent='• '+x.hint;missing.appendChild(p)})});if(progress.done===progress.total){var p=document.createElement('p');p.textContent='Đủ nhiệm vụ – giáo viên đánh giá chất lượng theo rubric.';missing.appendChild(p)}}
     var evidence=el('gvEvidence');evidence.textContent='';var detail=document.createElement('details'),head=document.createElement('summary');detail.className='gv-evidence';head.textContent='Minh chứng thiết kế, kiểm thử và báo cáo';detail.appendChild(head);
     function line(label,value){var p=document.createElement('p');p.textContent=label+': '+(value||'Chưa có');detail.appendChild(p)}
     function route(v){return String(v||'').split(',').map(function(k){return referenceSites[k]?referenceSites[k].name:k}).join(' → ')}
@@ -2461,45 +2480,20 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   var uiMode='basic';
   var stageNames=['explore','design','test','report'];
   var stageInstructions={
-    explore:['Bước 1','Em hãy chọn từng di tích, viết lời giới thiệu của em/nhóm em và ghi nguồn.'],
-    design:['Bước 2','Em hãy chọn hai thứ tự A/B, so sánh theo mục đích giới thiệu hoặc mức độ dễ theo dõi, rồi giải thích lựa chọn.'],
-    test:['Bước 3','Em hãy đọc góp ý, sửa một điểm và lưu bản sau khi sửa.'],
-    report:['Bước 4','Em hãy xem lại sản phẩm và chuẩn bị giới thiệu trong một phút.']
+    explore:['Bước 1','Trả lời hai câu hỏi bản đồ; viết lời giới thiệu từ 25 từ và ghi nguồn cho từng di tích.'],
+    design:['Bước 2','Chọn hai thứ tự A/B, viết câu so sánh, lí do lựa chọn và thông điệp bảo tồn.'],
+    test:['Bước 3','Lưu bản trước, ghi góp ý, đánh dấu kiểm thử, sửa một điểm và lưu bản sau.'],
+    report:['Bước 4','Xem nội dung báo cáo, chọn mức tự đánh giá và chuẩn bị giới thiệu trong một phút.']
   };
   function isBasic(){return uiMode==='basic'}
   function countWords(value){var t=clean(value);return t?t.split(/\s+/).length:0}
   function stageMetrics(step){
-    var list=[];
-    function task(ok,label){list.push({ok:!!ok,label:label})}
-    if(step==='explore'){
-      task(!!state.mapAnswers&&state.mapAnswers.prediction==='giong'&&state.mapAnswers.line==='order','Đọc bản đồ và giải thích đường nét đứt');
-      ids.forEach(function(id){
-        var site=state.sites[id],words=countWords(site.desc),target=isBasic()?25:50;
-        var photoOK=isBasic()||!site.image||(safeURL(site.image)&&safeURL(site.imageSource)&&clean(site.license));
-        task(state.visited[id]&&words>=target&&words<=80&&clean(site.source)&&photoOK,
-          referenceSites[id].name+': '+(isBasic()?'viết ít nhất 25 từ và ghi nguồn':'viết 50–80 từ, ghi nguồn và kiểm tra ảnh'));
-      });
-    }else if(step==='design'){
-      task(state.compareOrder!==state.order&&clean(state.compareText).length>=(isBasic()?8:20),'So sánh hai phương án A/B');
-      task(clean(state.reason).length>=(isBasic()?12:20),'Giải thích vì sao chọn hành trình');
-      task(clean(state.message).length>=(isBasic()?12:20),'Viết thông điệp bảo tồn');
-    }else if(step==='test'){
-      task(!!state.snapshots.before,'Đã lưu bài trước khi sửa');
-      task(clean(state.issues).length>=(isBasic()?5:12)&&clean(state.fix).length>=(isBasic()?5:12),'Ghi góp ý và cách cải tiến');
-      task(['peer0','peer1','peer2'].some(function(k){return state.checks[k]===true}),'Đánh dấu ít nhất một tiêu chí kiểm thử');
-      var before=state.snapshots.before,after=state.snapshots.after;
-      task(!!before&&!!after&&snapshotDiff(before,after).length>0&&
-        (isBasic()||clean(state.recheck).length>=12),
-        'Đã lưu bài sau khi sửa và có thay đổi');
-    }else if(step==='report'){
-      task(!!clean(state.selfAssessment),'Đã tự đánh giá sản phẩm');
-      task(!!state.snapshots.before&&!!state.snapshots.after,'Có hai bản trước và sau cải tiến');
-    }
-    var done=0;list.forEach(function(t){if(t.ok)done++});
-    return {done:done,total:list.length,items:list};
+    var p=stemProgress_(state),i=['explore','design','test','report'].indexOf(step);
+    return p&&i>=0?p.stages[i]:{done:0,total:0,items:[]};
   }
+
   var v4BadgeOwner='',v4BadgeHistory={},v4MarkerSignature='',v4ThumbnailsReady=false;
-  function v4SiteDone(id){var v=state.sites[id]||{},w=countWords(v.desc);return !!(state.visited[id]&&w>=(isBasic()?25:50)&&w<=80&&clean(v.source)&&(isBasic()||!v.image||(safeURL(v.image)&&safeURL(v.imageSource)&&clean(v.license))))}
+  function v4SiteDone(id){var v=state.sites[id]||{};return countWords(v.desc)>=25&&!!clean(v.source)}
   function v4RenderProgress(){
     var names=['Nhà khám phá','Nhà thiết kế','Nhà kiểm thử','Đại sứ di sản'],done=0,total=0,box=el('v4Badges');
     if(v4BadgeOwner!==activeKey){v4BadgeOwner=activeKey;v4BadgeHistory={};v4MarkerSignature=''}
@@ -2549,12 +2543,31 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     el('basicModeBtn').setAttribute('aria-pressed',String(isBasic()));
     el('advancedModeBtn').setAttribute('aria-pressed',String(!isBasic()));
     el('modeDescription').textContent=isBasic()?'Cơ bản · Làm bài trong 45 phút':'Mở rộng · Thêm công cụ';
-    el('descLabel').textContent=isBasic()?'Lời giới thiệu (25–50 từ)':'Lời giới thiệu (50–80 từ)';
+    el('descLabel').textContent=isBasic()?'Lời giới thiệu (từ 25 từ, nên 25–50)':'Lời giới thiệu (từ 25 từ, khuyến khích 50–80)';
     if(isBasic()&&activeTab==='explore'&&hasProfile())toggleEditor(true);
     if(!initial&&!demoActive){try{localStorage.setItem(UI_MODE_KEY,uiMode)}catch(e){}}
     updateWordCount(state.sites[current].desc);
     if(activeTab==='report')updateSummary();
     updateLesson();
+  }
+  function jumpCompletion(step,item){
+    if(!hasProfile()){openGroups();return}
+    tab(step);
+    if(['nga','cu','giong'].indexOf(item.id)>=0){current=item.id;showSite(true);toggleEditor(true);var field=el('desc');if(countWords(state.sites[current].desc)>=25)field=el('source');field.focus();return}
+    if(item.id==='map'){el(state.mapAnswers.prediction!=='giong'?'mapPrediction':'mapLineAnswer').focus();return}
+    if(step==='design')setDesignStep(item.id==='message'?3:item.id==='compare'||item.id==='reason'?2:1);
+    if(step==='test')el('feedbackWork').open=true;
+    var targets={compare:'compareText',reason:'reason',message:'message',before:'captureBefore',issues:'issues',check:'quickCheckInfo',after:!state.snapshots.after?'fix':'captureAfter',self:'selfAssessment',report:'summary'};
+    var target=el(targets[item.id]);if(target){target.scrollIntoView({block:'nearest'});if(target.focus)target.focus()}
+  }
+  function renderCompletion(){
+    var p=stemProgress_(state),root=el('completionList'),head=el('completionHeading');
+    root.textContent='';if(!p)return;
+    head.textContent=p.done===p.total?'Đã hoàn thành 13/13 nhiệm vụ':'Còn '+(p.total-p.done)+' nhiệm vụ · Nhấn để làm';
+    p.stages.forEach(function(stage,i){stage.items.filter(function(x){return !x.ok}).forEach(function(item){
+      var b=document.createElement('button');b.type='button';b.textContent=item.hint;b.style.textAlign='left';b.style.fontSize='12px';b.addEventListener('click',function(){jumpCompletion(stageNames[i],item)});root.appendChild(b);
+    })});
+    if(!root.children.length)root.textContent='Em đã hoàn thành các nhiệm vụ. Hãy lưu bài và chờ giáo viên đánh giá.';
   }
   function updateLesson(){
     var captions={
@@ -2571,16 +2584,17 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     var box=el('lessonDetails');box.innerHTML='';
     m.items.forEach(function(item){
       var p=document.createElement('div');p.className='lesson-row '+(item.ok?'done':'todo');
-      p.textContent=(item.ok?'✓ ':'○ ')+item.label;box.appendChild(p);
+      p.textContent=(item.ok?'✓ ':'○ ')+(item.ok?item.label:item.hint);box.appendChild(p);
     });
     renderStageNavigation();
     v4RenderProgress();
+    renderCompletion();
     updateQuestions();
   }
 
     function updateWordCount(descText){
-    var words=countWords(descText),lower=isBasic()?25:50,upper=isBasic()?50:80;
-    var label=words+' từ',wc=el('wordCount'),ok=words>=lower&&words<=80;
+    var words=countWords(descText),lower=25,upper=isBasic()?50:80;
+    var label=words+' từ',wc=el('wordCount'),ok=words>=lower;
     if(!words)label+=' / '+lower+'–'+upper+' từ';
     else if(words<lower)label+=' · Thêm '+(lower-words)+' từ';
     else if(words>upper)label+=' · Nên viết gọn';
@@ -2627,6 +2641,8 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     state.mapAnswers[k]=el(which==='prediction'?'mapPrediction':'mapLineAnswer').value;
     renderMapFeedback();updateLesson();scheduleSave();
   }
+  el('mapPrediction').addEventListener('change',function(){checkMapObservation('prediction')});
+  el('mapLineAnswer').addEventListener('change',function(){checkMapObservation('line')});
   el('mapCheckPrediction').addEventListener('click',function(){checkMapObservation('prediction')});
   el('mapCheckLine').addEventListener('click',function(){checkMapObservation('line')});
   ['mapPrediction','mapLineAnswer'].forEach(function(id){el(id).addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();checkMapObservation(id==='mapPrediction'?'prediction':'line')}})});
@@ -2835,8 +2851,8 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     if(realMap&&mapBounds.length)realMap.fitBounds(mapBounds,{padding:[30,30]});
   }
   el('applyRoutePlan').addEventListener('click',storeRouteSelectors);
-  el('routePlanA').addEventListener('change',function(){if(this.value===el('routePlanB').value)setStatus('Hai phương án phải khác nhau.')});
-  el('routePlanB').addEventListener('change',function(){if(this.value===el('routePlanA').value)setStatus('Hai phương án phải khác nhau.')});
+  el('routePlanA').addEventListener('change',storeRouteSelectors);
+  el('routePlanB').addEventListener('change',storeRouteSelectors);
   el('preferredRoute').addEventListener('change',storeRouteSelectors);
   ['order','compareOrder'].forEach(function(id){el(id).addEventListener('change',function(){state.preferredRoute='A';syncRouteSelectors()})});
   ['quickCheckInfo','quickCheckCard','quickCheckRoute'].forEach(function(id,i){el(id).addEventListener('change',function(){state.checks['peer'+i]=this.checked;scheduleSave()})});
