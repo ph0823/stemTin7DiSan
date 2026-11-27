@@ -7,7 +7,7 @@
  * IMPORTANT: 4-character access codes are convenient, not high-security identity.
  * Never store personal sensitive data. Change the default teacher password.
  */
-var APP_VERSION = 5;
+var APP_VERSION = 6;
 function stemProgress_(d){
  if(!d||!d.sites||!['nga','cu','giong'].every(function(k){return d.sites[k]&&typeof d.sites[k]==='object'}))return null;
  var ids=['nga','cu','giong'],names=['Ngã Ba Giồng','Địa đạo Củ Chi','Giồng Cá Vồ'],m=d.mapAnswers||{},c=d.checks||{},sn=d.snapshots||{},a=sn.before,b=sn.after;
@@ -17,20 +17,20 @@ function stemProgress_(d){
  function ok(x){return !!(x&&x.sites&&ids.every(function(k){return x.sites[k]&&typeof x.sites[k]==='object'}))}
  function task(id,passed,label,hint){return {id:id,ok:!!passed,label:label,hint:hint||label}}
  var diff=ok(a)&&ok(b)&&(ids.some(function(k){var x=a.sites[k],y=b.sites[k];return ['desc','source','image','imageSource','license','cardStyle'].some(function(f){return t(x[f])!==t(y[f])})})||['order','mode','reason','sketch','message','compareText','estimate'].some(function(f){return t(a[f])!==t(b[f])}));
- var cards=ids.map(function(k,i){var x=d.sites[k],w=words(x.desc),source=!!t(x.source),missing=[];if(w<25)missing.push('viết thêm '+(25-w)+' từ');if(!source)missing.push('ghi nguồn');return task(k,w>=25&&source,names[i],names[i]+': '+missing.join(', '))});
+ var cards=ids.map(function(k,i){var x=d.sites[k],w=words(x.desc),source=!!t(x.source),missing=[];if(w<25)missing.push('bổ sung giá trị tiêu biểu (từ 25 từ)');if(!source)missing.push('ghi tên hoặc đường dẫn nguồn');if(t(x.image)&&(!t(x.imageSource)||!t(x.license)))missing.push('ghi nguồn và quyền sử dụng ảnh riêng');return task(k,w>=25&&source&&(!t(x.image)||(!!t(x.imageSource)&&!!t(x.license))),names[i],names[i]+': '+missing.join(', '))});
  var comparison=order(d.order)&&order(d.compareOrder)&&d.order!==d.compareOrder&&t(d.compareText).length>=8;
  var reason=t(d.reason).length>=12,message=t(d.message).length>=12;
  var checked=['peer0','peer1','peer2','0','1','2','3','4','5'].some(function(k){return c[k]===true});
  var groups=[
  [task('map',m.prediction==='giong'&&m.line==='order','Trả lời đúng hai câu hỏi bản đồ',m.prediction!=='giong'?'Trả lời câu 1 về vị trí di tích':'Trả lời câu 2 về đường nét đứt')].concat(cards),
- [task('compare',comparison,'So sánh hai phương án A/B',!order(d.order)||!order(d.compareOrder)||d.order===d.compareOrder?'Chọn hai thứ tự khác nhau':'Viết câu so sánh hai phương án (ít nhất 8 ký tự)'),task('reason',reason,'Giải thích lí do lựa chọn','Viết lí do chọn hành trình (ít nhất 12 ký tự)'),task('message',message,'Viết thông điệp bảo tồn','Viết thông điệp bảo tồn (ít nhất 12 ký tự)')],
- [task('before',ok(a),'Lưu bài trước khi sửa'),task('issues',t(d.issues).length>=5,'Ghi góp ý đã nhận','Ghi góp ý đã nhận (ít nhất 5 ký tự)'),task('check',checked,'Đánh dấu tiêu chí kiểm thử','Đánh dấu ít nhất một tiêu chí đã kiểm tra'),task('after',ok(a)&&ok(b)&&diff&&t(d.fix).length>=5,'Cải tiến và lưu bài sau khi sửa',!ok(a)?'Lưu bài trước khi sửa':!ok(b)?'Sửa sản phẩm, ghi phần đã sửa và lưu bài sau khi sửa':!diff?'Hai bản giống nhau: sửa ít nhất một nội dung rồi lưu bản sau': 'Ghi phần đã sửa (ít nhất 5 ký tự)')],
- [task('self',!!t(d.selfAssessment),'Tự đánh giá sản phẩm','Chọn mức tự đánh giá sản phẩm'),task('report',cards.every(function(x){return x.ok})&&order(d.order)&&reason&&t(d.fix).length>=5,'Chuẩn bị nội dung báo cáo','Chuẩn bị đủ ba thẻ, lí do chọn hành trình và điều đã sửa')]
+ [task('compare',comparison,'So sánh hai phương án A/B',!order(d.order)||!order(d.compareOrder)||d.order===d.compareOrder?'Chọn hai thứ tự khác nhau':'So sánh A/B theo tiêu chí dễ hiểu hoặc mạch chủ đề'),task('reason',reason,'Giải thích lí do lựa chọn','Giải thích vì sao thứ tự phù hợp người xem'),task('message',message,'Viết thông điệp bảo tồn','Nêu một hành động bảo tồn cụ thể')],
+ [task('before',ok(a),'Lưu bài trước khi sửa'),task('issues',t(d.issues).length>=5,'Ghi góp ý đã nhận','Ghi một góp ý cụ thể'),task('check',checked,'Đánh dấu tiêu chí kiểm thử','Đánh dấu ít nhất một tiêu chí đã kiểm tra'),task('after',ok(a)&&ok(b)&&diff&&t(d.fix).length>=5,'Cải tiến và lưu bài sau khi sửa',!ok(a)?'Lưu bài trước khi sửa':!ok(b)?'Sửa sản phẩm, ghi phần đã sửa và lưu bài sau khi sửa':!diff?'Hai bản giống nhau: sửa ít nhất một nội dung rồi lưu bản sau': 'Nêu điều đã sửa và vì sao sản phẩm tốt hơn')],
+ [task('self',!!t(d.selfAssessment),'Tự đánh giá sản phẩm','Chọn mức tự đánh giá sản phẩm')]
  ];
  var stages=groups.map(function(x){return {done:x.filter(function(v){return v.ok}).length,total:x.length,items:x}});
  var done=stages.reduce(function(n,x){return n+x.done},0),total=stages.reduce(function(n,x){return n+x.total},0);
  var started=done>0||ids.some(function(k){var x=d.sites[k];return ['desc','source','image','imageSource','license'].some(function(f){return !!t(x[f])})||(d.visited||{})[k]===true})||!!(m.prediction||m.line)||['reason','compareText','message','sketch','tester','issues','fix','recheck','selfAssessment'].some(function(f){return !!t(d[f])})||Object.keys(c).some(function(k){return c[k]===true})||ok(a)||ok(b);
- return {version:2,done:done,total:total,percent:Math.round(done*100/total),stages:stages,started:started};
+ return {version:3,done:done,total:total,percent:Math.round(done*100/total),stages:stages,started:started};
 }
 var RUBRIC_VERSION='KHBD-2026-11-25',RUBRIC_NAME='Danh_gia_STEM7',RUBRIC_COLS=['groupId','klass','group','assessmentJSON'];
 function rubricTotal_(x){if(!Array.isArray(x)||x.length!==6)return null;var n=0;for(var i=0;i<6;i++){var v=x[i];if(typeof v!=='number'||!isFinite(v)||v<0||v>(i<4?2:1)||(i<4?v%1!==0:v*2%1!==0))return null;n+=v}return n}

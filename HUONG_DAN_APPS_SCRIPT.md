@@ -1,3 +1,7 @@
+## V6 – 27/11/2026
+
+Thay mã AppsScript_STEM7.gs, Deploy → Manage deployments → Edit → New version → Deploy, giữ URL /exec hiện có. V6 đổi quy tắc tiến độ 12 nhiệm vụ, không đổi cấu trúc Sheets, API lưu bài hoặc rubric. Kiểm thử bài cũ và demo trước giờ học.
+
 # Hướng dẫn cài Google Apps Script – STEM Tin học 7
 
 Ứng dụng: https://ph0823.github.io/stemTin7DiSan/

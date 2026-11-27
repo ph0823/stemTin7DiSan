@@ -1,3 +1,7 @@
+## V4.5 – STEM 45 phút / Apps Script V6
+
+Tiến độ 12 nhiệm vụ (4/3/4/1), không phải điểm. Báo cáo do GV đánh giá. HS dùng tư liệu có sẵn, 25–50 từ/thẻ (tối thiểu 25; dài hơn chỉ nhắc); ảnh riêng cần nguồn và quyền sử dụng. So sánh A/B theo nhu cầu người xem, ghi góp ý, sửa và giải thích lợi ích, lưu hai bản khác nhau. Góp ý trực tiếp được chấp nhận. Giữ rubric 10 điểm, dữ liệu và API cũ. Triển khai lại Apps Script V6 tại URL /exec hiện có để thống kê nhanh và đồng nhất. Hướng dẫn V3–V5 bên dưới là lịch sử tương thích.
+
 # STEM Tin học 7 – Hành trình di sản số
 
 Ứng dụng: https://ph0823.github.io/stemTin7DiSan/

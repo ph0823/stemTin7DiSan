@@ -458,7 +458,7 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
   </section>
   <div class="learning-mode-bar is-collapsed" id="learningModeBar"><div class="mode-summary"><strong>Chế độ:</strong> <span id="modeDescription" class="muted">Cơ bản · 45 phút</span><button type="button" id="modeCollapseBtn" class="collapse-control" aria-expanded="false" aria-controls="modeSwitch">Đổi chế độ ▾</button><button type="button" id="compactPresetBtn" class="collapse-control" aria-pressed="false">Gọn cho TV</button></div><div class="mode-switch" id="modeSwitch" role="group" aria-label="Chế độ học tập"><button type="button" id="basicModeBtn" class="active" aria-pressed="true">Cơ bản · 45 phút</button><button type="button" id="advancedModeBtn" aria-pressed="false">Mở rộng</button></div></div>
   <div id="cloudErrorBanner" class="cloud-error hidden" role="alert"></div>
-  <section class="v4-journey" aria-label="Tiến độ toàn bài"><div class="v4-progress-head"><b>Hành trình của em</b><strong id="v4ProgressText">0/13 · 0%</strong></div><div class="v4-track" role="progressbar" aria-label="Tiến độ toàn bài" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="v4ProgressFill" class="v4-fill"></div></div><nav class="tabbar step-journey" aria-label="Hành trình STEM bốn bước">
+  <section class="v4-journey" aria-label="Tiến độ toàn bài"><div class="v4-progress-head"><b>Tiến độ thực hiện nhiệm vụ</b><strong id="v4ProgressText">0/12 · 0%</strong></div><div class="v4-track" role="progressbar" aria-label="Tiến độ toàn bài" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="v4ProgressFill" class="v4-fill"></div></div><nav class="tabbar step-journey" aria-label="Hành trình STEM bốn bước">
           <button data-tab="explore" class="active" type="button" aria-current="step"><span class="step-number">1</span><span><strong>Khám phá</strong><small>3 di tích</small></span><span class="step-check"></span></button>
           <button data-tab="design" type="button"><span class="step-number">2</span><span><strong>Thiết kế</strong><small>Chọn hành trình</small></span><span class="step-check"></span></button>
           <button data-tab="test" type="button"><span class="step-number">3</span><span><strong>Kiểm thử</strong><small>Góp ý, sửa bài</small></span><span class="peer-tab-new" id="peerTabNew" aria-label="Góp ý mới"></span><span class="step-check"></span></button>
@@ -565,16 +565,16 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
             <div class="route-head"><strong>Chọn thứ tự khám phá</strong><span class="muted">Chọn thứ tự cho từng phương án, không phải đường đi thực tế</span></div>
             <div class="route-choice"><label for="routePlanA">Phương án A</label><select id="routePlanA"></select></div>
             <div class="route-choice"><label for="routePlanB">Phương án B</label><select id="routePlanB"></select></div>
-            <div class="route-choice"><label for="preferredRoute">Nhóm lựa chọn</label><select id="preferredRoute"><option value="A">Phương án A</option><option value="B">Phương án B</option></select><button id="applyRoutePlan" type="button">Hiển thị hành trình chọn</button></div>
+            <div class="route-choice"><label for="preferredRoute">Em chọn</label><select id="preferredRoute"><option value="A">Phương án A</option><option value="B">Phương án B</option></select><button id="applyRoutePlan" type="button">Hiển thị hành trình chọn</button></div>
           </div></div><div class="design-step hidden" data-step-panel="2"><div class="field"><label for="reason">Em/nhóm em hãy nêu lí do chọn thứ tự khám phá này.</label>
-            <textarea id="reason" placeholder="Nêu tiêu chí lựa chọn: nội dung học tập, thời gian, điều kiện di chuyển..."></textarea>
+            <textarea id="reason" placeholder="Em chọn A/B vì muốn người xem hiểu…"></textarea>
           </div>
           <div class="field advanced-only">
             <label for="estimate">Dữ liệu quãng đường/thời gian đã kiểm chứng (nếu có)</label>
             <textarea id="estimate" placeholder="Ghi tuyến, nguồn tra cứu và thời điểm; không tự suy ra từ đường nối minh họa"></textarea>
           </div>
-          <div class="field advanced-only"><label for="compareOrder">Phương án khác (công cụ cũ)</label><select id="compareOrder"></select></div><div class="field"><label for="compareText">Em hãy so sánh hai cách sắp xếp A và B bằng một câu.</label><textarea id="compareText" placeholder="Phương án em chọn giúp người xem tìm hiểu nội dung theo thứ tự nào? Vì sao tốt hơn phương án còn lại?"></textarea></div><p id="modeQuestions" class="muted advanced-only"></p></div><div class="design-step hidden" data-step-panel="3"><div class="field"><label for="message">Em/nhóm em hãy viết một thông điệp bảo vệ di sản.</label>
-            <textarea id="message" placeholder="Viết một thông điệp ngắn"></textarea>
+          <div class="field advanced-only"><label for="compareOrder">Phương án khác (công cụ cũ)</label><select id="compareOrder"></select></div><div class="field"><label for="compareText">So sánh A/B theo một tiêu chí: dễ hiểu, mạch chủ đề hoặc vị trí.</label><textarea id="compareText" placeholder="A phù hợp với…; B phù hợp với…"></textarea></div><p id="modeQuestions" class="muted advanced-only"></p></div><div class="design-step hidden" data-step-panel="3"><div class="field"><label for="message">Em/nhóm em hãy viết một thông điệp bảo vệ di sản.</label>
+            <textarea id="message" placeholder="Ví dụ: Không lấy hiện vật, chia sẻ thông tin có nguồn."></textarea>
           </div>
           <div class="field advanced-only">
             <label for="sketch">Mô tả thiết kế thẻ thông tin của nhóm</label>
@@ -587,10 +587,10 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
           <div class="peer-actions"><button id="peerOpenBtn" type="button" class="primary">Xem và góp ý bài nhóm bạn</button><button id="peerInboxBtn" type="button">Xem góp ý dành cho em/nhóm em <span id="peerInboxCount"></span></button></div>
           <div id="peerNotice" class="peer-notice hidden" role="status"></div>
           <div id="peerInboxPanel" class="peer-inbox hidden"><strong>Nhận xét từ các nhóm khác và giáo viên</strong><div id="peerInboxEntries"></div><button id="peerInboxClose" type="button">Đóng</button></div>
-          <p class="muted">Em hãy mở bài của bạn/nhóm khác trong lớp, đọc và gửi một góp ý lịch sự. Không cần đổi máy.</p>
-          <div class="panel-stem"><h4>Lưu bài trước và sau khi sửa</h4><p class="muted">Bấm “Lưu bài trước khi sửa”, đọc góp ý, sửa bài rồi bấm “Lưu bài sau khi sửa”.</p><div class="actions"><button type="button" id="captureBefore">Lưu bài trước khi sửa</button><button type="button" id="captureAfter">Lưu bài sau khi sửa</button></div><div id="snapshotCompare"></div></div><details class="advanced-only"><summary>Bảng kiểm chi tiết</summary><div id="checks"></div></details>
+          <p class="muted">Xem bài bạn và góp ý theo một tiêu chí. Có thể trao đổi trực tiếp.</p>
+          <div class="panel-stem"><h4>Lưu bài trước và sau khi sửa</h4><p class="muted">1. Lưu bản 1. 2. Nhận góp ý và sửa. 3. Kiểm tra lại, lưu bản 2.</p><div class="actions"><button type="button" id="captureBefore">Lưu bài trước khi sửa</button><button type="button" id="captureAfter">Lưu bài sau khi sửa</button></div><div id="snapshotCompare"></div></div><details class="advanced-only"><summary>Bảng kiểm chi tiết</summary><div id="checks"></div></details>
           <details class="feedback-work" id="feedbackWork" open><summary>Ghi góp ý và phần đã sửa</summary>
-          <p class="muted">Em hãy ghi góp ý đã nhận và điều em/nhóm em đã chỉnh sửa.</p>
+          <p class="muted">Ghi một góp ý, điều em đã sửa và vì sao sản phẩm tốt hơn. Có thể góp ý trực tiếp nếu mất mạng.</p>
           <div class="field"><label for="tester">Bạn hoặc nhóm đã góp ý</label><input id="tester" placeholder="Ví dụ: Nhóm 2"></div>
           <div class="guided-feedback"><strong>Em hãy đánh dấu những điều đã kiểm tra:</strong><div class="quick-test-checks">
             <label><input type="checkbox" id="quickCheckInfo"> Đủ 3 di tích, nội dung có nguồn</label>
@@ -598,7 +598,7 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
             <label><input type="checkbox" id="quickCheckRoute"> Hiểu thứ tự khám phá và lí do</label>
           </div>
           <div class="field"><label for="issues">Em nhận được góp ý nào từ bạn hoặc giáo viên?</label><textarea id="issues" placeholder="Ví dụ: Lời giới thiệu Địa đạo Củ Chi còn dài, nên rút gọn."></textarea></div>
-          <div class="field"><label for="fix">Sau khi đọc góp ý, em/nhóm em đã sửa điều gì?</label><textarea id="fix" placeholder="Ví dụ: Đã rút ngắn lời giới thiệu, thêm nguồn và kiểm tra lại."></textarea></div></div>
+          <div class="field"><label for="fix">Em đã sửa gì? Vì sao sản phẩm tốt hơn?</label><textarea id="fix" placeholder="Ví dụ: Em rút gọn thẻ để người xem nhận ra giá trị di tích nhanh hơn."></textarea></div></div>
           </details>
           <div class="field advanced-only"><label for="recheck">Kết quả kiểm tra lại</label><textarea id="recheck"></textarea></div>
         </div>
@@ -1303,8 +1303,10 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
     var sites={};ids.forEach(function(id){var v=state.sites[id];sites[id]={desc:v.desc||'',source:v.source||'',image:v.image||'',imageSource:v.imageSource||'',license:v.license||'',cardStyle:v.cardStyle||'stack'}});
     if(which==='before'&&state.snapshots.before){setStatus('Bản trước khi sửa đã được lưu. Em hãy giữ bản này và lưu bản sau khi cải tiến.');return}
     if(which==='after'&&!state.snapshots.before){setStatus('Em cần lưu bài trước khi sửa trước.');return}
-    state.snapshots[which]={date:new Date().toLocaleString('vi-VN'),sites:sites,reason:state.reason||'',sketch:state.sketch||'',message:state.message||'',compareText:state.compareText||'',estimate:state.estimate||'',mode:state.mode,order:state.order};
-    scheduleSave();renderSnapshots();setStatus('Đã lưu phiên bản '+(which==='before'?'1':'2')+'.');
+    var candidate={date:new Date().toLocaleString('vi-VN'),sites:sites,reason:state.reason||'',sketch:state.sketch||'',message:state.message||'',compareText:state.compareText||'',estimate:state.estimate||'',mode:state.mode,order:state.order};
+    if(which==='after'&&!snapshotDiff(state.snapshots.before,candidate).length){setStatus('Hai bản giống nhau. Em hãy sửa một nội dung theo góp ý rồi lưu bản 2.');return}
+    state.snapshots[which]=candidate;
+    scheduleSave();renderSnapshots();updateLesson();setStatus('Đã lưu phiên bản '+(which==='before'?'1':'2')+'.');
   }
   function snapshotDiff(a,b){
     var fields=[['desc','Nội dung'],['source','Nguồn'],['image','Ảnh'],['imageSource','Nguồn ảnh'],['license','Giấy phép'],['cardStyle','Bố cục']],out=[];
@@ -2101,26 +2103,26 @@ function stemProgress_(d){
  function ok(x){return !!(x&&x.sites&&ids.every(function(k){return x.sites[k]&&typeof x.sites[k]==='object'}))}
  function task(id,passed,label,hint){return {id:id,ok:!!passed,label:label,hint:hint||label}}
  var diff=ok(a)&&ok(b)&&(ids.some(function(k){var x=a.sites[k],y=b.sites[k];return ['desc','source','image','imageSource','license','cardStyle'].some(function(f){return t(x[f])!==t(y[f])})})||['order','mode','reason','sketch','message','compareText','estimate'].some(function(f){return t(a[f])!==t(b[f])}));
- var cards=ids.map(function(k,i){var x=d.sites[k],w=words(x.desc),source=!!t(x.source),missing=[];if(w<25)missing.push('viết thêm '+(25-w)+' từ');if(!source)missing.push('ghi nguồn');return task(k,w>=25&&source,names[i],names[i]+': '+missing.join(', '))});
+ var cards=ids.map(function(k,i){var x=d.sites[k],w=words(x.desc),source=!!t(x.source),missing=[];if(w<25)missing.push('bổ sung giá trị tiêu biểu (từ 25 từ)');if(!source)missing.push('ghi tên hoặc đường dẫn nguồn');if(t(x.image)&&(!t(x.imageSource)||!t(x.license)))missing.push('ghi nguồn và quyền sử dụng ảnh riêng');return task(k,w>=25&&source&&(!t(x.image)||(!!t(x.imageSource)&&!!t(x.license))),names[i],names[i]+': '+missing.join(', '))});
  var comparison=order(d.order)&&order(d.compareOrder)&&d.order!==d.compareOrder&&t(d.compareText).length>=8;
  var reason=t(d.reason).length>=12,message=t(d.message).length>=12;
  var checked=['peer0','peer1','peer2','0','1','2','3','4','5'].some(function(k){return c[k]===true});
  var groups=[
  [task('map',m.prediction==='giong'&&m.line==='order','Trả lời đúng hai câu hỏi bản đồ',m.prediction!=='giong'?'Trả lời câu 1 về vị trí di tích':'Trả lời câu 2 về đường nét đứt')].concat(cards),
- [task('compare',comparison,'So sánh hai phương án A/B',!order(d.order)||!order(d.compareOrder)||d.order===d.compareOrder?'Chọn hai thứ tự khác nhau':'Viết câu so sánh hai phương án (ít nhất 8 ký tự)'),task('reason',reason,'Giải thích lí do lựa chọn','Viết lí do chọn hành trình (ít nhất 12 ký tự)'),task('message',message,'Viết thông điệp bảo tồn','Viết thông điệp bảo tồn (ít nhất 12 ký tự)')],
- [task('before',ok(a),'Lưu bài trước khi sửa'),task('issues',t(d.issues).length>=5,'Ghi góp ý đã nhận','Ghi góp ý đã nhận (ít nhất 5 ký tự)'),task('check',checked,'Đánh dấu tiêu chí kiểm thử','Đánh dấu ít nhất một tiêu chí đã kiểm tra'),task('after',ok(a)&&ok(b)&&diff&&t(d.fix).length>=5,'Cải tiến và lưu bài sau khi sửa',!ok(a)?'Lưu bài trước khi sửa':!ok(b)?'Sửa sản phẩm, ghi phần đã sửa và lưu bài sau khi sửa':!diff?'Hai bản giống nhau: sửa ít nhất một nội dung rồi lưu bản sau': 'Ghi phần đã sửa (ít nhất 5 ký tự)')],
- [task('self',!!t(d.selfAssessment),'Tự đánh giá sản phẩm','Chọn mức tự đánh giá sản phẩm'),task('report',cards.every(function(x){return x.ok})&&order(d.order)&&reason&&t(d.fix).length>=5,'Chuẩn bị nội dung báo cáo','Chuẩn bị đủ ba thẻ, lí do chọn hành trình và điều đã sửa')]
+ [task('compare',comparison,'So sánh hai phương án A/B',!order(d.order)||!order(d.compareOrder)||d.order===d.compareOrder?'Chọn hai thứ tự khác nhau':'So sánh A/B theo tiêu chí dễ hiểu hoặc mạch chủ đề'),task('reason',reason,'Giải thích lí do lựa chọn','Giải thích vì sao thứ tự phù hợp người xem'),task('message',message,'Viết thông điệp bảo tồn','Nêu một hành động bảo tồn cụ thể')],
+ [task('before',ok(a),'Lưu bài trước khi sửa'),task('issues',t(d.issues).length>=5,'Ghi góp ý đã nhận','Ghi một góp ý cụ thể'),task('check',checked,'Đánh dấu tiêu chí kiểm thử','Đánh dấu ít nhất một tiêu chí đã kiểm tra'),task('after',ok(a)&&ok(b)&&diff&&t(d.fix).length>=5,'Cải tiến và lưu bài sau khi sửa',!ok(a)?'Lưu bài trước khi sửa':!ok(b)?'Sửa sản phẩm, ghi phần đã sửa và lưu bài sau khi sửa':!diff?'Hai bản giống nhau: sửa ít nhất một nội dung rồi lưu bản sau': 'Nêu điều đã sửa và vì sao sản phẩm tốt hơn')],
+ [task('self',!!t(d.selfAssessment),'Tự đánh giá sản phẩm','Chọn mức tự đánh giá sản phẩm')]
  ];
  var stages=groups.map(function(x){return {done:x.filter(function(v){return v.ok}).length,total:x.length,items:x}});
  var done=stages.reduce(function(n,x){return n+x.done},0),total=stages.reduce(function(n,x){return n+x.total},0);
  var started=done>0||ids.some(function(k){var x=d.sites[k];return ['desc','source','image','imageSource','license'].some(function(f){return !!t(x[f])})||(d.visited||{})[k]===true})||!!(m.prediction||m.line)||['reason','compareText','message','sketch','tester','issues','fix','recheck','selfAssessment'].some(function(f){return !!t(d[f])})||Object.keys(c).some(function(k){return c[k]===true})||ok(a)||ok(b);
- return {version:2,done:done,total:total,percent:Math.round(done*100/total),stages:stages,started:started};
+ return {version:3,done:done,total:total,percent:Math.round(done*100/total),stages:stages,started:started};
 }
 
 function rubricTotal_(x){if(!Array.isArray(x)||x.length!==6)return null;var n=0;for(var i=0;i<6;i++){var v=x[i];if(typeof v!=='number'||!isFinite(v)||v<0||v>(i<4?2:1)||(i<4?v%1!==0:v*2%1!==0))return null;n+=v}return n}
   function gvDate(x){if(!x)return '—';var d=new Date(x);if(isNaN(d.getTime()))return '—';return d.toLocaleString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false})}
   function gvTab(name){if(name!=='feedback'&&(feedbackSending||clean(el('teacherFeedbackText').value))){teacherStatus('Hãy gửi hoặc bỏ nhận xét trước khi chuyển tab.');return}if((rubricDirty||rubricSaving)&&name!=='rubric'){teacherStatus('Hãy lưu điểm hoặc bỏ thay đổi trước khi chuyển tab.');return}if(gvDirty&&name!=='edit'){teacherStatus('Hãy lưu chỉnh sửa hoặc bỏ thay đổi trước khi chuyển tab.');return}gvTabName=name;['overview','edit','feedback','rubric'].forEach(function(k){el('gv'+k.charAt(0).toUpperCase()+k.slice(1)).classList.toggle('hidden',k!==name)});document.querySelectorAll('[data-gv-tab]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-gv-tab')===name)});if(name==='feedback'&&teacherRecord){renderQuick('gvFeedbackQuick','teacherFeedbackText',false);teacherFeedbackLoad()}}
-  function gvProgress(g){return g&&g.progress&&typeof g.progress.percent==='number'?Math.max(0,Math.min(100,g.progress.percent)):null}
+  function gvProgress(g){return g&&g.progress&&g.progress.version===3&&typeof g.progress.percent==='number'?Math.max(0,Math.min(100,g.progress.percent)):null}
   function gvState(g){var p=gvProgress(g);return p===null?'unknown':p===100?'done':(p>0||g.progress.started)?'started':'new'}
   function gradeCurrent(g){return !!(g.rubric&&g.rubric.version===RUBRIC_VERSION&&typeof g.rubric.total==='number'&&Number(g.rubric.sourceRevision)===Number(g.revision))}
   function assessmentState(g){if(!g.rubric)return 'ungraded';if(!gradeCurrent(g))return 'stale';return g.rubric.status==='final'||g.rubric.status==='revision'?g.rubric.status:'draft'}
@@ -2132,7 +2134,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     teacherGroupsData.forEach(function(g){if(String(g.id)===String(rec.id)&&Number(g.revision)<=Number(rec.revision)){g.revision=rec.revision;g.progress=p;if(rec.rubric!==undefined)g.rubric=rec.rubric;if(rec.updatedAt)g.updatedAt=rec.updatedAt;if(rec.seconds!==undefined)g.seconds=rec.seconds}});
   }
   function hydrateProgress(){
-    if(hydrating||rubricSupported||!teacherToken)return;
+    if(hydrating||!teacherToken)return;
     var token=teacherToken,seq=++hydrateToken,queue=teacherGroupsData.filter(function(g){return gvProgress(g)===null}),pos=0,active=0;
     if(!queue.length)return;hydrating=true;
     function next(){
@@ -2289,12 +2291,12 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     var cls=el('gvClass'),prior=cls.value,classes=[];teacherGroupsData.forEach(function(g){var k=String(g.klass||'').toUpperCase();if(classes.indexOf(k)<0)classes.push(k)});cls.textContent='';var all=document.createElement('option');all.value='';all.textContent='Tất cả';cls.appendChild(all);classes.forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=k;cls.appendChild(o)});cls.value=classes.indexOf(prior)>=0?prior:'';
     var scope=gvVisible(false),visible=gvVisible(true),counts={new:0,started:0,done:0,unknown:0};renderEvalSummary(scope);scope.forEach(function(g){counts[gvState(g)]++});
     var missingRoot=el('gvMissingCounts'),countsByTask=Object.create(null),known=0;missingRoot.textContent='';
-    scope.forEach(function(g){if(!g.progress||g.progress.version!==2)return;known++;g.progress.stages.forEach(function(st){st.items.forEach(function(t){if(!t.ok){var v=countsByTask[t.id]||(countsByTask[t.id]={label:t.label,n:0});v.n++}})})});
+    scope.forEach(function(g){if(!g.progress||g.progress.version!==3)return;known++;g.progress.stages.forEach(function(st){st.items.forEach(function(t){if(!t.ok){var v=countsByTask[t.id]||(countsByTask[t.id]={label:t.label,n:0});v.n++}})})});
     Object.keys(countsByTask).sort(function(a,b){return countsByTask[b].n-countsByTask[a].n}).forEach(function(k){var p=document.createElement('p');p.style.margin='4px 0';p.textContent=countsByTask[k].label+': '+countsByTask[k].n+'/'+known+' bài';missingRoot.appendChild(p)});
     if(!missingRoot.children.length)missingRoot.textContent=known?'Không còn nhiệm vụ thiếu.':'Chưa có dữ liệu tiến độ chi tiết. Cần cập nhật Apps Script.';
     if(known<scope.length){var note=document.createElement('p');note.textContent='Chưa đối chiếu '+(scope.length-known)+' bài.';missingRoot.appendChild(note)}
     var summary=el('v4TeacherSummary');summary.textContent='';[['Đã tạo bài',scope.length],['Mới tạo',counts.new],['Đang làm',counts.started],['Đủ nhiệm vụ',counts.done],['Chưa xác minh',counts.unknown]].forEach(function(x){var a=document.createElement('span'),b=document.createElement('strong');a.textContent=x[0];b.textContent=x[1];a.appendChild(b);summary.appendChild(a)});
-    el('gvSummaryNote').textContent=(hydrating?'Đang đối chiếu bài đã lưu… · ':'')+'Theo lớp/tên đang lọc · '+(rubricSupported?'Đã chấm '+scope.filter(gradeCurrent).length+'/'+scope.length+' · ':'')+'13 nhiệm vụ cơ bản, không phải điểm.';
+    el('gvSummaryNote').textContent=(hydrating?'Đang đối chiếu bài đã lưu… · ':'')+'Theo lớp/tên đang lọc · '+(rubricSupported?'Đã chấm '+scope.filter(gradeCurrent).length+'/'+scope.length+' · ':'')+'12 nhiệm vụ, không phải điểm.';
     var root=el('gvCards'),sel=el('teacherGroups');root.textContent='';sel.textContent='';
     visible.forEach(function(g){
       var i=teacherGroupsData.indexOf(g),o=document.createElement('option');o.value=String(i);o.textContent=g.klass+' · '+g.group;sel.appendChild(o);
@@ -2313,7 +2315,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     var stages=el('gvStages');stages.textContent='';
     (rec.progress&&rec.progress.stages||[]).forEach(function(m,i){var box=document.createElement('div'),b=document.createElement('b');box.className='gv-stage';box.textContent=['Khám phá','Thiết kế','Kiểm thử','Báo cáo'][i];b.textContent=m.done+'/'+m.total;box.appendChild(b);stages.appendChild(box)});
     var missing=el('gvMissingDetail');missing.textContent='';var progress=rec.progress;
-    if(progress&&progress.version===2){var title=document.createElement('strong');title.textContent='Tiến độ '+progress.done+'/'+progress.total+' · '+progress.percent+'%';missing.appendChild(title);progress.stages.forEach(function(st){st.items.filter(function(x){return !x.ok}).forEach(function(x){var p=document.createElement('p');p.style.margin='4px 0';p.textContent='• '+x.hint;missing.appendChild(p)})});if(progress.done===progress.total){var p=document.createElement('p');p.textContent='Đủ nhiệm vụ – giáo viên đánh giá chất lượng theo rubric.';missing.appendChild(p)}}
+    if(progress&&progress.version===3){var title=document.createElement('strong');title.textContent='Tiến độ '+progress.done+'/'+progress.total+' · '+progress.percent+'%';missing.appendChild(title);progress.stages.forEach(function(st){st.items.filter(function(x){return !x.ok}).forEach(function(x){var p=document.createElement('p');p.style.margin='4px 0';p.textContent='• '+x.hint;missing.appendChild(p)})});if(progress.done===progress.total){var p=document.createElement('p');p.textContent='Đủ nhiệm vụ – giáo viên đánh giá chất lượng theo rubric.';missing.appendChild(p)}}
     var evidence=el('gvEvidence');evidence.textContent='';var detail=document.createElement('details'),head=document.createElement('summary');detail.className='gv-evidence';head.textContent='Minh chứng thiết kế, kiểm thử và báo cáo';detail.appendChild(head);
     function line(label,value){var p=document.createElement('p');p.textContent=label+': '+(value||'Chưa có');detail.appendChild(p)}
     function route(v){return String(v||'').split(',').map(function(k){return referenceSites[k]?referenceSites[k].name:k}).join(' → ')}
@@ -2480,10 +2482,10 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   var uiMode='basic';
   var stageNames=['explore','design','test','report'];
   var stageInstructions={
-    explore:['Bước 1','Trả lời hai câu hỏi bản đồ; viết lời giới thiệu từ 25 từ và ghi nguồn cho từng di tích.'],
-    design:['Bước 2','Chọn hai thứ tự A/B, viết câu so sánh, lí do lựa chọn và thông điệp bảo tồn.'],
-    test:['Bước 3','Lưu bản trước, ghi góp ý, đánh dấu kiểm thử, sửa một điểm và lưu bản sau.'],
-    report:['Bước 4','Xem nội dung báo cáo, chọn mức tự đánh giá và chuẩn bị giới thiệu trong một phút.']
+    explore:['Bước 1','Đọc bản đồ, dùng tư liệu GV cung cấp để viết 3 thẻ (25–50 từ/thẻ) và ghi nguồn.'],
+    design:['Bước 2','Chọn hai thứ tự A/B, so sánh theo một tiêu chí, giải thích lựa chọn và nêu hành động bảo tồn.'],
+    test:['Bước 3','Lưu bản 1, nhận một góp ý, sửa một điểm, kiểm tra lại và lưu bản 2.'],
+    report:['Bước 4','Tự đánh giá và giới thiệu sản phẩm trong một phút (hoặc báo cáo viết).']
   };
   function isBasic(){return uiMode==='basic'}
   function countWords(value){var t=clean(value);return t?t.split(/\s+/).length:0}
@@ -2493,7 +2495,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   }
 
   var v4BadgeOwner='',v4BadgeHistory={},v4MarkerSignature='',v4ThumbnailsReady=false;
-  function v4SiteDone(id){var v=state.sites[id]||{};return countWords(v.desc)>=25&&!!clean(v.source)}
+  function v4SiteDone(id){var p=stemProgress_(state);return !!(p&&p.stages[0].items.some(function(t){return t.id===id&&t.ok}))}
   function v4RenderProgress(){
     var names=['Nhà khám phá','Nhà thiết kế','Nhà kiểm thử','Đại sứ di sản'],done=0,total=0,box=el('v4Badges');
     if(v4BadgeOwner!==activeKey){v4BadgeOwner=activeKey;v4BadgeHistory={};v4MarkerSignature=''}
@@ -2532,7 +2534,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
       b.classList.toggle('active',id===current);
       // V4 cards update their own status in v4RenderProgress.
     });
-    el('stepNext').textContent=idx===3?'Xem lại từ đầu':'Tiếp tục →';
+    el('stepNext').textContent=idx===3?'Hoàn thành / Lưu bài':'Tiếp tục →';
   }
   function setStudyMode(mode,initial){
     uiMode=mode==='advanced'?'advanced':'basic';
@@ -2553,7 +2555,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   function jumpCompletion(step,item){
     if(!hasProfile()){openGroups();return}
     tab(step);
-    if(['nga','cu','giong'].indexOf(item.id)>=0){current=item.id;showSite(true);toggleEditor(true);var field=el('desc');if(countWords(state.sites[current].desc)>=25)field=el('source');field.focus();return}
+    if(['nga','cu','giong'].indexOf(item.id)>=0){current=item.id;showSite(true);toggleEditor(true);var field=el('desc');if(countWords(state.sites[current].desc)>=25)field=el(!clean(state.sites[current].source)?'source':state.sites[current].image&&!clean(state.sites[current].imageSource)?'imageSource':state.sites[current].image&&!clean(state.sites[current].license)?'license':'desc');if(field===el('imageSource')||field===el('license'))setStudyMode('advanced');field.focus();return}
     if(item.id==='map'){el(state.mapAnswers.prediction!=='giong'?'mapPrediction':'mapLineAnswer').focus();return}
     if(step==='design')setDesignStep(item.id==='message'?3:item.id==='compare'||item.id==='reason'?2:1);
     if(step==='test')el('feedbackWork').open=true;
@@ -2562,10 +2564,10 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   }
   function renderCompletion(){
     var p=stemProgress_(state),root=el('completionList'),head=el('completionHeading');
-    root.textContent='';if(!p)return;
-    head.textContent=p.done===p.total?'Đã hoàn thành 13/13 nhiệm vụ':'Còn '+(p.total-p.done)+' nhiệm vụ · Nhấn để làm';
+    root.textContent='';if(!p)return;var shown=0;
+    head.textContent=p.done===p.total?'Đã hoàn thành 12/12 nhiệm vụ':'Còn '+(p.total-p.done)+' nhiệm vụ · Việc tiếp theo';
     p.stages.forEach(function(stage,i){stage.items.filter(function(x){return !x.ok}).forEach(function(item){
-      var b=document.createElement('button');b.type='button';b.textContent=item.hint;b.style.textAlign='left';b.style.fontSize='12px';b.addEventListener('click',function(){jumpCompletion(stageNames[i],item)});root.appendChild(b);
+      if(shown>=2)return;shown++;var b=document.createElement('button');b.type='button';b.textContent=item.hint;b.style.textAlign='left';b.style.fontSize='12px';b.addEventListener('click',function(){jumpCompletion(stageNames[i],item)});root.appendChild(b);
     })});
     if(!root.children.length)root.textContent='Em đã hoàn thành các nhiệm vụ. Hãy lưu bài và chờ giáo viên đánh giá.';
   }
@@ -2582,7 +2584,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     el('lessonProgress').textContent=(m.total-m.done)+' việc còn lại';
     el('progressFill').style.width=Math.round(100*m.done/m.total)+'%';
     var box=el('lessonDetails');box.innerHTML='';
-    m.items.forEach(function(item){
+    m.items.filter(function(item){return !item.ok}).slice(0,2).forEach(function(item){
       var p=document.createElement('div');p.className='lesson-row '+(item.ok?'done':'todo');
       p.textContent=(item.ok?'✓ ':'○ ')+(item.ok?item.label:item.hint);box.appendChild(p);
     });
@@ -2596,7 +2598,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     var words=countWords(descText),lower=25,upper=isBasic()?50:80;
     var label=words+' từ',wc=el('wordCount'),ok=words>=lower;
     if(!words)label+=' / '+lower+'–'+upper+' từ';
-    else if(words<lower)label+=' · Thêm '+(lower-words)+' từ';
+    else if(words<lower)label+=' · Bổ sung giá trị tiêu biểu';
     else if(words>upper)label+=' · Nên viết gọn';
     else label+=' · Đạt độ dài';
     var fill=el('v4WordFill');fill.style.width=Math.min(100,Math.round(words/lower*100))+'%';fill.className='v4-word-fill '+(words>upper?'over':ok?'ok':'');
@@ -3067,7 +3069,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   el('basicModeBtn').addEventListener('click',function(){setStudyMode('basic',false)});
   el('advancedModeBtn').addEventListener('click',function(){setStudyMode('advanced',false)});
   el('stepBack').addEventListener('click',function(){var i=stageNames.indexOf(activeTab);if(i>0)tab(stageNames[i-1])});
-  el('stepNext').addEventListener('click',function(){var i=stageNames.indexOf(activeTab);tab(stageNames[(i+1)%stageNames.length])});
+  el('stepNext').addEventListener('click',function(){var i=stageNames.indexOf(activeTab);if(i===3){save(false);return}tab(stageNames[i+1])});
   document.querySelectorAll('[data-site-quick]').forEach(function(b){
     b.addEventListener('click',function(){
       if(!hasProfile()){openGroups();return}
