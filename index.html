@@ -540,14 +540,15 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
             <option value="giong">Giồng Cá Vồ</option>
           </select>
 
-          <p class="site-task-line" id="siteTaskLine">Em hãy viết lời giới thiệu của em hoặc nhóm em về di tích này (25–50 từ), rồi ghi nguồn thông tin.</p>
+          <p class="site-task-line" id="siteTaskLine">Em hãy viết lại phần giới thiệu vị trí di tích (25–50 từ) bằng lời của mình, rồi ghi nguồn thông tin.</p>
           <div class="edit-bar"><strong id="writingTitle">Viết lời giới thiệu</strong><button id="editToggle" type="button" aria-expanded="true" aria-controls="editFields">Thu gọn phần viết ▴</button></div>
 
           <div id="editFields">
             <details id="writingReference" class="writing-reference"><summary>Đọc tư liệu di tích</summary><p id="writingReferenceText"></p><a id="writingReferenceLink" target="_blank" rel="noopener noreferrer">Xem nguồn tư liệu</a></details>
             <div class="field">
-              <details class="card-style-options" id="cardStyleOptions"><summary>Đổi cách trình bày thẻ</summary><label for="cardStyle">Kiểu thẻ</label><select id="cardStyle"><option value="stack">Ảnh trên – chữ dưới</option><option value="side">Ảnh trái – chữ phải</option><option value="compact">Thẻ tóm tắt</option></select></details><label for="desc" id="descLabel">Em hãy viết lời giới thiệu của em/nhóm em về di tích này (25–50 từ)</label>
-              <textarea id="desc" rows="4" maxlength="1000" placeholder="Em hãy giới thiệu đặc điểm và giá trị tiêu biểu của di tích bằng lời của mình."></textarea>
+              <details class="card-style-options" id="cardStyleOptions"><summary>Đổi cách trình bày thẻ</summary><label for="cardStyle">Kiểu thẻ</label><select id="cardStyle"><option value="stack">Ảnh trên – chữ dưới</option><option value="side">Ảnh trái – chữ phải</option><option value="compact">Thẻ tóm tắt</option></select></details><label for="desc" id="descLabel">Em hãy viết lại phần giới thiệu vị trí di tích (25–50 từ)</label>
+              <p style="font-size:13px;color:#245b81;margin:3px 0 7px">Tham khảo thông tin trên bản đồ, diễn đạt bằng lời của em, không chép nguyên văn.</p>
+              <textarea id="desc" rows="4" maxlength="1000" placeholder="Đọc tư liệu, chọn ý chính về vị trí, đặc điểm và giá trị của di tích rồi diễn đạt bằng lời của em."></textarea>
               <div id="wordCount" class="word-count" aria-live="polite"></div><div class="v4-word-track"><div id="v4WordFill" class="v4-word-fill"></div></div>
             </div>
             <div class="field advanced-only">
@@ -2599,7 +2600,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     el('basicModeBtn').setAttribute('aria-pressed',String(isBasic()));
     el('advancedModeBtn').setAttribute('aria-pressed',String(!isBasic()));
     el('modeDescription').textContent=isBasic()?'Cơ bản · Làm bài trong 45 phút':'Mở rộng · Thêm công cụ';
-    el('descLabel').textContent=isBasic()?'Lời giới thiệu (từ 25 từ, nên 25–50)':'Lời giới thiệu (từ 25 từ, khuyến khích 50–80)';
+    el('descLabel').textContent=isBasic()?'Em hãy viết lại phần giới thiệu vị trí di tích (25–50 từ)':'Em hãy viết lại phần giới thiệu vị trí di tích (khuyến khích 50–80 từ)';
     if(isBasic()&&activeTab==='explore'&&hasProfile())toggleEditor(true);
     if(!initial&&!demoActive){try{localStorage.setItem(UI_MODE_KEY,uiMode)}catch(e){}}
     updateWordCount(state.sites[current].desc);
@@ -2727,7 +2728,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     el('writingReferenceText').textContent=referenceSites[current].desc;el('writingReferenceLink').href=heritageGeo[current].ref;el('writingReference').open=false;
     el('previewHeading').textContent='Xem thẻ '+siteName;
     el('siteTaskLine').textContent=!hasWriting?
-      'Viết lời giới thiệu và ghi nguồn thông tin.':
+      'Viết lại phần giới thiệu bằng lời của em và ghi nguồn thông tin.':
       !hasSource?'Em đã viết lời giới thiệu. Hãy ghi nguồn thông tin em đã sử dụng.':
       'Em đã có lời giới thiệu và nguồn. Hãy chọn di tích tiếp theo.';
     el('site').value = current;
