@@ -1408,7 +1408,7 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
     if(!hasProfile()){openGroups();return}
     clearTimeout(saveTimer);
     manualReceiptKey=activeKey;manualReceiptPending=true;
-    if(!save(false)){manualReceiptPending=false;showSubmitReceipt('error','Chưa gửi được bài','Không lưu được trên máy. Hãy tải bản sao về máy và báo giáo viên.');return}
+    if(!save(true)){manualReceiptPending=false;showSubmitReceipt('error','Chưa gửi được bài','Không lưu được trên máy. Hãy tải bản sao về máy và báo giáo viên.');return}
     showSubmitReceipt('warning','Đang gửi bài về giáo viên','Bài đã lưu trên máy. Em hãy chờ xác nhận lưu trực tuyến.');
     if(navigator.onLine===false){manualReceiptPending=false;showSubmitReceipt('error','Chưa gửi được bài về giáo viên','Máy đang mất mạng. Bài vẫn lưu trên máy; kết nối lại rồi nhấn Lưu bài.');return}
     if(cloudSession){if(cloudConflict){syncStatusForLocal();return}cloudSave(true)}
