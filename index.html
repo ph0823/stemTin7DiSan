@@ -414,6 +414,7 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
 .task-field-warning{border-color:#b97509!important}
 .map-feedback.inline-task-error,.map-feedback.inline-task-good{padding:5px 8px;border-radius:5px}
 @media(max-width:600px){#completionList{grid-template-columns:1fr}}
+#submitReceipt{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:2900;width:calc(100% - 28px);max-width:530px;padding:13px 16px;border:2px solid #c99a43;border-radius:10px;background:#fff7df;color:#704800;box-shadow:0 5px 20px rgba(0,0,0,.18);font-size:14px;line-height:1.4}#submitReceipt.success{background:#eaf7ee;border-color:#25855d;color:#155c3b}#submitReceipt.error{background:#fff0ed;border-color:#b42318;color:#922b20}#submitReceipt strong{display:block;font-size:17px;margin:0 30px 4px 0}#submitReceipt button{float:right;font-size:12px;padding:5px 8px;background:white;color:inherit;border-color:currentColor}#submitReceiptText{overflow-wrap:break-word}#syncPanel.success #syncMessage{color:#166440;font-weight:bold}@media print{#submitReceipt{display:none!important}}
 </style>
 </head>
 <body class="needs-profile">
@@ -450,6 +451,7 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
   </div>
 
   <div id="demoBanner" class="demo-banner hidden" role="region" aria-label="Chế độ trình diễn"><strong>Demo</strong><div class="demo-actions"><button id="demoBlank" type="button">Bài trống</button><button id="demoSample" type="button">Bài mẫu</button><button id="demoExit" type="button" class="primary">Về giáo viên</button></div></div>
+  <div id="submitReceipt" class="hidden" role="status" aria-live="polite"><button id="submitReceiptClose" type="button">Đóng</button><strong id="submitReceiptTitle"></strong><div id="submitReceiptText"></div></div>
   <div id="syncPanel" class="sync-panel hidden" role="status" aria-live="polite">
     <span id="syncMessage">Bài được giữ trên máy.</span>
     <button id="retrySync" type="button" class="hidden">Thử lại</button>
@@ -1381,6 +1383,38 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
     var out='';for(var i=0;i<bytes.length;i++)out+=('0'+bytes[i].toString(16)).slice(-2);
     return out;
   }
+  var manualReceiptKey='',manualReceiptPending=false,manualReceiptTimer=0;
+  function showSubmitReceipt(level,title,message){
+    var box=el('submitReceipt');box.className=level;el('submitReceiptTitle').textContent=title;el('submitReceiptText').textContent=message;
+    clearTimeout(manualReceiptTimer);
+    if(level==='success')manualReceiptTimer=setTimeout(function(){box.classList.add('hidden')},9000);
+  }
+  el('submitReceiptClose').addEventListener('click',function(){el('submitReceipt').classList.add('hidden')});
+  function updateSubmitReceipt(level,detail,canRetry){
+    if(!manualReceiptPending)return;
+    if(demoActive||manualReceiptKey!==activeKey){manualReceiptPending=false;el('submitReceipt').classList.add('hidden');return}
+    if(level==='success'&&cloudSession&&!cloudConflict&&syncConfirmedJSON===JSON.stringify(state)){
+      manualReceiptPending=false;
+      var dt=new Date(cloudSession.updatedAt),stamp=isNaN(dt.getTime())?'':dt.toLocaleString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh'});
+      showSubmitReceipt('success','✓ Đã gửi bài về giáo viên','Bài mới nhất đã được lưu trực tuyến. Giáo viên có thể xem và chấm bài của em.'+(stamp?' Thời gian lưu: '+stamp+'.':''));
+    }else if(cloudConflict||canRetry&&syncIssue){
+      manualReceiptPending=false;showSubmitReceipt('error','Chưa gửi được bài về giáo viên',cloudConflict?'Bài trên máy khác đã thay đổi. Bản của em vẫn được giữ; hãy báo giáo viên.':'Bài vẫn lưu trên máy. Hãy thử Lưu bài lại hoặc báo giáo viên nếu chưa thành công.');
+    }else if(!el('submitReceipt').classList.contains('hidden')){
+      showSubmitReceipt('warning','Đang gửi bài về giáo viên','Bài đã lưu trên máy. Em hãy chờ xác nhận lưu trực tuyến.');
+    }
+  }
+  function submitStudentWork(){
+    if(demoActive){save(false);showSubmitReceipt('warning','Bài trình diễn','Bài demo không gửi về giáo viên.');return}
+    if(!hasProfile()){openGroups();return}
+    clearTimeout(saveTimer);
+    manualReceiptKey=activeKey;manualReceiptPending=true;
+    if(!save(false)){manualReceiptPending=false;showSubmitReceipt('error','Chưa gửi được bài','Không lưu được trên máy. Hãy tải bản sao về máy và báo giáo viên.');return}
+    showSubmitReceipt('warning','Đang gửi bài về giáo viên','Bài đã lưu trên máy. Em hãy chờ xác nhận lưu trực tuyến.');
+    if(navigator.onLine===false){manualReceiptPending=false;showSubmitReceipt('error','Chưa gửi được bài về giáo viên','Máy đang mất mạng. Bài vẫn lưu trên máy; kết nối lại rồi nhấn Lưu bài.');return}
+    if(cloudSession){if(cloudConflict){syncStatusForLocal();return}cloudSave(true)}
+    else if(creationBusy)syncStatusForLocal();
+    else autoRegisterCloud();
+  }
   function syncDisplay(level,message,canRetry){
     var box=el('syncPanel');
     if(!hasProfile()){box.classList.add('hidden');return}
@@ -1388,12 +1422,13 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
     box.classList.toggle('success',level==='success');
     box.classList.toggle('warning',level==='warning');
     var detail=String(message||'');el('v4SyncDetail').textContent=detail;
-    var shortText=cloudConflict?'Bài có thay đổi trên máy khác. Hãy báo giáo viên.':level==='success'?'Đã lưu trực tuyến':!storagePersistent?'Chỉ lưu tạm. Hãy tải bài về máy.':/hết hạn|đăng nhập lại/i.test(detail)?'Hãy mở lại bài bằng mã của em.':/đã có bài|đã tồn tại/i.test(detail)?'Bài đã có. Hãy mở lại bằng mã bài.':creationBusy||remoteBusy||(/đang |chờ xác nhận/i.test(detail)&&!canRetry)?'Đang lưu…': 'Chưa lưu trực tuyến. Hãy thử lại.';
+    var shortText=cloudConflict?'Bài có thay đổi trên máy khác. Hãy báo giáo viên.':level==='success'&&syncConfirmedJSON===JSON.stringify(state)?'Đã gửi bài về giáo viên':level==='success'?'Đã tạo bài trực tuyến':!storagePersistent?'Chỉ lưu tạm. Hãy tải bài về máy.':/hết hạn|đăng nhập lại/i.test(detail)?'Hãy mở lại bài bằng mã của em.':/đã có bài|đã tồn tại/i.test(detail)?'Bài đã có. Hãy mở lại bằng mã bài.':creationBusy||remoteBusy||(/đang |chờ xác nhận/i.test(detail)&&!canRetry)?'Đang lưu…': 'Chưa lưu trực tuyến. Hãy thử lại.';
     el('syncMessage').textContent=shortText;
     el('syncMessage').setAttribute('aria-label',shortText);
     el('showSyncCode').textContent='Mã bài';
     el('retrySync').classList.toggle('hidden',!canRetry);
     el('showSyncCode').classList.toggle('hidden',!currentAccessCode());
+    updateSubmitReceipt(level,detail,canRetry);
   }
   function showSyncCode(){
     var code=currentAccessCode();
@@ -1527,7 +1562,7 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
       }
       syncIssue='';
       syncDisplay('success','Đã tạo bài trên Google Sheets. Mã bài: '+res.code+' — hãy ghi lại để mở bài trên máy khác.',false);
-      if(JSON.stringify(state)!==syncConfirmedJSON)scheduleCloudSave();
+      if(JSON.stringify(state)!==syncConfirmedJSON){if(manualReceiptPending&&manualReceiptKey===activeKey)cloudSave(true);else scheduleCloudSave()}
     });
   }
   el('retrySync').addEventListener('click',function(){
@@ -1729,8 +1764,8 @@ body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
       cloudSession.seconds=res.record.seconds;
       syncConfirmedJSON=sent;syncIssue='';
       persistCloudSession();
-      cloudStatus('Đã lưu thành công lên Google Sheets.');
-      if(remotePending||JSON.stringify(state)!==sent){
+      cloudStatus('Đã gửi bài về giáo viên.');
+      if(JSON.stringify(state)!==sent){
         remotePending=false;scheduleCloudSave();
         syncDisplay('warning','Google Sheets đã lưu bản trước; đang chờ đồng bộ thay đổi mới.',false);
       }else{
@@ -2921,7 +2956,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   });
   el('createCloud').addEventListener('click',cloudCreate);
   el('openCloud').addEventListener('click',cloudLogin);
-  el('cloudSaveNow').addEventListener('click',function(){cloudSave(true)});
+  el('cloudSaveNow').addEventListener('click',submitStudentWork);
   el('cloudReload').addEventListener('click',cloudReload);
   el('cloudLogout').addEventListener('click',function(){cloudSession=null;cloudConflict=false;clearTimeout(remoteSaveTimer);persistCloudSession();el('peerInboxCount').textContent='';el('peerTabNew').textContent='';el('peerNotice').classList.add('hidden');el('peerInboxPanel').classList.add('hidden');cloudStatus('Đã ngắt phiên trực tuyến. Bài cục bộ vẫn được giữ nguyên.')});
   /* Demo state never uses a real profile key or cloud session. */
@@ -3104,7 +3139,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   el('basicModeBtn').addEventListener('click',function(){setStudyMode('basic',false)});
   el('advancedModeBtn').addEventListener('click',function(){setStudyMode('advanced',false)});
   el('stepBack').addEventListener('click',function(){var i=stageNames.indexOf(activeTab);if(i>0)tab(stageNames[i-1])});
-  el('stepNext').addEventListener('click',function(){var i=stageNames.indexOf(activeTab);if(i===3){save(false);return}tab(stageNames[i+1])});
+  el('stepNext').addEventListener('click',function(){var i=stageNames.indexOf(activeTab);if(i===3){submitStudentWork();return}tab(stageNames[i+1])});
   document.querySelectorAll('[data-site-quick]').forEach(function(b){
     b.addEventListener('click',function(){
       if(!hasProfile()){openGroups();return}
@@ -3125,14 +3160,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
     window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(g.lat + ',' + g.lng), '_blank', 'noopener');
   });
 
-  el('save').addEventListener('click', function(){
-    if(demoActive){save(false);return}
-    clearTimeout(saveTimer);
-    if(!save(false))return;
-    if(cloudSession)cloudSave(true);
-    else if(creationBusy)syncStatusForLocal();
-    else autoRegisterCloud();
-  });
+  el('save').addEventListener('click', submitStudentWork);
 
   el('export').addEventListener('click', function(){if(!hasProfile()){openGroups();return}
     var blob = new Blob([JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), data: state }, null, 2)], { type: 'application/json' });
