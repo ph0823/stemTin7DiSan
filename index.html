@@ -395,6 +395,25 @@ body.mode-basic #explore>.actions{display:flex;justify-content:space-between;ali
 body.mode-basic .map-shell .map{height:clamp(300px,46vh,480px)}
 @media(max-width:950px){body.mode-basic .map-shell .map{height:320px;min-height:260px}}
 @media(max-width:560px){#editFields{padding:8px}body.mode-basic .v4-thumb{height:44px}body.mode-basic .site-quick button{min-height:75px}}
+/* V4.6: feedback with explicit status and action, no reliance on color alone */
+#completionList{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:6px!important}
+#completionList .task-alert{display:block;text-align:left;font-size:13px;line-height:1.35;padding:8px 10px;border:1px solid #df9e8d;border-left:4px solid #b42318;background:#fff1ed;color:#842719}
+#completionList .task-alert.warning{border-color:#d6aa53;border-left-color:#a56608;background:#fff7df;color:#764600}
+#completionList .task-alert strong{display:block;margin-bottom:3px}
+#completionList .task-alert small{display:block;margin-top:4px;color:inherit;font-weight:bold}
+#completionList .task-more{justify-self:start}
+#completionHeading.has-alerts{color:#972d20;font-weight:bold}
+#wordCount.feedback-warn,.inline-task-warning{background:#fff4d5;color:#754500!important;border:1px solid #d7a348;border-left:4px solid #b97509;border-radius:6px;padding:7px 9px;font-size:13px;font-weight:bold;line-height:1.4}
+#wordCount.feedback-error,.inline-task-error{background:#fff0ed;color:#962e20!important;border:1px solid #e5a89a;border-left:4px solid #b42318;border-radius:6px;padding:7px 9px;font-size:13px;font-weight:bold;line-height:1.4}
+#wordCount.ok,.inline-task-good{color:#166440!important}
+.site-quick button.v4-site-attention{border:2px solid #b97509!important;background:#fff8e5!important}
+.site-quick button.v4-site-attention .v4-site-status{color:#805000!important;font-weight:bold}
+.site-quick button.v4-site-missing .v4-site-status{color:#a12c1d!important;font-weight:bold}
+.field-task-feedback:empty{display:none}.field-task-feedback{margin-top:5px}
+.task-field-invalid{border-color:#bc3826!important;outline-color:#bc3826!important}
+.task-field-warning{border-color:#b97509!important}
+.map-feedback.inline-task-error,.map-feedback.inline-task-good{padding:5px 8px;border-radius:5px}
+@media(max-width:600px){#completionList{grid-template-columns:1fr}}
 </style>
 </head>
 <body class="needs-profile">
@@ -2101,17 +2120,17 @@ function stemProgress_(d){
  function words(x){return t(x)?t(x).split(/\s+/).length:0}
  function order(x){return typeof x==='string'&&x.split(',').sort().join(',')==='cu,giong,nga'}
  function ok(x){return !!(x&&x.sites&&ids.every(function(k){return x.sites[k]&&typeof x.sites[k]==='object'}))}
- function task(id,passed,label,hint){return {id:id,ok:!!passed,label:label,hint:hint||label}}
+ function task(id,passed,label,hint,field,warning){return {id:id,ok:!!passed,label:label,hint:hint||label,field:field||'',warning:warning||''}}
  var diff=ok(a)&&ok(b)&&(ids.some(function(k){var x=a.sites[k],y=b.sites[k];return ['desc','source','image','imageSource','license','cardStyle'].some(function(f){return t(x[f])!==t(y[f])})})||['order','mode','reason','sketch','message','compareText','estimate'].some(function(f){return t(a[f])!==t(b[f])}));
- var cards=ids.map(function(k,i){var x=d.sites[k],w=words(x.desc),source=!!t(x.source),missing=[];if(w<25)missing.push('bổ sung giá trị tiêu biểu (từ 25 từ)');if(!source)missing.push('ghi tên hoặc đường dẫn nguồn');if(t(x.image)&&(!t(x.imageSource)||!t(x.license)))missing.push('ghi nguồn và quyền sử dụng ảnh riêng');return task(k,w>=25&&source&&(!t(x.image)||(!!t(x.imageSource)&&!!t(x.license))),names[i],names[i]+': '+missing.join(', '))});
+ var cards=ids.map(function(k,i){var x=d.sites[k],w=words(x.desc),source=!!t(x.source),missing=[],field='',warning='';if(w<25){missing.push('Lời giới thiệu '+w+'/25 từ, cần thêm '+(25-w)+' từ về giá trị di tích');field='desc'}if(!source){missing.push('Chưa ghi nguồn thông tin');if(!field)field='source'}if(t(x.image)&&!t(x.imageSource)){missing.push('Chưa ghi nguồn ảnh riêng');if(!field)field='imageSource'}if(t(x.image)&&!t(x.license)){missing.push('Chưa ghi tác giả hoặc quyền sử dụng ảnh');if(!field)field='license'}if(w>50)warning='Lời giới thiệu '+w+' từ, vượt '+(w-50)+' từ so với mức khuyến nghị 25–50 từ. Em nên rút gọn.';return task(k,!missing.length,names[i],missing.length?missing.join('; '):'Đủ nội dung và nguồn',field||'desc',warning)});
  var comparison=order(d.order)&&order(d.compareOrder)&&d.order!==d.compareOrder&&t(d.compareText).length>=8;
  var reason=t(d.reason).length>=12,message=t(d.message).length>=12;
  var checked=['peer0','peer1','peer2','0','1','2','3','4','5'].some(function(k){return c[k]===true});
  var groups=[
- [task('map',m.prediction==='giong'&&m.line==='order','Trả lời đúng hai câu hỏi bản đồ',m.prediction!=='giong'?'Trả lời câu 1 về vị trí di tích':'Trả lời câu 2 về đường nét đứt')].concat(cards),
- [task('compare',comparison,'So sánh hai phương án A/B',!order(d.order)||!order(d.compareOrder)||d.order===d.compareOrder?'Chọn hai thứ tự khác nhau':'So sánh A/B theo tiêu chí dễ hiểu hoặc mạch chủ đề'),task('reason',reason,'Giải thích lí do lựa chọn','Giải thích vì sao thứ tự phù hợp người xem'),task('message',message,'Viết thông điệp bảo tồn','Nêu một hành động bảo tồn cụ thể')],
- [task('before',ok(a),'Lưu bài trước khi sửa'),task('issues',t(d.issues).length>=5,'Ghi góp ý đã nhận','Ghi một góp ý cụ thể'),task('check',checked,'Đánh dấu tiêu chí kiểm thử','Đánh dấu ít nhất một tiêu chí đã kiểm tra'),task('after',ok(a)&&ok(b)&&diff&&t(d.fix).length>=5,'Cải tiến và lưu bài sau khi sửa',!ok(a)?'Lưu bài trước khi sửa':!ok(b)?'Sửa sản phẩm, ghi phần đã sửa và lưu bài sau khi sửa':!diff?'Hai bản giống nhau: sửa ít nhất một nội dung rồi lưu bản sau': 'Nêu điều đã sửa và vì sao sản phẩm tốt hơn')],
- [task('self',!!t(d.selfAssessment),'Tự đánh giá sản phẩm','Chọn mức tự đánh giá sản phẩm')]
+ [task('map',m.prediction==='giong'&&m.line==='order','Trả lời đúng hai câu hỏi bản đồ',[m.prediction==='giong'?'':(!m.prediction?'Câu 1: Chưa chọn di tích nằm xa nhất về phía Nam.':'Câu 1: Đáp án chưa đúng; quan sát hướng Nam trên bản đồ.'),m.line==='order'?'':(!m.line?'Câu 2: Chưa chọn ý nghĩa đường nét đứt.':'Câu 2: Đáp án chưa đúng; xem lại ý nghĩa đường nối.')].filter(Boolean).join(' '),m.prediction!=='giong'?'mapPrediction':'mapLineAnswer')].concat(cards),
+ [task('compare',comparison,'So sánh hai phương án A/B',!order(d.order)||!order(d.compareOrder)||d.order===d.compareOrder?'Hai phương án A/B cần có thứ tự khác nhau.':'Chưa có câu so sánh đầy đủ: nêu điểm khác nhau theo tiêu chí dễ hiểu hoặc mạch chủ đề.',!order(d.order)||!order(d.compareOrder)||d.order===d.compareOrder?'routePlanB':'compareText'),task('reason',reason,'Giải thích lí do lựa chọn','Chưa có lí do đầy đủ: em chọn phương án nào và vì sao phù hợp người xem?','reason'),task('message',message,'Viết thông điệp bảo tồn','Chưa có thông điệp đầy đủ: nêu một hành động bảo tồn cụ thể.','message')],
+ [task('before',ok(a),'Lưu bài trước khi sửa','Chưa lưu bản 1. Nhấn Lưu bài trước khi sửa.','captureBefore'),task('issues',t(d.issues).length>=5,'Ghi góp ý đã nhận','Chưa ghi góp ý đầy đủ: viết một điểm bạn hoặc giáo viên đề nghị sửa.','issues'),task('check',checked,'Đánh dấu tiêu chí kiểm thử','Chưa đánh dấu tiêu chí kiểm thử. Chọn ít nhất một ô đã kiểm tra.','quickCheckInfo'),task('after',ok(a)&&ok(b)&&diff&&t(d.fix).length>=5,'Cải tiến và lưu bài sau khi sửa',!ok(a)?'Chưa có bản 1. Lưu bản trước khi sửa.':!ok(b)?'Chưa có bản 2. Sửa thẻ hoặc hành trình theo góp ý, ghi điều đã sửa và nhấn Lưu bài sau khi sửa.':!diff?'Bản 1 và bản 2 giống nhau. Sửa một nội dung sản phẩm rồi lưu lại bản 2.':'Chưa mô tả đầy đủ điều đã sửa và vì sao sản phẩm tốt hơn.',!ok(a)?'captureBefore':!ok(b)||!diff?'captureAfter':'fix')],
+ [task('self',!!t(d.selfAssessment),'Tự đánh giá sản phẩm','Chưa tự đánh giá. Chọn mức phù hợp với bài của em.','selfAssessment')]
  ];
  var stages=groups.map(function(x){return {done:x.filter(function(v){return v.ok}).length,total:x.length,items:x}});
  var done=stages.reduce(function(n,x){return n+x.done},0),total=stages.reduce(function(n,x){return n+x.total},0);
@@ -2503,7 +2522,7 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
       var earned=m.done===m.total,tag=box.children[i];if(!tag){tag=document.createElement('span');box.appendChild(tag)}tag.textContent=(earned?'✓ ':'○ ')+names[i];tag.className='v4-badge'+(earned?' earned':'')+(earned&&v4BadgeHistory[name]===false?' pop':'');v4BadgeHistory[name]=earned;
     });
     var pct=Math.round(done*100/total);el('v4ProgressText').textContent=done+'/'+total+' nhiệm vụ · '+pct+'%';el('v4ProgressFill').style.width=pct+'%';el('v4ProgressFill').parentNode.setAttribute('aria-valuenow',String(pct));
-    document.querySelectorAll('[data-site-quick]').forEach(function(b){var id=b.getAttribute('data-site-quick'),v=state.sites[id],complete=v4SiteDone(id),status=b.querySelector('.v4-site-status');if(!status){b.textContent='';var g=heritageGeo[id],img=document.createElement(g.photo?'img':'div');img.className='v4-thumb'+(g.photo?'':' v4-thumb-fallback');if(g.photo){img.src=g.photo;img.alt='Ảnh tư liệu '+referenceSites[id].name;img.title=g.credit;img.onerror=function(){var f=document.createElement('div');f.className='v4-thumb v4-thumb-fallback';f.textContent='Tư liệu di tích';if(this.parentNode)this.parentNode.replaceChild(f,this)}}else{img.textContent='Di chỉ khảo cổ';img.title=g.credit}b.appendChild(img);var title=document.createElement('strong');title.className='v4-site-name';title.textContent=referenceSites[id].name;b.appendChild(title);status=document.createElement('span');status.className='v4-site-status';b.appendChild(status)}b.classList.toggle('v4-site-done',complete);status.textContent=complete?'✓ Đã khám phá':(clean(v.desc)||clean(v.source)||state.visited[id])?'Đang thực hiện':'Chưa khám phá'});
+    document.querySelectorAll('[data-site-quick]').forEach(function(b){var id=b.getAttribute('data-site-quick'),v=state.sites[id],complete=v4SiteDone(id),status=b.querySelector('.v4-site-status');if(!status){b.textContent='';var g=heritageGeo[id],img=document.createElement(g.photo?'img':'div');img.className='v4-thumb'+(g.photo?'':' v4-thumb-fallback');if(g.photo){img.src=g.photo;img.alt='Ảnh tư liệu '+referenceSites[id].name;img.title=g.credit;img.onerror=function(){var f=document.createElement('div');f.className='v4-thumb v4-thumb-fallback';f.textContent='Tư liệu di tích';if(this.parentNode)this.parentNode.replaceChild(f,this)}}else{img.textContent='Di chỉ khảo cổ';img.title=g.credit}b.appendChild(img);var title=document.createElement('strong');title.className='v4-site-name';title.textContent=referenceSites[id].name;b.appendChild(title);status=document.createElement('span');status.className='v4-site-status';b.appendChild(status)}b.classList.toggle('v4-site-done',complete);var w=countWords(v.desc),long=isBasic()&&w>50;b.classList.toggle('v4-site-attention',long);b.classList.toggle('v4-site-missing',!complete);status.textContent=long?'! '+w+' từ · vượt '+(w-50):complete?'✓ Đủ nhiệm vụ':!w?'Chưa viết giới thiệu':w<25?'! Thiếu '+(25-w)+' từ':!clean(v.source)?'! Thiếu nguồn':'! Thiếu thông tin ảnh'});
     var sig=ids.map(function(id){return v4SiteDone(id)?'1':'0'}).join('');if(sig!==v4MarkerSignature){v4MarkerSignature=sig;if(realMap)updateRoute()}
   }
   function renderStageNavigation(){
@@ -2555,21 +2574,41 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   function jumpCompletion(step,item){
     if(!hasProfile()){openGroups();return}
     tab(step);
-    if(['nga','cu','giong'].indexOf(item.id)>=0){current=item.id;showSite(true);toggleEditor(true);var field=el('desc');if(countWords(state.sites[current].desc)>=25)field=el(!clean(state.sites[current].source)?'source':state.sites[current].image&&!clean(state.sites[current].imageSource)?'imageSource':state.sites[current].image&&!clean(state.sites[current].license)?'license':'desc');if(field===el('imageSource')||field===el('license'))setStudyMode('advanced');field.focus();return}
-    if(item.id==='map'){el(state.mapAnswers.prediction!=='giong'?'mapPrediction':'mapLineAnswer').focus();return}
-    if(step==='design')setDesignStep(item.id==='message'?3:item.id==='compare'||item.id==='reason'?2:1);
+    if(['nga','cu','giong'].indexOf(item.id)>=0){current=item.id;showSite(true);toggleEditor(true);var field=el(item.field||'desc');if(field===el('imageSource')||field===el('license'))setStudyMode('advanced');field.scrollIntoView({block:'center'});field.focus();return}
+    if(item.id==='map'){var mf=el(item.field||(state.mapAnswers.prediction!=='giong'?'mapPrediction':'mapLineAnswer'));var parent=mf.parentElement;while(parent){if(parent.tagName==='DETAILS')parent.open=true;parent=parent.parentElement}mf.scrollIntoView({block:'center'});mf.focus();return}
+    if(step==='design')setDesignStep(item.field==='routePlanB'?1:item.id==='message'?3:item.id==='compare'||item.id==='reason'?2:1);
     if(step==='test')el('feedbackWork').open=true;
     var targets={compare:'compareText',reason:'reason',message:'message',before:'captureBefore',issues:'issues',check:'quickCheckInfo',after:!state.snapshots.after?'fix':'captureAfter',self:'selfAssessment',report:'summary'};
-    var target=el(targets[item.id]);if(target){target.scrollIntoView({block:'nearest'});if(target.focus)target.focus()}
+    var target=el(item.field||targets[item.id]);if(target){target.scrollIntoView({block:'nearest'});if(target.focus)target.focus()}
   }
+  var completionShowAll=false,completionLastKey='';
   function renderCompletion(){
     var p=stemProgress_(state),root=el('completionList'),head=el('completionHeading');
-    root.textContent='';if(!p)return;var shown=0;
-    head.textContent=p.done===p.total?'Đã hoàn thành 12/12 nhiệm vụ':'Còn '+(p.total-p.done)+' nhiệm vụ · Việc tiếp theo';
-    p.stages.forEach(function(stage,i){stage.items.filter(function(x){return !x.ok}).forEach(function(item){
-      if(shown>=2)return;shown++;var b=document.createElement('button');b.type='button';b.textContent=item.hint;b.style.textAlign='left';b.style.fontSize='12px';b.addEventListener('click',function(){jumpCompletion(stageNames[i],item)});root.appendChild(b);
-    })});
-    if(!root.children.length)root.textContent='Em đã hoàn thành các nhiệm vụ. Hãy lưu bài và chờ giáo viên đánh giá.';
+    root.textContent='';if(!p)return;
+    var alerts=[],warnings=[],panel=el('completionPanel');
+    p.stages.forEach(function(stage,i){stage.items.forEach(function(item){if(!item.ok)alerts.push({step:stageNames[i],item:item,warn:false});if(item.warning&&isBasic())warnings.push({step:stageNames[i],item:item,warn:true})})});
+    var all=alerts.concat(warnings),key=all.map(function(a){return a.item.id+':'+a.warn}).join('|');
+    if(key!==completionLastKey){completionLastKey=key;completionShowAll=false}
+    head.classList.toggle('has-alerts',all.length>0);
+    head.textContent=alerts.length?'Còn '+alerts.length+' nhiệm vụ chưa đạt'+(warnings.length?' · '+warnings.length+' lưu ý':''):warnings.length?'Đủ 12/12 nhiệm vụ · '+warnings.length+' lưu ý cần xem':'Đã hoàn thành 12/12 nhiệm vụ';
+    if(all.length&&hasProfile()&&panel&&!panel.dataset.feedbackOpened){panel.open=true;panel.dataset.feedbackOpened='1'}
+    (completionShowAll?all:all.slice(0,2)).forEach(function(a){
+      var item=a.item,b=document.createElement('button'),title=document.createElement('strong'),msg=document.createElement('span'),action=document.createElement('small');b.type='button';b.className='task-alert'+(a.warn?' warning':'');title.textContent=(a.warn?'LƯU Ý: ':'CẦN SỬA: ')+item.label;msg.textContent=a.warn?item.warning:item.hint;action.textContent='Nhấn để sửa →';b.appendChild(title);b.appendChild(msg);b.appendChild(action);b.addEventListener('click',function(){jumpCompletion(a.step,a.warn?{id:item.id,field:'desc'}:item)});root.appendChild(b)
+    });
+    if(all.length>2){var more=document.createElement('button');more.type='button';more.className='task-more';more.textContent=completionShowAll?'Thu gọn':'Xem tất cả '+all.length+' thông báo';more.addEventListener('click',function(){completionShowAll=!completionShowAll;renderCompletion()});root.appendChild(more)}
+    if(!all.length)root.textContent='Em đã hoàn thành các nhiệm vụ. Hãy lưu bài và chờ giáo viên đánh giá.';
+    renderFieldFeedback(p);
+  }
+  function renderFieldFeedback(p){
+    var mapping={source:'Chưa ghi nguồn thông tin. Hãy nhập tên tài liệu hoặc đường dẫn.',imageSource:'Chưa ghi nguồn ảnh riêng.',license:'Chưa ghi tác giả hoặc quyền sử dụng ảnh.'};
+    var fields=['source','imageSource','license','compareText','reason','message','issues','fix','selfAssessment','routePlanB','captureBefore','captureAfter','quickCheckInfo'];
+    var notices={};
+    p.stages.forEach(function(stage){stage.items.forEach(function(item){if(item.ok)return;if(['nga','cu','giong'].indexOf(item.id)>=0)return;if(item.field)notices[item.field]=item.hint})});
+    var site=state.sites[current]||{};
+    if(!clean(site.source))notices.source=mapping.source;
+    if(clean(site.image)&&!clean(site.imageSource))notices.imageSource=mapping.imageSource;
+    if(clean(site.image)&&!clean(site.license))notices.license=mapping.license;
+    fields.forEach(function(id){var field=el(id);if(!field)return;var n=el('taskFeedback_'+id);if(!n){n=document.createElement('div');n.id='taskFeedback_'+id;n.className='field-task-feedback inline-task-error';field.insertAdjacentElement('afterend',n)}var message=notices[id]||'';if(id==='fix'&&!clean(state.fix)&&state.snapshots.before)message='Chưa ghi điều đã sửa và vì sao sản phẩm tốt hơn.';n.textContent=message;field.classList.toggle('task-field-invalid',!!message);if(message)field.setAttribute('aria-describedby',n.id);else if(field.getAttribute('aria-describedby')===n.id)field.removeAttribute('aria-describedby')});
   }
   function updateLesson(){
     var captions={
@@ -2595,14 +2634,10 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   }
 
     function updateWordCount(descText){
-    var words=countWords(descText),lower=25,upper=isBasic()?50:80;
-    var label=words+' từ',wc=el('wordCount'),ok=words>=lower;
-    if(!words)label+=' / '+lower+'–'+upper+' từ';
-    else if(words<lower)label+=' · Bổ sung giá trị tiêu biểu';
-    else if(words>upper)label+=' · Nên viết gọn';
-    else label+=' · Đạt độ dài';
-    var fill=el('v4WordFill');fill.style.width=Math.min(100,Math.round(words/lower*100))+'%';fill.className='v4-word-fill '+(words>upper?'over':ok?'ok':'');
-    wc.textContent=label;wc.className='word-count '+(ok?'ok':'warn');
+    var words=countWords(descText),lower=25,upper=isBasic()?50:80,wc=el('wordCount'),field=el('desc'),short=words<lower,long=words>upper;
+    var label=short?'CẦN SỬA: Lời giới thiệu có '+words+' từ, còn thiếu '+(lower-words)+' từ (yêu cầu tối thiểu 25). Em hãy bổ sung giá trị tiêu biểu của di tích.':long?'LƯU Ý: Lời giới thiệu có '+words+' từ, vượt '+(words-upper)+' từ so với mức khuyến nghị '+lower+'–'+upper+'. Em nên rút gọn.':'✓ Đạt yêu cầu độ dài: '+words+' từ ('+lower+'–'+upper+').';
+    var fill=el('v4WordFill');fill.style.width=Math.min(100,Math.round(words/lower*100))+'%';fill.className='v4-word-fill '+(long?'over':short?'':'ok');
+    wc.textContent=label;wc.className='word-count '+(long?'feedback-warn':short?'feedback-error':'ok');field.classList.toggle('task-field-invalid',short);field.classList.toggle('task-field-warning',long);field.setAttribute('aria-describedby','wordCount');
   }
 
     function photoSourceState(site){
@@ -2633,8 +2668,8 @@ function gvVisible(filter){var cls=el('gvClass').value,search=clean(el('gvSearch
   /* Hoạt động đọc bản đồ, không chấm điểm hay thay đổi dữ liệu nhóm. */
   function renderMapFeedback(){
     var a=(state.mapAnswers||{}).prediction,b=(state.mapAnswers||{}).line;
-    el('mapPredictionFeedback').textContent=!a?'':a==='giong'?'Đúng: Giồng Cá Vồ nằm về phía Nam trong ba điểm.':'Hãy quan sát vị trí ba điểm và thử lại.';
-    el('mapLineFeedback').textContent=!b?'':b==='order'?'Đúng: đường nét đứt biểu diễn thứ tự khám phá.':'Đường nối không cho biết tuyến đường hay quãng đường thực tế.';
+    el('mapPredictionFeedback').textContent=!a?'Chưa trả lời câu 1. Hãy chọn một di tích.':a==='giong'?'✓ Đúng: Giồng Cá Vồ nằm về phía Nam trong ba điểm.':'Chưa đúng câu 1. Hãy quan sát hướng Nam và chọn lại.';el('mapPredictionFeedback').className='map-feedback '+(a==='giong'?'inline-task-good':'inline-task-error');
+    el('mapLineFeedback').textContent=!b?'Chưa trả lời câu 2. Hãy chọn ý nghĩa đường nét đứt.':b==='order'?'✓ Đúng: đường nét đứt biểu diễn thứ tự khám phá.':'Chưa đúng câu 2. Đường nối không phải tuyến đường hay quãng đường thực tế.';el('mapLineFeedback').className='map-feedback '+(b==='order'?'inline-task-good':'inline-task-error');
   }
   function checkMapObservation(which){
     if(!hasProfile()){openGroups();return}
